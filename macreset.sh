@@ -6,3 +6,6 @@ echo "### Installing Homebrew ###"
 echo "### Installing oh-my-zsh ###"
 sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
+echo "### Update Packages ###"
+brew update && brew outdated && brew upgrade && brew cleanup
+
