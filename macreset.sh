@@ -12,8 +12,8 @@ brew update && brew outdated && brew upgrade && brew cleanup
 packages=(
     ansible docker golang nvm pyenv pipenv nvim \
     minikube kubectl terraform vagrant virtualbox wget \
-    gotomeeting vk-messenger telegram-desktop zoomus \
-    visual-studio-code \
+    gotomeeting vk-messenger telegram-desktop zoom \
+    visual-studio-code iterm2 \
     alfred notion teamviewier transmission musescore \
     loom copyclip cleanshot youtube-dl
 )
@@ -25,7 +25,8 @@ do
 done
 
 echo "### Update Configs ###"
-cp dots/{.zshrc, .vimrc} $HOME
+cp dots/.zshrc $HOME
+cp dots/.vimrc $HOME
 
 mkdir -p $HOME/.config/nvim
 cp dots/init.vim /$HOME/.config/nvim
