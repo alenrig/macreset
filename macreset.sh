@@ -14,7 +14,7 @@ packages=(
     minikube kubectl terraform vagrant virtualbox wget \
     gotomeeting vk-messenger telegram-desktop zoom \
     visual-studio-code iterm2 \
-    alfred notion teamviewier transmission musescore \
+    alfred notion transmission musescore \
     loom copyclip cleanshot youtube-dl
 )
 
