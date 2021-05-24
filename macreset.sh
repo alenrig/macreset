@@ -23,6 +23,7 @@ for package in ${packages[@]}
 do
     brew install $package
 done
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
 
 echo "### Update Configs ###"
 cp dots/.zshrc $HOME
