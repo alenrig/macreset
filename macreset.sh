@@ -11,7 +11,7 @@ brew update && brew outdated && brew upgrade && brew cleanup
 
 packages=(
     ansible docker golang nvm pyenv pipenv nvim \
-    minikube kubectl terraform vagrant virtualbox wget \
+    minikube kubectl openshift-cli awscli terraform vagrant virtualbox wget \
     gotomeeting vk-messenger telegram-desktop zoom \
     visual-studio-code iterm2 \
     alfred notion transmission musescore \
