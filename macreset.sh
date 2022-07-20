@@ -15,7 +15,9 @@ packages=(
     gotomeeting vk-messenger telegram-desktop zoom \
     visual-studio-code iterm2 \
     alfred notion transmission musescore \
-    loom copyclip cleanshot youtube-dl
+    loom copyclip cleanshot youtube-dl \
+    obsidian slack balenaetcher bartender wireguard \
+    fantastical
 )
 
 echo "### Install Packages ###"
