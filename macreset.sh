@@ -17,7 +17,7 @@ packages=(
     alfred notion transmission musescore \
     loom copyclip cleanshot youtube-dl \
     obsidian slack balenaetcher bartender wireguard \
-    fantastical google-chrome google-drive
+    fantastical google-drive firefox
 )
 
 echo "### Install Packages ###"
