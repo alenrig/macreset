@@ -11,13 +11,14 @@ brew update && brew outdated && brew upgrade && brew cleanup
 
 packages=(
     ansible docker golang nvm pyenv pipenv nvim \
-    minikube kubectl openshift-cli awscli terraform vagrant virtualbox wget \
-    gotomeeting vk-messenger telegram-desktop zoom \
+    minikube kubectl openshift-cli awscli terraform wget \
+    telegram-desktop zoom \
     visual-studio-code iterm2 \
-    alfred notion transmission musescore \
-    loom copyclip cleanshot youtube-dl monitorcontrol \
-    obsidian slack ferdi middleclick balenaetcher bartender wireguard \
-    fantastical google-drive firefox \
+    notion transmission musescore \
+    copyclip youtube-dl monitorcontrol \
+    slack middleclick balenaetcher wireguard \
+    fantastical google-drive \
+    maccy vanilla shottr rectangle iina
 )
 
 echo "### Install Packages ###"
