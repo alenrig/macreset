@@ -10,10 +10,10 @@ sudo pip3 install --upgrade pip
 pip3 install ansible
 
 echo "### Install Ansible Requirements ###"
-ansible-galaxy install -r requirements.yaml
+ansible-galaxy install -r requirements.yml
 
 echo "### Run Ansible Playbook ###"
-ansible-playbook main.yaml --ask-become-pass
+ansible-playbook main.yml --ask-become-pass
 
 
 # echo "### Update vim ###"
