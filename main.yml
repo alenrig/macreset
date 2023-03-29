@@ -2,4 +2,7 @@
 - hosts: localhost
   vars_files: config.yml
   roles:
-    - geerlingguy.homebrew
+    - geerlingguy.mac.homebrew
+    - geerlingguy.mac.mas
+    - geerlingguy.mac.dock
+    - geerlingguy.dotfiles
