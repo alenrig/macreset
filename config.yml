@@ -1,0 +1,34 @@
+---
+homebrew_installed_packages:
+  - docker
+  - golang
+  - nvm
+  - pyenv
+  - pipenv
+  - nvim
+  - minikube
+  - kubectl
+  - openshift-cli
+  - terraform
+  - telegram-desktop
+  - zoom
+  - visual-studio-code
+  - iterm2
+  - notion
+  - transmission
+  - guitar-pro
+  - musescore
+  - copyclip
+  - youtube-dl
+  - monitorcontrol
+  - slack
+  - middleclick
+  - balenaetcher
+  - fantastical
+  - google-drive
+  - dropbox
+  - maccy
+  - vanilla
+  - shottr
+  - rectangle
+  - iina
