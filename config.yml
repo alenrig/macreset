@@ -32,3 +32,6 @@ homebrew_installed_packages:
   - shottr
   - rectangle
   - iina
+
+pip_packages:
+  - ansible-lint
