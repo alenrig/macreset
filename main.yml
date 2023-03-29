@@ -1,0 +1,9 @@
+---
+- name: Prepare Mac for Rock!
+  hosts: localhost
+  vars_files: config.yml
+  roles:
+    - geerlingguy.mac.homebrew
+    - geerlingguy.mac.mas
+    - geerlingguy.mac.dock
+    - geerlingguy.dotfiles
