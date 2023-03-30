@@ -2,11 +2,13 @@
 - name: Prepare Mac for Rock!
   hosts: localhost
   vars_files: config.yml
+
   roles:
     - geerlingguy.mac.homebrew
     - geerlingguy.mac.mas
     - geerlingguy.mac.dock
     - geerlingguy.dotfiles
+
   tasks:
     - name: Install Vundle
       ansible.builtin.git:
@@ -15,6 +17,18 @@
         accept_hostkey: true
         clone: true
         version: master
+
+    - name: Install ZSH Plugins
+      ansible.builtin.git:
+        repo: "{{ item.repo }}"
+        dest: "{{ item.dest }}"
+        accept_hostkey: true
+        clone: true
+        version: master
+      loop:
+        - {repo: 'https://github.com/zsh-users/zsh-autosuggestions', dest: '~/.oh-my-zsh/custom/plugins/zsh-autosuggestions'}
+        - {repo: 'https://github.com/zsh-users/zsh-syntax-highlighting.git', dest: '~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting'}
+
     - name: Install global Pip packages.
       ansible.builtin.pip:
         name: "{{ item.name | default(item) }}"
