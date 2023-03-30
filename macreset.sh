@@ -14,7 +14,6 @@ ansible-galaxy install -r requirements.yml
 echo "### Run Ansible Playbook ###"
 ansible-playbook main.yml --ask-become-pass
 
-
 # echo "### Update vim ###"
 # mkdir -p $HOME/.vim/bundle
 # git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
