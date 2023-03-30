@@ -5,6 +5,7 @@
   roles:
     - geerlingguy.mac.homebrew
     - geerlingguy.mac.mas
+    - geerlingguy.mac.dock
   tasks:
     - name: Install global Pip packages.
       ansible.builtin.pip:
