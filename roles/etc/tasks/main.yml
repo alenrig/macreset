@@ -1,0 +1,33 @@
+---
+- name: Install Vundle
+  ansible.builtin.git:
+    repo: 'https://github.com/VundleVim/Vundle.vim.git'
+    dest: '~/.vim/bundle/Vundle.vim'
+    accept_hostkey: true
+    clone: true
+    version: master
+
+- name: Install Vim Plugins
+  ansible.builtin.git:
+    repo: "{{ item.repo }}"
+    dest: "~/.vim/bundle/{{ item.dest }}"
+    clone: true
+    version: master
+  loop: "{{ vim_plugins }}"
+
+- name: Install ZSH Plugins
+  ansible.builtin.git:
+    repo: "{{ item.repo }}"
+    dest: "{{ item.dest }}"
+    accept_hostkey: true
+    clone: true
+    version: master
+  loop: "{{ zsh_plugins }}"
+
+- name: Install global Pip packages.
+  ansible.builtin.pip:
+    name: "{{ item.name | default(item) }}"
+    state: "{{ item.state | default('present') }}"
+    version: "{{ item.version | default(omit) }}"
+    executable: "{{ item.executable | default('pip3') }}"
+  loop: "{{ pip_packages }}"
