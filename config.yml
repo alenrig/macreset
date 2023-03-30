@@ -6,13 +6,13 @@ homebrew_taps:
 homebrew_installed_packages:
   - docker
   - golang
-  - nvm
-  - pyenv
-  - pipenv
-  - nvim
-  - minikube
   - kubectl
+  - minikube
+  - nvim
+  - nvm
   - openshift-cli
+  - pipenv
+  - pyenv
   - terraform
   - transmission
   - youtube-dl
@@ -20,32 +20,32 @@ homebrew_installed_packages:
 homebrew_cask_appdir: /Applications
 homebrew_cask_apps:
   - 1password
+  - balenaetcher
+  - copyclip
   - discord
   - docker
   - dropbox
-  - google-chrome
-  - slack
-  - home-assistant
-  - kindle
-  - send-to-kindle
-  - telegram-desktop
-  - zoom
-  - visual-studio-code
-  - iterm2
-  - notion
-  - guitar-pro
-  - musescore
-  - copyclip
-  - monitorcontrol
-  - middleclick
-  - balenaetcher
   - fantastical
+  - google-chrome
   - google-drive
-  - maccy
-  - vanilla
-  - shottr
-  - rectangle
+  - guitar-pro
+  - home-assistant
   - iina
+  - iterm2
+  - kindle
+  - maccy
+  - middleclick
+  - monitorcontrol
+  - musescore
+  - notion
+  - rectangle
+  - send-to-kindle
+  - shottr
+  - slack
+  - telegram-desktop
+  - vanilla
+  - visual-studio-code
+  - zoom
 
 mas_installed_apps:
   - { id: 497799835, name: "Xcode" }
