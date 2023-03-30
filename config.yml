@@ -19,10 +19,14 @@ homebrew_installed_packages:
 
 homebrew_cask_appdir: /Applications
 homebrew_cask_apps:
+  - 1password
   - docker
   - dropbox
   - google-chrome
   - slack
+  - home-assistant
+  - kindle
+  - send-to-kindle
   - telegram-desktop
   - zoom
   - visual-studio-code
