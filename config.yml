@@ -104,5 +104,23 @@ dotfiles_files:
   - .vimrc
   - .zshrc
 
+zsh_plugins:
+  - {repo: 'https://github.com/zsh-users/zsh-autosuggestions', dest: '~/.oh-my-zsh/custom/plugins/zsh-autosuggestions'}
+  - {repo: 'https://github.com/zsh-users/zsh-syntax-highlighting.git', dest: '~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting'}
+  - {repo: 'https://github.com/dracula/zsh.git', dest: '~/.oh-my-zsh/custom/themes'}
+
+vim_plugins:
+  - {repo: 'https://github.com/jiangmiao/auto-pairs.git', dest: 'auto-pairs'}
+  - {repo: 'https://github.com/scrooloose/nerdtree.git', dest: 'nerdtree'}
+  - {repo: 'https://github.com/dracula/vim.git', dest: 'vim'}
+  - {repo: 'https://github.com/bling/vim-airline.git', dest: 'vim-airline'}
+  - {repo: 'https://github.com/vim-airline/vim-airline-themes.git', dest: 'vim-airline-themes'}
+  - {repo: 'https://github.com/tpope/vim-commentary.git', dest: 'vim-commentary'}
+  - {repo: 'https://github.com/tpope/vim-fugitive.git', dest: 'vim-fugitive'}
+  - {repo: 'https://github.com/jeetsukumaran/vim-indentwise.git', dest: 'vim-indentwise'}
+  - {repo: 'https://github.com/powerman/vim-plugin-ruscmd.git', dest: 'vim-plugin-ruscmd'}
+  - {repo: 'https://github.com/tpope/vim-repeat.git', dest: 'vim-repeat'}
+  - {repo: 'https://github.com/tpope/vim-surround.git', dest: 'vim-surround'}
+
 pip_packages:
   - ansible-lint
