@@ -6,7 +6,15 @@
     - geerlingguy.mac.homebrew
     - geerlingguy.mac.mas
     - geerlingguy.mac.dock
+    - geerlingguy.dotfiles
   tasks:
+    - name: Install Vundle
+      ansible.builtin.git:
+        repo: 'https://github.com/VundleVim/Vundle.vim.git'
+        dest: '~/.vim/bundle/Vundle.vim'
+        accept_hostkey: true
+        clone: true
+        version: master
     - name: Install global Pip packages.
       ansible.builtin.pip:
         name: "{{ item.name | default(item) }}"
