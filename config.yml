@@ -68,5 +68,29 @@ mas_installed_apps:
   - { id: 1569813296, name: "1Password for Safari" }
   - { id: 1402042596, name: "AdBlock" }
 
+dockitems_remove:
+  - TV
+  - Launchpad
+
+dockitems_persist:
+  - name: "Safari"
+    path: "/Applications/Safari.app/"
+    pos: 1
+  - name: "Spark"
+    path: "/Applications/Spark.app/"
+    pos: 2
+  - name: "Fantastical"
+    path: "/Applications/Fantastical.app/"
+    pos: 3
+  - name: "Notion"
+    path: "/Applications/Notion.app/"
+    pos: 4
+  - name: "iTerm"
+    path: "/Applications/iTerm.app/"
+    pos: 5
+  - name: "Visual Studio Code"
+    path: "/Applications/Visual Studio Code.app/"
+    pos: 6
+
 pip_packages:
   - ansible-lint
