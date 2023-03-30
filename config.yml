@@ -1,4 +1,8 @@
 ---
+homebrew_taps:
+  - homebrew/core
+  - homebrew/cask
+
 homebrew_installed_packages:
   - docker
   - golang
@@ -10,23 +14,28 @@ homebrew_installed_packages:
   - kubectl
   - openshift-cli
   - terraform
+  - transmission
+  - youtube-dl
+
+homebrew_cask_appdir: /Applications
+homebrew_cask_apps:
+  - docker
+  - dropbox
+  - google-chrome
+  - slack
   - telegram-desktop
   - zoom
   - visual-studio-code
   - iterm2
   - notion
-  - transmission
   - guitar-pro
   - musescore
   - copyclip
-  - youtube-dl
   - monitorcontrol
-  - slack
   - middleclick
   - balenaetcher
   - fantastical
   - google-drive
-  - dropbox
   - maccy
   - vanilla
   - shottr
