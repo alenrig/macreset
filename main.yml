@@ -4,3 +4,4 @@
   vars_files: config.yml
   roles:
     - geerlingguy.mac.homebrew
+    - geerlingguy.mac.mas

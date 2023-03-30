@@ -20,6 +20,7 @@ homebrew_installed_packages:
 homebrew_cask_appdir: /Applications
 homebrew_cask_apps:
   - 1password
+  - discord
   - docker
   - dropbox
   - google-chrome
@@ -45,6 +46,27 @@ homebrew_cask_apps:
   - shottr
   - rectangle
   - iina
+
+mas_installed_apps:
+  - { id: 497799835, name: "Xcode" }
+  - { id: 430255202, name: "Mactracker" }
+  - { id: 1153157709, name: "Speedtest" }
+  - { id: 425264550, name: "Disk Speed Test" }
+  - { id: 1176895641, name: "Spark" }
+  - { id: 409201541, name: "Pages" }
+  - { id: 409203825, name: "Numbers" }
+  - { id: 409183694, name: "Keynote" }
+  - { id: 1278508951, name: "Trello" }
+  - { id: 1444383602, name: "GoodNotes" }
+  - { id: 1289197285, name: "MindNode" }
+  - { id: 963034692, name: "Streaks" }
+  - { id: 1496833156, name: "Playgrounds" }
+  - { id: 288545208, name: "Instapaper" }
+  - { id: 1529448980, name: "Reeder" }
+  - { id: 408981434, name: "iMovie" }
+  - { id: 1559269364, name: "Notion Web Clipper" }
+  - { id: 1569813296, name: "1Password for Safari" }
+  - { id: 1402042596, name: "AdBlock" }
 
 pip_packages:
   - ansible-lint
