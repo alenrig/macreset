@@ -71,6 +71,14 @@ mas_installed_apps:
 dockitems_remove:
   - TV
   - Launchpad
+  - Messages
+  - Maps
+  - Contacts
+  - Calendar
+  - Reminders
+  - Notes
+  - App Store
+  - System Preferences
 
 dockitems_persist:
   - name: "Safari"
