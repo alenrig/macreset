@@ -21,6 +21,7 @@ homebrew_cask_appdir: /Applications
 homebrew_cask_apps:
   - 1password
   - balenaetcher
+  - bartender
   - contexts
   - copyclip
   - discord
@@ -43,7 +44,6 @@ homebrew_cask_apps:
   - shottr
   - slack
   - telegram-desktop
-  - vanilla
   - visual-studio-code
   - zoom
 
