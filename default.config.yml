@@ -1,0 +1,133 @@
+---
+homebrew_taps:
+  - homebrew/core
+  - homebrew/cask
+
+homebrew_installed_packages:
+  - docker
+  - golang
+  - kubectl
+  - minikube
+  - nvim
+  - nvm
+  - openshift-cli
+  - pipenv
+  - pyenv
+  - terraform
+  - transmission
+  - youtube-dl
+
+homebrew_cask_appdir: /Applications
+homebrew_cask_apps:
+  - 1password
+  - balenaetcher
+  - bartender
+  - contexts
+  - copyclip
+  - discord
+  - docker
+  - dropbox
+  - fantastical
+  - google-chrome
+  - google-drive
+  - home-assistant
+  - iina
+  - iterm2
+  - kindle
+  - maccy
+  - middleclick
+  - monitorcontrol
+  - musescore
+  - notion
+  - rectangle
+  - send-to-kindle
+  - shottr
+  - slack
+  - telegram-desktop
+  - visual-studio-code
+  - zoom
+
+mas_installed_apps:
+  - { id: 497799835, name: "Xcode" }
+  - { id: 430255202, name: "Mactracker" }
+  - { id: 1153157709, name: "Speedtest" }
+  - { id: 425264550, name: "Disk Speed Test" }
+  - { id: 1176895641, name: "Spark" }
+  - { id: 409201541, name: "Pages" }
+  - { id: 409203825, name: "Numbers" }
+  - { id: 409183694, name: "Keynote" }
+  - { id: 1278508951, name: "Trello" }
+  - { id: 1444383602, name: "GoodNotes" }
+  - { id: 1289197285, name: "MindNode" }
+  - { id: 963034692, name: "Streaks" }
+  - { id: 1496833156, name: "Playgrounds" }
+  - { id: 288545208, name: "Instapaper" }
+  - { id: 1529448980, name: "Reeder" }
+  - { id: 408981434, name: "iMovie" }
+  - { id: 1559269364, name: "Notion Web Clipper" }
+  - { id: 1569813296, name: "1Password for Safari" }
+  - { id: 1402042596, name: "AdBlock" }
+
+dockitems_remove:
+  - TV
+  - Launchpad
+  - Messages
+  - Maps
+  - Contacts
+  - Calendar
+  - Reminders
+  - Notes
+  - App Store
+  - System Preferences
+
+dockitems_persist:
+  - name: "Safari"
+    path: "/Applications/Safari.app/"
+    pos: 1
+  - name: "Spark"
+    path: "/Applications/Spark.app/"
+    pos: 2
+  - name: "Fantastical"
+    path: "/Applications/Fantastical.app/"
+    pos: 3
+  - name: "Notion"
+    path: "/Applications/Notion.app/"
+    pos: 4
+  - name: "iTerm"
+    path: "/Applications/iTerm.app/"
+    pos: 5
+  - name: "Visual Studio Code"
+    path: "/Applications/Visual Studio Code.app/"
+    pos: 6
+
+dotfiles_repo: "ssh://git@gitlab.com/alenrig/dots.git"
+dotfiles_repo_version: master
+dotfiles_repo_accept_hostkey: true
+dotfiles_repo_local_destination: "~/code/dots"
+dotfiles_home: "~"
+dotfiles_files:
+  - .gitconfig
+  - .gitignore
+  - .vimrc
+  - .zshrc
+
+zsh_plugins:
+  - {repo: 'https://github.com/zsh-users/zsh-autosuggestions', dest: '~/.oh-my-zsh/custom/plugins/zsh-autosuggestions'}
+  - {repo: 'https://github.com/zsh-users/zsh-syntax-highlighting.git', dest: '~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting'}
+  - {repo: 'https://github.com/dracula/zsh.git', dest: '~/.oh-my-zsh/custom/themes'}
+
+vim_plugins:
+  - {repo: 'https://github.com/jiangmiao/auto-pairs.git', dest: 'auto-pairs'}
+  - {repo: 'https://github.com/scrooloose/nerdtree.git', dest: 'nerdtree'}
+  - {repo: 'https://github.com/dracula/vim.git', dest: 'vim'}
+  - {repo: 'https://github.com/bling/vim-airline.git', dest: 'vim-airline'}
+  - {repo: 'https://github.com/vim-airline/vim-airline-themes.git', dest: 'vim-airline-themes'}
+  - {repo: 'https://github.com/tpope/vim-commentary.git', dest: 'vim-commentary'}
+  - {repo: 'https://github.com/tpope/vim-fugitive.git', dest: 'vim-fugitive'}
+  - {repo: 'https://github.com/jeetsukumaran/vim-indentwise.git', dest: 'vim-indentwise'}
+  - {repo: 'https://github.com/powerman/vim-plugin-ruscmd.git', dest: 'vim-plugin-ruscmd'}
+  - {repo: 'https://github.com/tpope/vim-repeat.git', dest: 'vim-repeat'}
+  - {repo: 'https://github.com/tpope/vim-surround.git', dest: 'vim-surround'}
+
+pip_packages:
+  - ansible-lint
