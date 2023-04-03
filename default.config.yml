@@ -110,6 +110,7 @@ dotfiles_files:
   - .gitignore
   - .vimrc
   - .zshrc
+  - .zprofile
 
 zsh_plugins:
   - {repo: 'https://github.com/zsh-users/zsh-autosuggestions', dest: '~/.oh-my-zsh/custom/plugins/zsh-autosuggestions'}
