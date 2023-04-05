@@ -11,8 +11,8 @@ homebrew_installed_packages:
   - nvim
   - nvm
   - openshift-cli
-  - pipenv
   - pdm
+  - pipenv
   - pyenv
   - terraform
   - transmission
