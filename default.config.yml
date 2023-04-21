@@ -71,6 +71,7 @@ mas_installed_apps:
   - { id: 1559269364, name: "Notion Web Clipper" }
   - { id: 1569813296, name: "1Password for Safari" }
   - { id: 1402042596, name: "AdBlock" }
+  - { id: 1346247457, name: "Endel" }
 
 dockitems_remove:
   - TV
