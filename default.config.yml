@@ -31,7 +31,6 @@ homebrew_cask_apps:
   - docker
   - dropbox
   - fantastical
-  - fig
   - google-chrome
   - google-drive
   - home-assistant
