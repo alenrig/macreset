@@ -48,6 +48,7 @@ homebrew_cask_apps:
   - send-to-kindle
   - shottr
   - slack
+  - utm
   - visual-studio-code
   - zoom
 
