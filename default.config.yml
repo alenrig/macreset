@@ -27,10 +27,12 @@ homebrew_cask_apps:
   - bartender
   - contexts
   - copyclip
+  - dash
   - discord
   - docker
   - dropbox
   - fantastical
+  - fig
   - google-chrome
   - google-drive
   - home-assistant
