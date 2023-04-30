@@ -2,6 +2,7 @@
 homebrew_taps:
   - homebrew/core
   - homebrew/cask
+  - homebrew/cask-versions
 
 homebrew_installed_packages:
   - docker
@@ -23,6 +24,7 @@ homebrew_installed_packages:
 homebrew_cask_appdir: /Applications
 homebrew_cask_apps:
   - 1password
+  - 1password/tap/1password-cli
   - alfred4
   - balenaetcher
   - bartender
