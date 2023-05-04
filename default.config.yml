@@ -17,6 +17,7 @@ homebrew_installed_packages:
   - pdm
   - pipenv
   - pyenv
+  - pyenv-virtualenv
   - terraform
   - transmission
   - youtube-dl
