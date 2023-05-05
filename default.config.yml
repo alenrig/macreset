@@ -68,6 +68,7 @@ mas_installed_apps:
   - { id: 1444383602, name: "GoodNotes" }
   - { id: 1289197285, name: "MindNode" }
   - { id: 963034692, name: "Streaks" }
+  - { id: 1006087419, name: "SnippetsLab" }
   - { id: 1496833156, name: "Playgrounds" }
   - { id: 288545208, name: "Instapaper" }
   - { id: 1529448980, name: "Reeder" }
