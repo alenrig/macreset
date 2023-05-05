@@ -26,7 +26,7 @@ homebrew_cask_appdir: /Applications
 homebrew_cask_apps:
   - 1password
   - 1password/tap/1password-cli
-  - alfred4
+  - alfred
   - balenaetcher
   - bartender
   - contexts
