@@ -31,7 +31,7 @@ homebrew_cask_apps:
   - bartender
   - contexts
   - copyclip
-  - dash
+  # - dash
   - discord
   - docker
   - dropbox
