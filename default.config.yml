@@ -27,6 +27,7 @@ homebrew_cask_apps:
   - 1password
   - 1password/tap/1password-cli
   - alfred
+  - anydesk
   - balenaetcher
   - bartender
   - contexts
