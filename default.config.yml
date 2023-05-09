@@ -81,12 +81,10 @@ mas_installed_apps:
 dockitems_remove:
   - App Store
   - Calendar
-  - Contacts
   - Launchpad
   - Maps
   - Messages
   - Music
-  - Notes
   - Podcasts
   - Reminders
   - System Preferences
@@ -96,21 +94,30 @@ dockitems_persist:
   - name: "Safari"
     path: "/Applications/Safari.app/"
     pos: 1
-  - name: "Spark"
-    path: "/Applications/Spark.app/"
+  - name: "Почта"
+    path: "/Applications/Mail.app/"
     pos: 2
   - name: "Fantastical"
     path: "/Applications/Fantastical.app/"
     pos: 3
+  - name: "Things"
+    path: "/Applications/Thinngs3.app/"
+    pos: 4
+  - name: "Заметки"
+    path: "/Applications/Notes.app/"
+    pos: 5
   - name: "Notion"
     path: "/Applications/Notion.app/"
-    pos: 4
+    pos: 6
+  - name: "Obsidian"
+    path: "/Applications/Obsidian.app/"
+    pos: 7
   - name: "iTerm"
     path: "/Applications/iTerm.app/"
-    pos: 5
+    pos: 8
   - name: "Visual Studio Code"
     path: "/Applications/Visual Studio Code.app/"
-    pos: 6
+    pos: 9
 
 dotfiles_repo: "ssh://git@gitlab.com/alenrig/dots.git"
 dotfiles_repo_version: master
