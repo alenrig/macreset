@@ -46,6 +46,7 @@ homebrew_cask_apps:
   - monitorcontrol
   - musescore
   - notion
+  - nvidia-geforce-now
   - rectangle
   - send-to-kindle
   - slack
@@ -85,7 +86,9 @@ dockitems_remove:
   - Maps
   - Messages
   - Music
+  - Музыка
   - Podcasts
+  - Подкасты
   - Reminders
   - System Preferences
   - TV
@@ -121,6 +124,15 @@ dockitems_persist:
   - name: "SnippetsLab"
     path: "/Applications/SnippetsLab.app/"
     pos: 10
+  - name: "NVIDIA GeForce NOW"
+    path: "/Applications/GeForceNOW.app/"
+    pos: 11
+  - name: "Telegram"
+    path: "/Applications/Telegram.app/"
+    pos: 12
+  - name: "Discord"
+    path: "/Applications/Discord.app/"
+    pos: 13
 
 dotfiles_repo: "ssh://git@gitlab.com/alenrig/dots.git"
 dotfiles_repo_version: master
