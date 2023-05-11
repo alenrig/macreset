@@ -108,8 +108,8 @@ dockitems_persist:
   - name: "Things"
     path: "/Applications/Thinngs3.app/"
     pos: 4
-  - name: "Заметки"
-    path: "/Applications/Notes.app/"
+  - name: "Bear"
+    path: "/Applications/Bear.app/"
     pos: 5
   - name: "Notion"
     path: "/Applications/Notion.app/"
