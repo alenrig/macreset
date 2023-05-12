@@ -80,6 +80,7 @@ mas_installed_apps:
   - { id: 1402042596, name: "AdBlock" }
   - { id: 1346247457, name: "Endel" }
   - { id: 1091189122, name: "Bear" }
+  - { id: 1055511498, name: "Day One" }
 
 dockitems_remove:
   - App Store
