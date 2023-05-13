@@ -79,7 +79,6 @@ mas_installed_apps:
   - { id: 1569813296, name: "1Password for Safari" }
   - { id: 1402042596, name: "AdBlock" }
   - { id: 1346247457, name: "Endel" }
-  - { id: 1091189122, name: "Bear" }
   - { id: 1055511498, name: "Day One" }
 
 dockitems_remove:
@@ -105,8 +104,8 @@ dockitems_persist:
   - name: "Things"
     path: "/Applications/Thinngs3.app/"
     pos: 4
-  - name: "Bear"
-    path: "/Applications/Bear.app/"
+  - name: "Заметки"
+    path: "/Applications/Notes.app/"
     pos: 5
   - name: "Notion"
     path: "/Applications/Notion.app/"
