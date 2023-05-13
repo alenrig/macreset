@@ -99,8 +99,8 @@ dockitems_persist:
   - name: "Почта"
     path: "/Applications/Mail.app/"
     pos: 2
-  - name: "Календарь"
-    path: "/Applications/Calendar.app/"
+  - name: "Fantastical"
+    path: "/Applications/Fantastical.app/"
     pos: 3
   - name: "Things"
     path: "/Applications/Thinngs3.app/"
