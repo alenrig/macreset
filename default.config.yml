@@ -84,15 +84,11 @@ mas_installed_apps:
 
 dockitems_remove:
   - App Store
-  - Calendar
   - Launchpad
   - Maps
   - Messages
-  - Music
-  - Музыка
   - Podcasts
   - Подкасты
-  - Reminders
   - System Preferences
   - TV
 
@@ -103,14 +99,14 @@ dockitems_persist:
   - name: "Почта"
     path: "/Applications/Mail.app/"
     pos: 2
-  - name: "Fantastical"
-    path: "/Applications/Fantastical.app/"
+  - name: "Календарь"
+    path: "/Applications/Calendar.app/"
     pos: 3
   - name: "Things"
     path: "/Applications/Thinngs3.app/"
     pos: 4
-  - name: "Bear"
-    path: "/Applications/Bear.app/"
+  - name: "Заметки"
+    path: "/Applications/Notes.app/"
     pos: 5
   - name: "Notion"
     path: "/Applications/Notion.app/"
