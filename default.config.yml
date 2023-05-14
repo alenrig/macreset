@@ -48,6 +48,7 @@ homebrew_cask_apps:
   - musescore
   - notion
   - nvidia-geforce-now
+  - rapidapi
   - rectangle
   - send-to-kindle
   - slack
