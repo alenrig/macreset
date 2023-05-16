@@ -77,7 +77,6 @@ mas_installed_apps:
   - { id: 288545208, name: "Instapaper" }
   - { id: 1529448980, name: "Reeder" }
   - { id: 408981434, name: "iMovie" }
-  - { id: 1559269364, name: "Notion Web Clipper" }
   - { id: 1569813296, name: "1Password for Safari" }
   - { id: 1402042596, name: "AdBlock" }
   - { id: 1346247457, name: "Endel" }
@@ -109,8 +108,8 @@ dockitems_persist:
   - name: "Bear"
     path: "/Applications/Bear.app/"
     pos: 5
-  - name: "Notion"
-    path: "/Applications/Notion.app/"
+  - name: "Obsidian"
+    path: "/Applications/Obsidian.app/"
     pos: 6
   - name: "iTerm"
     path: "/Applications/iTerm.app/"
