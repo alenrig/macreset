@@ -111,27 +111,24 @@ dockitems_persist:
   - name: "Notion"
     path: "/Applications/Notion.app/"
     pos: 6
-  - name: "Obsidian"
-    path: "/Applications/Obsidian.app/"
-    pos: 7
   - name: "iTerm"
     path: "/Applications/iTerm.app/"
-    pos: 8
+    pos: 7
   - name: "Visual Studio Code"
     path: "/Applications/Visual Studio Code.app/"
-    pos: 9
+    pos: 8
   - name: "SnippetsLab"
     path: "/Applications/SnippetsLab.app/"
-    pos: 10
+    pos: 9
   - name: "NVIDIA GeForce NOW"
     path: "/Applications/GeForceNOW.app/"
-    pos: 11
+    pos: 10
   - name: "Telegram"
     path: "/Applications/Telegram.app/"
-    pos: 12
+    pos: 11
   - name: "Discord"
     path: "/Applications/Discord.app/"
-    pos: 13
+    pos: 12
 
 dotfiles_repo: "ssh://git@gitlab.com/alenrig/dots.git"
 dotfiles_repo_version: master
