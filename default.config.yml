@@ -74,7 +74,7 @@ mas_installed_apps:
   - { id: 963034692, name: "Streaks" }
   - { id: 1006087419, name: "SnippetsLab" }
   - { id: 1496833156, name: "Playgrounds" }
-  - { id: 288545208, name: "Instapaper" }
+  - { id: 1474335294, name: "GoodLinks" }
   - { id: 1529448980, name: "Reeder" }
   - { id: 408981434, name: "iMovie" }
   - { id: 1569813296, name: "1Password for Safari" }
