@@ -96,17 +96,17 @@ dockitems_persist:
   - name: "Safari"
     path: "/Applications/Safari.app/"
     pos: 1
-  - name: "Spark"
-    path: "/Applications/Spark.app/"
+  - name: "Почта"
+    path: "/Applications/Mail.app/"
     pos: 2
-  - name: "Fantastical"
-    path: "/Applications/Fantastical.app/"
+  - name: "Календарь"
+    path: "/Applications/Calendar.app/"
     pos: 3
   - name: "Things"
     path: "/Applications/Things3.app/"
     pos: 4
-  - name: "Bear"
-    path: "/Applications/Bear.app/"
+  - name: "Заметки"
+    path: "/Applications/Notes.app/"
     pos: 5
   - name: "Obsidian"
     path: "/Applications/Obsidian.app/"
