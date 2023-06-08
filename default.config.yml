@@ -39,7 +39,8 @@ homebrew_cask_apps:
   - dropbox
   - fantastical
   - fig
-  - google-chrome
+  - firefox
+  # - google-chrome
   - google-drive
   - home-assistant
   - iina
