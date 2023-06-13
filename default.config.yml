@@ -46,6 +46,7 @@ homebrew_cask_apps:
   - iina
   - iterm2
   - kindle
+  - lens
   - monitorcontrol
   - musescore
   - notion
