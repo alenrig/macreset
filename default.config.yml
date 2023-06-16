@@ -13,7 +13,6 @@ homebrew_installed_packages:
   - minikube
   - nvim
   - nvm
-  - openshift-cli
   - pdm
   - pipenv
   - rye
