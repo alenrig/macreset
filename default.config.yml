@@ -52,7 +52,6 @@ homebrew_cask_apps:
   - rapidapi
   - rectangle
   - send-to-kindle
-  - slack
   - utm
   - visual-studio-code
   - zoom
