@@ -16,8 +16,6 @@ homebrew_installed_packages:
   - openshift-cli
   - pdm
   - pipenv
-  - pyenv
-  - pyenv-virtualenv
   - rye
   - terraform
   - transmission
