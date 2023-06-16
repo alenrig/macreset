@@ -126,7 +126,7 @@ dockitems_persist:
     path: "/Applications/SnippetsLab.app/"
     pos: 11
   - name: "NVIDIA GeForce NOW"
-    path: "/Applications/GeForceNOW.app/"
+    path: "/Applications/NVIDIA GeForce Now.app/"
     pos: 12
   - name: "Telegram"
     path: "/Applications/Telegram.app/"
