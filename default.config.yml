@@ -28,7 +28,7 @@ homebrew_cask_apps:
   - anydesk
   - balenaetcher
   - bartender
-  - contexts
+  # - contexts
   - copyclip
   # - dash
   - discord
