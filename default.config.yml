@@ -92,8 +92,8 @@ dockitems_remove:
   - TV
 
 dockitems_persist:
-  - name: "Safari"
-    path: "/Applications/Safari.app/"
+  - name: "Arc"
+    path: "/Applications/Arc.app/"
     pos: 1
   - name: "Почта"
     path: "/Applications/Mail.app/"
