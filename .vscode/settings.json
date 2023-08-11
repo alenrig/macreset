@@ -24,5 +24,10 @@
         "shottr",
         "Speedtest",
         "vimrc"
-    ]
+    ],
+    "ansible.python.interpreterPath": "/opt/homebrew/bin/python3",
+    "yaml.schemas": {
+        "file:///Users/alenrig/.vscode/extensions/atlassian.atlascode-3.0.4/resources/schemas/pipelines-schema.json": "bitbucket-pipelines.yml",
+        "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/tasks": "file:///Users/alenrig/code/macreset/roles/etc/tasks/main.yml"
+    }
 }
