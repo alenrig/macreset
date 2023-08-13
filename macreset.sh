@@ -9,7 +9,7 @@ sudo pip3 install --upgrade pip
 pip3 install ansible
 
 echo "### Install Ansible Requirements ###"
-ansible-galaxy install -r requirements.yml
+python3 -m ansible galaxy install -r requirements.yml
 
 echo "### Run Ansible Playbook ###"
-ansible-playbook main.yml --ask-become-pass
+python3 -m ansible playbook main.yml --ask-become-pass
