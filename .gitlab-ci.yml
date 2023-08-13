@@ -1,5 +1,9 @@
-image: ubuntu:latest
-before_script:
-  - apt update && apt install ansible-lint
-script:
-  - ansible-lint --offline -p main.yaml roles
+stages:
+  - check
+
+check:
+  image: ubuntu:latest
+  before_script:
+    - apt update && apt install ansible-lint
+  script:
+    - ansible-lint --offline -p main.yaml roles
