@@ -7,4 +7,4 @@ lint:
   before_script:
     - apt update && apt install -y ansible-lint && rm -rf /var/lib/apt/lists/*
   script:
-    - ansible-lint --offline -p main.yaml roles/
+    - ansible-lint .
