@@ -1,0 +1,10 @@
+stages:
+  - check
+
+lint:
+  stage: check
+  image: ubuntu:latest
+  before_script:
+    - apt update && apt install -y ansible-lint && rm -rf /var/lib/apt/lists/*
+  script:
+    - ansible-lint .
