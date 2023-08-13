@@ -24,25 +24,18 @@ homebrew_cask_appdir: /Applications
 homebrew_cask_apps:
   - alfred
   - anydesk
-  - arc
   - balenaetcher
   - bartender
-  - contexts
-  - copyclip
-  # - dash
   - discord
   - docker
   - dropbox
-  - fantastical
   - fig
   - firefox
   - google-drive
   - home-assistant
-  - iina
   - iterm2
   - kindle
   - lens
-  - monitorcontrol
   - musescore
   - notion
   - nvidia-geforce-now
@@ -101,8 +94,8 @@ dockitems_persist:
   - name: "Календарь"
     path: "/Applications/Calendar.app/"
     pos: 3
-  - name: "Things"
-    path: "/Applications/Things3.app/"
+  - name: "Напоминания"
+    path: "/Applications/Reminders.app/"
     pos: 4
   - name: "Заметки"
     path: "/Applications/Notes.app/"
