@@ -1,7 +1,8 @@
 stages:
   - check
 
-check:
+lint:
+  stage: check
   image: ubuntu:latest
   before_script:
     - apt update && apt install ansible-lint
