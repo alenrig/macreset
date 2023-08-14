@@ -54,7 +54,6 @@ mas_installed_apps:
   - { id: 1153157709, name: "Speedtest" }
   - { id: 425264550, name: "Disk Speed Test" }
   - { id: 1451685025, name: "WireGuard" }
-  - { id: 1176895641, name: "Spark" }
   - { id: 747648890, name: "Telegram"}
   - { id: 1086818840, name: "Rocket.Chat"}
   - { id: 409201541, name: "Pages" }
