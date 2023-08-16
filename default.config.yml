@@ -17,7 +17,6 @@ homebrew_installed_packages:
   - pipenv
   - rye
   - terraform
-  - transmission
   - youtube-dl
 
 homebrew_cask_appdir: /Applications
@@ -46,6 +45,7 @@ homebrew_cask_apps:
   - rectangle
   - send-to-kindle
   - sourcetree
+  - transmission
   - utm
   - visual-studio-code
   - zoom
