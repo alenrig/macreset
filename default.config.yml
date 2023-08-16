@@ -41,6 +41,7 @@ homebrew_cask_apps:
   - notion
   - nvidia-geforce-now
   - obsidian
+  - pycharm-ce
   - rapidapi
   - rectangle
   - send-to-kindle
