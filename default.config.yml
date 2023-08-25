@@ -39,7 +39,6 @@ homebrew_cask_apps:
   - musescore
   - notion
   - nvidia-geforce-now
-  - obsidian
   - pycharm-ce
   - rapidapi
   - rectangle
@@ -73,7 +72,6 @@ mas_installed_apps:
   - { id: 1333542190, name: "1Password 7" }
   - { id: 1402042596, name: "AdBlock" }
   - { id: 1346247457, name: "Endel" }
-  - { id: 1055511498, name: "Day One" }
 
 dockitems_remove:
   - App Store
