@@ -71,7 +71,6 @@ mas_installed_apps:
   - { id: 408981434, name: "iMovie" }
   - { id: 1333542190, name: "1Password 7" }
   - { id: 1402042596, name: "AdBlock" }
-  - { id: 1346247457, name: "Endel" }
 
 dockitems_remove:
   - App Store
