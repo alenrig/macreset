@@ -39,6 +39,7 @@ homebrew_cask_apps:
   - musescore
   - notion
   - nvidia-geforce-now
+  - obsidian
   - pycharm-ce
   - rapidapi
   - rectangle
