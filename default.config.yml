@@ -38,7 +38,6 @@ homebrew_cask_apps:
   - lens
   - musescore
   - notion
-  - nvidia-geforce-now
   - obsidian
   - pycharm-ce
   - rapidapi
@@ -102,39 +101,39 @@ dockitems_persist:
   - name: "Notion"
     path: "/Applications/Notion.app/"
     pos: 6
+  - name: "Obsidian"
+    path: "/Applications/Obsidian.app/"
+    pos: 7
   - name: "iTerm"
     path: "/Applications/iTerm.app/"
-    pos: 7
+    pos: 8
   - name: "Visual Studio Code"
     path: "/Applications/Visual Studio Code.app/"
-    pos: 8
+    pos: 9
   - name: "PyCharm CE"
     path: "/Applications/PyCharm CE.app/"
-    pos: 9
+    pos: 10
   - name: "Sourcetree"
     path: "/Applications/Sourcetree.app/"
-    pos: 10
+    pos: 11
   - name: "Lens"
     path: "/Applications/Lens.app/"
-    pos: 11
+    pos: 12
   - name: "RapidAPI"
     path: "/Applications/RapidAPI.app/"
-    pos: 12
+    pos: 13
   - name: "DBeaver"
     path: "/Applications/DBeaver.app/"
-    pos: 12
+    pos: 14
   - name: "SnippetsLab"
     path: "/Applications/SnippetsLab.app/"
-    pos: 13
-  - name: "NVIDIA GeForce NOW"
-    path: "/Applications/NVIDIA GeForce Now.app/"
-    pos: 14
+    pos: 15
   - name: "Telegram"
     path: "/Applications/Telegram.app/"
-    pos: 15
+    pos: 16
   - name: "Discord"
     path: "/Applications/Discord.app/"
-    pos: 16
+    pos: 17
 
 dotfiles_repo: "ssh://git@gitlab.com/alenrig/dots.git"
 dotfiles_repo_version: master
