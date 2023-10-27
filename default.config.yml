@@ -44,7 +44,6 @@ homebrew_cask_apps:
   - rectangle
   - send-to-kindle
   - sourcetree
-  - synology-drive
   - transmission
   - utm
   - visual-studio-code
