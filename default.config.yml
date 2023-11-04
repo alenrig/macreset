@@ -6,9 +6,9 @@ homebrew_taps:
 
 homebrew_installed_packages:
   - golang
+  - kubectl
   - int128/kubelogin/kubelogin
   - krew
-  - kubectl
   - minikube
   - nvim
   - nvm
