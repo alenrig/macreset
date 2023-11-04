@@ -5,7 +5,6 @@ homebrew_taps:
   - homebrew/cask-versions
 
 homebrew_installed_packages:
-  - docker
   - golang
   - int128/kubelogin/kubelogin
   - krew
