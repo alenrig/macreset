@@ -39,7 +39,6 @@ homebrew_cask_apps:
   - musescore
   - notion
   - obsidian
-  - pycharm-ce
   - rapidapi
   - rectangle
   - send-to-kindle
@@ -109,30 +108,27 @@ dockitems_persist:
   - name: "Visual Studio Code"
     path: "/Applications/Visual Studio Code.app/"
     pos: 9
-  - name: "PyCharm CE"
-    path: "/Applications/PyCharm CE.app/"
-    pos: 10
   - name: "Sourcetree"
     path: "/Applications/Sourcetree.app/"
-    pos: 11
+    pos: 10
   - name: "Lens"
     path: "/Applications/Lens.app/"
-    pos: 12
+    pos: 11
   - name: "RapidAPI"
     path: "/Applications/RapidAPI.app/"
-    pos: 13
+    pos: 12
   - name: "DBeaver"
     path: "/Applications/DBeaver.app/"
-    pos: 14
+    pos: 13
   - name: "SnippetsLab"
     path: "/Applications/SnippetsLab.app/"
-    pos: 15
+    pos: 14
   - name: "Telegram"
     path: "/Applications/Telegram.app/"
-    pos: 16
+    pos: 15
   - name: "Discord"
     path: "/Applications/Discord.app/"
-    pos: 17
+    pos: 16
 
 dotfiles_repo: "ssh://git@gitlab.com/alenrig/dots.git"
 dotfiles_repo_version: master
