@@ -28,7 +28,7 @@
 
 - name: Remove example.zsh file
   ansible.builtin.file:
-    path: ~/.oh-my-zsh/custom/themes/example.zsh
+    path: ~/.oh-my-zsh/custom/themes/example.zsh-theme
     state: absent
 
 - name: Install ZSH Plugins
