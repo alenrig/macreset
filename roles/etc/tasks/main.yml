@@ -26,6 +26,11 @@
     version: master
   loop: "{{ vim_plugins }}"
 
+- name: Remove example.zsh file
+  ansible.builtin.file:
+    path: ~/.oh-my-zsh/custom/themes/example.zsh
+    state: absent
+
 - name: Install ZSH Plugins
   ansible.builtin.git:
     repo: "{{ item.repo }}"
@@ -33,7 +38,6 @@
     accept_hostkey: true
     clone: true
     version: master
-    force: true
   loop: "{{ zsh_plugins }}"
 
 - name: Install global Pip packages.
