@@ -1,4 +1,15 @@
 ---
+- name: Download OMZ
+  get_url:
+    url: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh 
+    dest: /tmp/install.sh
+    mode: "+x"
+
+- name: Install OMZ
+  command: sh /tmp/install.sh
+  args:
+    creates: ~/.oh-my-zsh
+
 - name: Install Vundle
   ansible.builtin.git:
     repo: 'https://github.com/VundleVim/Vundle.vim.git'
