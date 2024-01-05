@@ -88,11 +88,11 @@ dockitems_persist:
   - name: "Почта"
     path: "/Applications/Mail.app/"
     pos: 2
-  - name: "Календарь"
-    path: "/Applications/Calendar.app/"
+  - name: "Fantastical"
+    path: "/Applications/Fantastical.app/"
     pos: 3
-  - name: "Напоминания"
-    path: "/Applications/Reminders.app/"
+  - name: "Things"
+    path: "/Applications/Things3.app/"
     pos: 4
   - name: "Заметки"
     path: "/Applications/Notes.app/"
@@ -109,18 +109,9 @@ dockitems_persist:
   - name: "Visual Studio Code"
     path: "/Applications/Visual Studio Code.app/"
     pos: 9
-  - name: "Sourcetree"
-    path: "/Applications/Sourcetree.app/"
-    pos: 10
   - name: "Lens"
     path: "/Applications/Lens.app/"
     pos: 11
-  - name: "RapidAPI"
-    path: "/Applications/RapidAPI.app/"
-    pos: 12
-  - name: "DBeaver"
-    path: "/Applications/DBeaver.app/"
-    pos: 13
   - name: "Telegram"
     path: "/Applications/Telegram.app/"
     pos: 14
