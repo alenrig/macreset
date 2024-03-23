@@ -144,4 +144,3 @@ vim_plugins:
   - {repo: 'https://github.com/powerman/vim-plugin-ruscmd.git', dest: 'vim-plugin-ruscmd'}
   - {repo: 'https://github.com/tpope/vim-repeat.git', dest: 'vim-repeat'}
   - {repo: 'https://github.com/tpope/vim-surround.git', dest: 'vim-surround'}
-
