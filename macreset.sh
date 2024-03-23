@@ -4,12 +4,12 @@ echo "### Install Apple's Command Line Tools ###"
 xcode-select --install
 
 echo "### Install Ansible ###"
-#export PATH="$HOME/Library/Python/3.9/bin:/opt/homebrew/bin:$PATH"
-pip3 install --upgrade pip
-pip3 install ansible
+python3 -m venv $HOME/.local --system-site-packages
+$HOME/.local/bin/pip install --upgrade pip
+$HOME/.local/bin/pip install ansible
 
 echo "### Install Ansible Requirements ###"
-ansible-galaxy install -r requirements.yml
+$HOME/.local/bin/ansible-galaxy install -r requirements.yml
 
 echo "### Run Ansible Playbook ###"
-ansible-playbook main.yml --ask-become-pass
+$HOME/.local/bin/ansible-playbook main.yml --ask-become-pass
