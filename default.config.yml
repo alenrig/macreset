@@ -16,7 +16,6 @@ homebrew_installed_packages:
   - pdm
   - pipenv
   - rye
-  - stats
   - terraform
   - youtube-dl
 
@@ -46,6 +45,7 @@ homebrew_cask_apps:
   - rectangle
   - send-to-kindle
   - sourcetree
+  - stats
   - transmission
   - utm
   - visual-studio-code
