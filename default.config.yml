@@ -16,6 +16,7 @@ homebrew_installed_packages:
   - pdm
   - pipenv
   - rye
+  - stats
   - terraform
   - youtube-dl
 
@@ -23,6 +24,7 @@ homebrew_cask_appdir: /Applications
 homebrew_cask_apps:
   - 1password
   - anydesk
+  - appcleaner
   - balenaetcher
   - bartender
   - dbeaver-community
