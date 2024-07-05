@@ -3,11 +3,14 @@ homebrew_taps:
   - homebrew/core
   - homebrew/cask
   - homebrew/cask-versions
+  - hashicorp/tap
 
 homebrew_installed_packages:
   - golang
   - kubectl
   - int128/kubelogin/kubelogin
+  - hashicorp/tap/packer
+  - hashicorp/tap/terraform
   - krew
   - minikube
   - nvim
@@ -16,8 +19,6 @@ homebrew_installed_packages:
   - pdm
   - pipenv
   - rye
-  - terraform
-  - youtube-dl
 
 homebrew_cask_appdir: /Applications
 homebrew_cask_apps:
@@ -36,14 +37,12 @@ homebrew_cask_apps:
   - google-drive
   - home-assistant
   - iterm2
-  - kindle
   - lens
   - musescore
   - notion
   - obsidian
   - rapidapi
   - rectangle
-  - send-to-kindle
   - sourcetree
   - stats
   - transmission
@@ -72,6 +71,7 @@ mas_installed_apps:
   - { id: 1529448980, name: "Reeder" }
   - { id: 408981434, name: "iMovie" }
 
+dockutil_install: false
 dockitems_remove:
   - App Store
   - Launchpad
