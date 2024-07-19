@@ -10,7 +10,7 @@ $HOME/.local/bin/pip install pipx
 $HOME/.local/bin/pipx install ansible
 
 echo "### Install Ansible Requirements ###"
-$HOME/.local/bin/ansible-galaxy install -r requirements.yml
+$HOME/.local/pipx/venvs/ansible/bin/ansible-galaxy install -r requirements.yml
 
 echo "### Run Ansible Playbook ###"
-$HOME/.local/bin/ansible-playbook main.yml --ask-become-pass
+$HOME/.local/pipx/venvs/ansible/bin/ansible-playbook main.yml --ask-become-pass
