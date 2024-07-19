@@ -6,7 +6,8 @@ xcode-select --install
 echo "### Install Ansible ###"
 python3 -m venv $HOME/.local --system-site-packages
 $HOME/.local/bin/pip install --upgrade pip
-$HOME/.local/bin/pip install ansible
+$HOME/.local/bin/pip install pipx
+$HOME/.local/bin/pipx install ansible
 
 echo "### Install Ansible Requirements ###"
 $HOME/.local/bin/ansible-galaxy install -r requirements.yml
