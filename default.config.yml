@@ -104,7 +104,7 @@ dockitems_persist:
     pos: 8
   - name: "Telegram"
     path: "/Applications/Telegram.app/"
-    pos: 14
+    pos: 9
 
 dotfiles_repo: "ssh://git@gitlab.com/alenrig/dots.git"
 dotfiles_repo_version: master
