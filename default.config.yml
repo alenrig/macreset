@@ -99,12 +99,9 @@ dockitems_persist:
   - name: "Visual Studio Code"
     path: "/Applications/Visual Studio Code.app/"
     pos: 7
-  - name: "Lens"
-    path: "/Applications/Lens.app/"
-    pos: 8
   - name: "Yandex Music"
-    path: "/Applications/Yandex Music.app/"
-    pos: 9
+    path: "/Applications/Yandex Music.app/"
+    pos: 8
   - name: "Telegram"
     path: "/Applications/Telegram.app/"
     pos: 14
