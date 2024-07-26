@@ -9,7 +9,6 @@ homebrew_installed_packages:
   - golang
   - kubectl
   - int128/kubelogin/kubelogin
-  - hashicorp/tap/packer
   - hashicorp/tap/terraform
   - krew
   - minikube
