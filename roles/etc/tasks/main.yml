@@ -1,22 +1,22 @@
 ---
 - name: Check OMZ
-  stat:
+  ansible.builtin.stat:
     path: ~/.oh-my-zsh
   register: omz_dir
 
 - name: Install OMZ
+  when: not omz_dir.stat.path
   block:
     - name: Download OMZ
-      get_url:
-        url: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh 
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
         dest: /tmp/install.sh
         mode: "+x"
 
     - name: Execute OMZ Installation Script
-      command: sh /tmp/install.sh
+      ansible.builtin.command: sh /tmp/install.sh
       args:
         creates: ~/.oh-my-zsh
-  when: not omz_dir.stat.path
 
 - name: Install Vundle
   ansible.builtin.git:
