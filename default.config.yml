@@ -4,12 +4,14 @@ homebrew_taps:
   - homebrew/cask
   - homebrew/cask-versions
   - hashicorp/tap
+  - fluxcd/tap
 
 homebrew_installed_packages:
   - golang
   - kubectl
   - int128/kubelogin/kubelogin
   - hashicorp/tap/terraform
+  - fluxcd/tap/flux
   - krew
   - minikube
   - nvim
@@ -95,18 +97,21 @@ dockitems_persist:
   - name: "iTerm"
     path: "/Applications/iTerm.app/"
     pos: 6
+  - name: "WebSSH"
+    path: "/Applications/WebSSH.app/"
+    pos: 7
   - name: "Visual Studio Code"
     path: "/Applications/Visual Studio Code.app/"
-    pos: 7
+    pos: 8
   - name: "Lens"
     path: "/Applications/Lens.app/"
-    pos: 8
+    pos: 9
   - name: "Yandex Music"
     path: "/Applications/Yandex Music.app/"
-    pos: 9
+    pos: 10
   - name: "Telegram"
     path: "/Applications/Telegram.app/"
-    pos: 10
+    pos: 11
 
 dotfiles_repo: "ssh://git@gitlab.com/alenrig/dots.git"
 dotfiles_repo_version: master
