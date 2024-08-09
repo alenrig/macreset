@@ -106,12 +106,9 @@ dockitems_persist:
   - name: "Lens"
     path: "/Applications/Lens.app/"
     pos: 9
-  - name: "Yandex Music"
-    path: "/Applications/Yandex Music.app/"
-    pos: 10
   - name: "Telegram"
     path: "/Applications/Telegram.app/"
-    pos: 11
+    pos: 10
 
 dotfiles_repo: "ssh://git@gitlab.com/alenrig/dots.git"
 dotfiles_repo_version: master
