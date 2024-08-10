@@ -32,7 +32,6 @@ homebrew_cask_apps:
   - docker
   - drawio
   - dropbox
-  - firefox
   - google-chrome
   - google-drive
   - home-assistant
