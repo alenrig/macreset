@@ -29,6 +29,7 @@ homebrew_cask_apps:
   - balenaetcher
   - bartender
   - dbeaver-community
+  - discord
   - docker
   - drawio
   - dropbox
