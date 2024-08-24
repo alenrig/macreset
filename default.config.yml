@@ -94,21 +94,39 @@ dockitems_persist:
   - name: "Заметки"
     path: "/Applications/Notes.app/"
     pos: 5
+  - name: "Notion"
+    path: "/Applications/Notion.app/"
+    pos: 6
+  - name: "Obsidian"
+    path: "/Applications/Obsidian.app/"
+    pos: 7
   - name: "iTerm"
     path: "/Applications/iTerm.app/"
-    pos: 6
+    pos: 10
   - name: "WebSSH"
     path: "/Applications/WebSSH.app/"
-    pos: 7
+    pos: 11
   - name: "Visual Studio Code"
     path: "/Applications/Visual Studio Code.app/"
-    pos: 8
+    pos: 12
   - name: "Lens"
     path: "/Applications/Lens.app/"
-    pos: 9
+    pos: 13
+  - name: "RapidAPI"
+    path: "/Applications/RapidAPI.app/"
+    pos: 14
+  - name: "Sourcetree"
+    path: "/Applications/Sourcetree.app/"
+    pos: 15
   - name: "Telegram"
     path: "/Applications/Telegram.app/"
-    pos: 10
+    pos: 20
+  - name: "Discord"
+    path: "/Applications/Discord.app/"
+    pos: 21
+  - name: "Игровой центр"
+    path: "/Applications/GameCenterShowcase.app"
+    pos: 30
 
 dotfiles_repo: "ssh://git@gitlab.com/alenrig/dots.git"
 dotfiles_repo_version: master
