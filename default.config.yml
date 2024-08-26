@@ -39,7 +39,6 @@ homebrew_cask_apps:
   - iterm2
   - lens
   - musescore
-  - notion
   - obsidian
   - rapidapi
   - rectangle
@@ -94,12 +93,9 @@ dockitems_persist:
   - name: "Заметки"
     path: "/Applications/Notes.app/"
     pos: 5
-  - name: "Notion"
-    path: "/Applications/Notion.app/"
-    pos: 6
   - name: "Obsidian"
     path: "/Applications/Obsidian.app/"
-    pos: 7
+    pos: 6
   - name: "iTerm"
     path: "/Applications/iTerm.app/"
     pos: 10
