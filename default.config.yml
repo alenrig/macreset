@@ -131,7 +131,7 @@ dockitems_persist:
 dotfiles_repo: "ssh://git@gitlab.com/alenrig/dots.git"
 dotfiles_repo_version: master
 dotfiles_repo_accept_hostkey: true
-dotfiles_repo_local_destination: "~/code/dots"
+dotfiles_repo_local_destination: "~/Developer/dots"
 dotfiles_home: "~"
 dotfiles_files:
   - .gitconfig
