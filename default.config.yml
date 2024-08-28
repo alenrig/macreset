@@ -12,6 +12,7 @@ homebrew_installed_packages:
   - kubeseal
   - int128/kubelogin/kubelogin
   - hashicorp/tap/terraform
+  - hashicorp/tap/packer
   - fluxcd/tap/flux
   - krew
   - minikube
@@ -21,6 +22,7 @@ homebrew_installed_packages:
   - pdm
   - pipenv
   - rye
+  - virtctl
 
 homebrew_cask_appdir: /Applications
 homebrew_cask_apps:
