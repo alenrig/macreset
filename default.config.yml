@@ -9,6 +9,7 @@ homebrew_taps:
 homebrew_installed_packages:
   - golang
   - kubectl
+  - kubeseal
   - int128/kubelogin/kubelogin
   - hashicorp/tap/terraform
   - fluxcd/tap/flux
