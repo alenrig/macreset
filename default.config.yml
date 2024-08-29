@@ -29,7 +29,6 @@ homebrew_cask_apps:
   - anydesk
   - appcleaner
   - balenaetcher
-  - bartender
   - dbeaver-community
   - discord
   - docker
@@ -37,6 +36,7 @@ homebrew_cask_apps:
   - dropbox
   - google-chrome
   - google-drive
+  - hiddenbar
   - home-assistant
   - iterm2
   - lens
@@ -45,6 +45,7 @@ homebrew_cask_apps:
   - rapidapi
   - rectangle
   - sourcetree
+  - stay
   - transmission
   - utm
   - visual-studio-code
