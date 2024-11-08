@@ -43,7 +43,6 @@ homebrew_cask_apps:
   - musescore
   - obsidian
   - rapidapi
-  - rectangle
   - sourcetree
   - transmission
   - utm
@@ -113,18 +112,18 @@ dockitems_persist:
   - name: "RapidAPI"
     path: "/Applications/RapidAPI.app/"
     pos: 14
+  - name: "DBeaver"
+    path: "/Applications/DBeaver.app/"
+    pos: 15
   - name: "Sourcetree"
     path: "/Applications/Sourcetree.app/"
-    pos: 15
+    pos: 16
   - name: "Telegram"
     path: "/Applications/Telegram.app/"
     pos: 20
   - name: "Discord"
     path: "/Applications/Discord.app/"
     pos: 21
-  - name: "Игровой центр"
-    path: "/Applications/GameCenterShowcase.app"
-    pos: 30
 
 dotfiles_repo: "ssh://git@gitlab.com/alenrig/dots.git"
 dotfiles_repo_version: master
