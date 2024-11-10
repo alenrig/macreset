@@ -120,6 +120,9 @@ dockitems_persist:
   - name: "Telegram"
     path: "/Applications/Telegram.app/"
     pos: 20
+  - name: "Видеоповтор iPhone"
+    path: "/System/Applications/iPhone Mirroring.app"
+    pos: 30
 
 dotfiles_repo: "ssh://git@gitlab.com/alenrig/dots.git"
 dotfiles_repo_version: master
