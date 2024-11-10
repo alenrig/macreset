@@ -30,7 +30,6 @@ homebrew_cask_apps:
   - appcleaner
   - balenaetcher
   - dbeaver-community
-  - discord
   - docker
   - drawio
   - dropbox
@@ -121,9 +120,6 @@ dockitems_persist:
   - name: "Telegram"
     path: "/Applications/Telegram.app/"
     pos: 20
-  - name: "Discord"
-    path: "/Applications/Discord.app/"
-    pos: 21
 
 dotfiles_repo: "ssh://git@gitlab.com/alenrig/dots.git"
 dotfiles_repo_version: master
