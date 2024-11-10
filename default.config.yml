@@ -105,17 +105,17 @@ dockitems_persist:
   - name: "Visual Studio Code"
     path: "/Applications/Visual Studio Code.app/"
     pos: 12
-  - name: "Lens"
-    path: "/Applications/Lens.app/"
-    pos: 13
-  - name: "RapidAPI"
-    path: "/Applications/RapidAPI.app/"
-    pos: 14
-  - name: "DBeaver"
-    path: "/Applications/DBeaver.app/"
-    pos: 15
   - name: "Sourcetree"
     path: "/Applications/Sourcetree.app/"
+    pos: 13
+  - name: "Lens"
+    path: "/Applications/Lens.app/"
+    pos: 14
+  - name: "RapidAPI"
+    path: "/Applications/RapidAPI.app/"
+    pos: 15
+  - name: "DBeaver"
+    path: "/Applications/DBeaver.app/"
     pos: 16
   - name: "Telegram"
     path: "/Applications/Telegram.app/"
