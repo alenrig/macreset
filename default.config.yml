@@ -39,6 +39,7 @@ homebrew_cask_apps:
   - home-assistant
   - iterm2
   - lens
+  - monitorcontrol
   - musescore
   - obsidian
   - rapidapi
