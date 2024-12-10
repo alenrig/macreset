@@ -5,6 +5,7 @@ homebrew_taps:
   - homebrew/cask-versions
   - hashicorp/tap
   - fluxcd/tap
+  - railwaycat/emacsmacport
 
 homebrew_installed_packages:
   - golang
@@ -20,6 +21,8 @@ homebrew_installed_packages:
   - openjdk
   - pdm
   - pipenv
+  - railwaycat/emacsmacport/emacs-mac
+  - { name: railwaycat/emacsmacport/emacs-mac, install_options: "with-modules" }
   - rye
   - virtctl
 
