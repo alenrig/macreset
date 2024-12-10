@@ -22,7 +22,7 @@ homebrew_installed_packages:
   - pdm
   - pipenv
   - railwaycat/emacsmacport/emacs-mac
-  - { name: railwaycat/emacsmacport/emacs-mac, install_options: "with-modules" }
+  - { name: railwaycat/emacsmacport/emacs-mac, install_options: "with-modules,with-native-compilation" }
   - rye
   - virtctl
 
