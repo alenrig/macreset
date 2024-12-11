@@ -50,3 +50,8 @@
     clone: true
     version: master
   loop: "{{ zsh_plugins }}"
+
+- name: Add Emacs to Applications
+  ansible.builtin.copy:
+    src: /opt/homebrew/opt/emacs-mac/Emacs.app
+    dest: /Applications/Emacs.app
