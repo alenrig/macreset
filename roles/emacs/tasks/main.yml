@@ -1,0 +1,16 @@
+---
+- name: Add Emacs to Applications
+  ansible.builtin.copy:
+    src: /opt/homebrew/opt/emacs-mac/Emacs.app
+    dest: /Applications/Emacs.app
+
+- name: Clone DOOM
+  ansible.builtin.git:
+    repo: https://github.com/doomemacs/doomemacs
+    depth: 1
+    dest: ~/.config/emacs
+
+- name: Install DOOM
+  ansible.builtin.shell:
+    cmd: ~/.config/emacs/bin/doom install
+    creates: ~/.doom.d
