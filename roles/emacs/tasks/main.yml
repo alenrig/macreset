@@ -6,13 +6,13 @@
 
 - name: Clone DOOM
   ansible.builtin.git:
-    repo: git@github.com:alenrig/doom.git
+    repo: https://github.com/doomemacs/doomemacs
     depth: 1
     dest: ~/.emacs.d
 
 - name: Clone DOOM Settings
   ansible.builtin.git:
-    repo: https://github.com/alenrig/doom
+    repo: git@github.com:alenrig/doom.git
     dest: ~/.doom.d
 
 - name: Install DOOM

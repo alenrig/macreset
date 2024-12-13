@@ -10,9 +10,9 @@
         - "{{ playbook_dir }}/config.yml"
 
   roles:
-    - geerlingguy.mac.homebrew
-    - geerlingguy.mac.mas
-    - geerlingguy.mac.dock
-    - geerlingguy.dotfiles
+    # - geerlingguy.mac.homebrew
+    # - geerlingguy.mac.mas
+    # - geerlingguy.mac.dock
+    # - geerlingguy.dotfiles
     - emacs
-    - etc
+    # - etc
