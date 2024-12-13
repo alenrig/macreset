@@ -10,6 +10,11 @@
     depth: 1
     dest: ~/.emacs.d
 
+- name: Clone DOOM settings
+  ansible.builtin.git:
+    repo: https://github.com/alenrig/doom
+    dest: ~/.doom.d
+
 - name: Install DOOM
   ansible.builtin.shell:
     cmd: ~/.emacs.d/bin/doom install --no-env
