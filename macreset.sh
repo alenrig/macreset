@@ -8,6 +8,7 @@ python3 -m venv $HOME/.local --system-site-packages
 $HOME/.local/bin/pip install --upgrade pip
 $HOME/.local/bin/pip install pipx
 $HOME/.local/bin/pipx install ansible
+$HOME/.local/bin/pipx install "python-lsp-server[all]"
 
 echo "### Install Ansible Requirements ###"
 $HOME/.local/pipx/venvs/ansible/bin/ansible-galaxy install -r requirements.yml
