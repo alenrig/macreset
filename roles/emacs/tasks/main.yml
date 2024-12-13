@@ -10,7 +10,7 @@
     depth: 1
     dest: ~/.emacs.d
 
-- name: Clone DOOM settings
+- name: Clone DOOM Settings
   ansible.builtin.git:
     repo: https://github.com/alenrig/doom
     dest: ~/.doom.d
