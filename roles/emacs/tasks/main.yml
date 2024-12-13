@@ -8,9 +8,9 @@
   ansible.builtin.git:
     repo: https://github.com/doomemacs/doomemacs
     depth: 1
-    dest: ~/.config/emacs
+    dest: ~/.emacs.d
 
 - name: Install DOOM
   ansible.builtin.shell:
-    cmd: ~/.config/emacs/bin/doom install
-    creates: ~/.doom.d
+    cmd: ~/.emacs.d/bin/doom install --no-env
+    creates: ~/.emacs.d/.local
