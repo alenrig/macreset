@@ -6,7 +6,7 @@
 
 - name: Clone DOOM
   ansible.builtin.git:
-    repo: https://github.com/doomemacs/doomemacs
+    repo: git@github.com:alenrig/doom.git
     depth: 1
     dest: ~/.emacs.d
 
