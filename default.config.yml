@@ -9,9 +9,11 @@ homebrew_taps:
 
 homebrew_installed_packages:
   - golang
+  - gopls
   - kubectl
   - int128/kubelogin/kubelogin
   - hashicorp/tap/terraform
+  - hashicorp/tap/terraform-ls
   - hashicorp/tap/packer
   - fluxcd/tap/flux
   - krew
@@ -22,7 +24,8 @@ homebrew_installed_packages:
   - pdm
   - pipenv
   - railwaycat/emacsmacport/emacs-mac
-  - { name: railwaycat/emacsmacport/emacs-mac, install_options: "with-modules,with-native-compilation" }
+  - name: railwaycat/emacsmacport/emacs-mac
+    install_options: "with-modules,with-native-compilation"
   - rye
   - virtctl
 
@@ -54,22 +57,38 @@ homebrew_cask_apps:
   - zoom
 
 mas_installed_apps:
-  - { id: 497799835, name: "Xcode" }
-  - { id: 430255202, name: "Mactracker" }
-  - { id: 1153157709, name: "Speedtest" }
-  - { id: 425264550, name: "Disk Speed Test" }
-  - { id: 1451685025, name: "WireGuard" }
-  - { id: 747648890, name: "Telegram"}
-  - { id: 409201541, name: "Pages" }
-  - { id: 409203825, name: "Numbers" }
-  - { id: 409183694, name: "Keynote" }
-  - { id: 1278508951, name: "Trello" }
-  - { id: 1444383602, name: "GoodNotes" }
-  - { id: 1289197285, name: "MindNode" }
-  - { id: 963034692, name: "Streaks" }
-  - { id: 1474335294, name: "GoodLinks" }
-  - { id: 1529448980, name: "Reeder" }
-  - { id: 408981434, name: "iMovie" }
+  - name: "Xcode"
+    id: 497799835
+  - name: "Mactracker"
+    id: 430255202
+  - name: "Speedtest"
+    id: 1153157709
+  - name: "Disk Speed Test"
+    id: 425264550
+  - name: "WireGuard"
+    id: 1451685025
+  - name: "Telegram"
+    id: 747648890
+  - name: "Pages"
+    id: 409201541
+  - name: "Numbers"
+    id: 409203825
+  - name: "Keynote"
+    id: 409183694
+  - name: "Trello"
+    id: 1278508951
+  - name: "GoodNotes"
+    id: 1444383602
+  - name: "MindNode"
+    id: 1289197285
+  - name: "Streaks"
+    id: 963034692
+  - name: "GoodLinks"
+    id: 1474335294
+  - name: "Reeder"
+    id: 1529448980
+  - name: "iMovie"
+    id: 408981434
 
 dockutil_install: false
 dockitems_remove:
@@ -142,19 +161,33 @@ dotfiles_files:
   - .zprofile
 
 zsh_plugins:
-  - {repo: 'https://github.com/zsh-users/zsh-autosuggestions', dest: '~/.oh-my-zsh/custom/plugins/zsh-autosuggestions'}
-  - {repo: 'https://github.com/zsh-users/zsh-syntax-highlighting.git', dest: '~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting'}
-  - {repo: 'https://github.com/dracula/zsh.git', dest: '~/.oh-my-zsh/custom/themes'}
+  - repo: 'https://github.com/zsh-users/zsh-autosuggestions'
+    dest: '~/.oh-my-zsh/custom/plugins/zsh-autosuggestions'
+  - repo: 'https://github.com/zsh-users/zsh-syntax-highlighting.git'
+    dest: '~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting'
+  - repo: 'https://github.com/dracula/zsh.git'
+    dest: '~/.oh-my-zsh/custom/themes'
 
 vim_plugins:
-  - {repo: 'https://github.com/jiangmiao/auto-pairs.git', dest: 'auto-pairs'}
-  - {repo: 'https://github.com/scrooloose/nerdtree.git', dest: 'nerdtree'}
-  - {repo: 'https://github.com/dracula/vim.git', dest: 'vim'}
-  - {repo: 'https://github.com/bling/vim-airline.git', dest: 'vim-airline'}
-  - {repo: 'https://github.com/vim-airline/vim-airline-themes.git', dest: 'vim-airline-themes'}
-  - {repo: 'https://github.com/tpope/vim-commentary.git', dest: 'vim-commentary'}
-  - {repo: 'https://github.com/tpope/vim-fugitive.git', dest: 'vim-fugitive'}
-  - {repo: 'https://github.com/jeetsukumaran/vim-indentwise.git', dest: 'vim-indentwise'}
-  - {repo: 'https://github.com/powerman/vim-plugin-ruscmd.git', dest: 'vim-plugin-ruscmd'}
-  - {repo: 'https://github.com/tpope/vim-repeat.git', dest: 'vim-repeat'}
-  - {repo: 'https://github.com/tpope/vim-surround.git', dest: 'vim-surround'}
+  - repo: 'https://github.com/jiangmiao/auto-pairs.git'
+    dest: 'auto-pairs'
+  - repo: 'https://github.com/scrooloose/nerdtree.git'
+    dest: 'nerdtree'
+  - repo: 'https://github.com/dracula/vim.git'
+    dest: 'vim'
+  - repo: 'https://github.com/bling/vim-airline.git'
+    dest: 'vim-airline'
+  - repo: 'https://github.com/vim-airline/vim-airline-themes.git'
+    dest: 'vim-airline-themes'
+  - repo: 'https://github.com/tpope/vim-commentary.git'
+    dest: 'vim-commentary'
+  - repo: 'https://github.com/tpope/vim-fugitive.git'
+    dest: 'vim-fugitive'
+  - repo: 'https://github.com/jeetsukumaran/vim-indentwise.git'
+    dest: 'vim-indentwise'
+  - repo: 'https://github.com/powerman/vim-plugin-ruscmd.git'
+    dest: 'vim-plugin-ruscmd'
+  - repo: 'https://github.com/tpope/vim-repeat.git'
+    dest: 'vim-repeat'
+  - repo: 'https://github.com/tpope/vim-surround.git'
+    dest: 'vim-surround'
