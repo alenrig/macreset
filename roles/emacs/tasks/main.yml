@@ -17,5 +17,5 @@
 
 - name: Install DOOM
   ansible.builtin.shell:
-    cmd: ~/.emacs.d/bin/doom install --no-env
+    cmd: ~/.emacs.d/bin/doom install
     creates: ~/.emacs.d/.local
