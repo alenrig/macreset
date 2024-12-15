@@ -14,7 +14,6 @@ homebrew_installed_packages:
   - int128/kubelogin/kubelogin
   - hashicorp/tap/terraform
   - hashicorp/tap/terraform-ls
-  - hashicorp/tap/packer
   - fluxcd/tap/flux
   - krew
   - minikube
@@ -22,11 +21,9 @@ homebrew_installed_packages:
   - nvm
   - openjdk
   - pdm
-  - pipenv
-  - railwaycat/emacsmacport/emacs-mac
   - name: railwaycat/emacsmacport/emacs-mac
     install_options: "with-modules,with-native-compilation"
-  - rye
+  - uv
   - virtctl
 
 homebrew_cask_appdir: /Applications
