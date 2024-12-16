@@ -12,6 +12,7 @@ homebrew_installed_packages:
   - gopls
   - kubectl
   - int128/kubelogin/kubelogin
+  - hadolint
   - hashicorp/tap/terraform
   - hashicorp/tap/terraform-ls
   - fluxcd/tap/flux
