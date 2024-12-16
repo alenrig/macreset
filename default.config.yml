@@ -10,10 +10,10 @@ homebrew_taps:
 homebrew_installed_packages:
   - golang
   - gopls
-  - grip
+  - grip  # emacs markdown preview
   - kubectl
   - int128/kubelogin/kubelogin
-  - hadolint
+  - hadolint  # emacs dockerfile lint
   - hashicorp/tap/terraform
   - hashicorp/tap/terraform-ls
   - fluxcd/tap/flux
