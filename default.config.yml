@@ -10,6 +10,7 @@ homebrew_taps:
 homebrew_installed_packages:
   - golang
   - gopls
+  - grip
   - kubectl
   - int128/kubelogin/kubelogin
   - hadolint
