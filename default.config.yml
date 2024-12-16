@@ -24,7 +24,7 @@ homebrew_installed_packages:
   - openjdk
   - pdm
   - name: railwaycat/emacsmacport/emacs-mac
-    install_options: "with-modules,with-native-compilation,with-xwidgets"
+    install_options: "with-modules,with-native-compilation,with-xwidgets,with-native-comp,with-natural-title-bar"
   - uv
   - virtctl
 
