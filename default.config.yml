@@ -116,9 +116,6 @@ dockitems_persist:
   - name: "Заметки"
     path: "/Applications/Notes.app/"
     pos: 5
-  - name: "Obsidian"
-    path: "/Applications/Obsidian.app/"
-    pos: 6
   - name: "iTerm"
     path: "/Applications/iTerm.app/"
     pos: 10
@@ -128,18 +125,9 @@ dockitems_persist:
   - name: "Visual Studio Code"
     path: "/Applications/Visual Studio Code.app/"
     pos: 12
-  - name: "Sourcetree"
-    path: "/Applications/Sourcetree.app/"
-    pos: 13
   - name: "Lens"
     path: "/Applications/Lens.app/"
     pos: 14
-  - name: "RapidAPI"
-    path: "/Applications/RapidAPI.app/"
-    pos: 15
-  - name: "DBeaver"
-    path: "/Applications/DBeaver.app/"
-    pos: 16
   - name: "Telegram"
     path: "/Applications/Telegram.app/"
     pos: 20
