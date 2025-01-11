@@ -118,22 +118,25 @@ dockitems_persist:
     pos: 5
   - name: "iTerm"
     path: "/Applications/iTerm.app/"
-    pos: 10
+    pos: 6
   - name: "WebSSH"
     path: "/Applications/WebSSH.app/"
-    pos: 11
+    pos: 7
   - name: "Visual Studio Code"
     path: "/Applications/Visual Studio Code.app/"
-    pos: 12
+    pos: 8
+  - name: "Emacs"
+    path: "/Applications/Emacs.app/"
+    pos: 9
   - name: "Lens"
     path: "/Applications/Lens.app/"
-    pos: 14
+    pos: 10
   - name: "Telegram"
     path: "/Applications/Telegram.app/"
-    pos: 20
+    pos: 11
   - name: "Видеоповтор iPhone"
     path: "/System/Applications/iPhone Mirroring.app"
-    pos: 30
+    pos: 12
 
 dotfiles_repo: "ssh://git@github.com/alenrig/dotfiles.git"
 dotfiles_repo_version: main
