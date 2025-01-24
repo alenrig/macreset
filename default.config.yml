@@ -89,7 +89,7 @@ mas_installed_apps:
   - name: "iMovie"
     id: 408981434
 
-dockutil_install: true
+dockutil_install: false
 dockitems_remove:
   - App Store
   - Launchpad
