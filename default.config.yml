@@ -5,12 +5,14 @@ homebrew_taps:
   - homebrew/cask-versions
   - hashicorp/tap
   - fluxcd/tap
+  - doodlescheduling/flux-build
   - railwaycat/emacsmacport
 
 homebrew_installed_packages:
   - golang
   - gopls
   - grip  # emacs markdown preview
+  - flux-build
   - kubectl
   - int128/kubelogin/kubelogin
   - hadolint  # emacs dockerfile lint
