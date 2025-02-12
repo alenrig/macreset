@@ -34,6 +34,7 @@ homebrew_cask_apps:
   - anydesk
   - appcleaner
   - balenaetcher
+  - contexts
   - dbeaver-community
   - docker
   - drawio
