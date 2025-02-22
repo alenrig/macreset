@@ -9,6 +9,7 @@ homebrew_taps:
   - railwaycat/emacsmacport
 
 homebrew_installed_packages:
+  - cmake
   - golang
   - gopls
   - grip  # emacs markdown preview
