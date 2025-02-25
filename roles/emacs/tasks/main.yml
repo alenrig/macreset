@@ -19,3 +19,9 @@
   ansible.builtin.shell:
     cmd: ~/.emacs.d/bin/doom install
     creates: ~/.emacs.d/.local
+
+- name: Download hunspell dictionaries
+  ansible.builtin.get_url:
+    url: "{{ item }}"
+    dest: ~/Library/Spelling
+  loop: "{{ dictionaries }}"
