@@ -19,6 +19,7 @@ homebrew_installed_packages:
   - hadolint  # emacs dockerfile lint
   - hashicorp/tap/terraform
   - hashicorp/tap/terraform-ls
+  - hunspell  # emacs spell checker
   - fluxcd/tap/flux
   - krew
   - minikube
