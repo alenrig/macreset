@@ -29,7 +29,7 @@ homebrew_installed_packages:
   - pdm
   - shellcheck  # lint shell script
   - name: railwaycat/emacsmacport/emacs-mac
-    install_options: "with-modules,with-native-compilation,with-xwidgets,with-natural-title-bar,with-imagemagick,with-mac-metal"
+    install_options: "with-starter,with-modules,with-native-compilation,with-xwidgets,with-natural-title-bar,with-imagemagick,with-mac-metal"
   - uv
   - virtctl
 
