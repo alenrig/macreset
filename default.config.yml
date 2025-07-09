@@ -58,6 +58,7 @@ homebrew_cask_apps:
   - transmission
   - utm
   - visual-studio-code
+  - voov-meeting
   - zoom
 
 mas_installed_apps:
