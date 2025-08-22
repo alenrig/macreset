@@ -39,6 +39,7 @@ homebrew_cask_apps:
   - anydesk
   - appcleaner
   - balenaetcher
+  - cursor
   - dbeaver-community
   - docker
   - drawio
@@ -127,12 +128,9 @@ dockitems_persist:
   - name: "WebSSH"
     path: "/Applications/WebSSH.app/"
     pos: 7
-  - name: "Visual Studio Code"
-    path: "/Applications/Visual Studio Code.app/"
+  - name: "Cursor"
+    path: "/Applications/Cursor.app/"
     pos: 8
-  - name: "Emacs"
-    path: "/Applications/Emacs.app/"
-    pos: 9
   - name: "Freelens"
     path: "/Applications/Freelens.app/"
     pos: 10
