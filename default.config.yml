@@ -9,6 +9,8 @@ homebrew_taps:
   - railwaycat/emacsmacport
 
 homebrew_installed_packages:
+  - ansible
+  - ansible-lint
   - cmake
   - golang
   - gopls
