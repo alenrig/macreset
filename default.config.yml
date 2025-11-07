@@ -6,7 +6,6 @@ homebrew_taps:
   - hashicorp/tap
   - fluxcd/tap
   - doodlescheduling/flux-build
-  - railwaycat/emacsmacport
 
 homebrew_installed_packages:
   - ansible
@@ -14,14 +13,11 @@ homebrew_installed_packages:
   - cmake
   - golang
   - gopls
-  - grip  # emacs markdown preview
   - flux-build
   - kubectl
   - int128/kubelogin/kubelogin
-  - hadolint  # emacs dockerfile lint
   - hashicorp/tap/terraform
   - hashicorp/tap/terraform-ls
-  - hunspell  # emacs spell checker
   - fluxcd/tap/flux
   - krew
   - minikube
@@ -29,9 +25,6 @@ homebrew_installed_packages:
   - nvm
   - openjdk
   - pdm
-  - shellcheck  # lint shell script
-  - name: railwaycat/emacsmacport/emacs-mac
-    install_options: "with-starter,with-modules,with-native-compilation,with-xwidgets,with-natural-title-bar,with-imagemagick,with-mac-metal"
   - uv
   - virtctl
 
