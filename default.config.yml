@@ -116,8 +116,8 @@ dockitems_persist:
   - name: "Заметки"
     path: "/Applications/Notes.app/"
     pos: 5
-  - name: "iTerm"
-    path: "/Applications/iTerm.app/"
+  - name: "Ghostty"
+    path: "/Applications/Ghostty.app/"
     pos: 6
   - name: "WebSSH"
     path: "/Applications/WebSSH.app/"
