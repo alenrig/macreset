@@ -125,8 +125,8 @@ dockitems_persist:
   - name: "WebSSH"
     path: "/Applications/WebSSH.app/"
     pos: 8
-  - name: "Visual Studio Code"
-    path: "/Applications/Visual Studio Code.app/"
+  - name: "Cursor"
+    path: "/Applications/Cursor.app/"
     pos: 9
   - name: "Freelens"
     path: "/Applications/Freelens.app/"
