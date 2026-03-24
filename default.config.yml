@@ -21,6 +21,7 @@ homebrew_installed_packages:
   - fluxcd/tap/flux
   - krew
   - minikube
+  - mole
   - nvim
   - nvm
   - openjdk
@@ -45,7 +46,6 @@ homebrew_cask_apps:
   - hiddenbar
   - home-assistant
   - iterm2
-  - mole
   - monitorcontrol
   - musescore
   - obsidian
