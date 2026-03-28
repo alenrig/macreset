@@ -31,10 +31,10 @@ homebrew_installed_packages:
 
 homebrew_cask_appdir: /Applications
 homebrew_cask_apps:
-  - 1password
   - anydesk
   - appcleaner
   - balenaetcher
+  - bruno
   - cursor
   - dbeaver-community
   - docker
@@ -49,7 +49,6 @@ homebrew_cask_apps:
   - monitorcontrol
   - musescore
   - obsidian
-  - rapidapi
   - transmission
   - utm
   - visual-studio-code
