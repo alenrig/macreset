@@ -15,7 +15,6 @@ homebrew_installed_packages:
   - gopls
   - flux-build
   - kubectl
-  - int128/kubelogin/kubelogin
   - hashicorp/tap/terraform
   - hashicorp/tap/terraform-ls
   - fluxcd/tap/flux
@@ -24,7 +23,6 @@ homebrew_installed_packages:
   - mole
   - nvim
   - nvm
-  - openjdk
   - pdm
   - uv
   - virtctl
@@ -40,7 +38,6 @@ homebrew_cask_apps:
   - docker
   - docker-desktop
   - drawio
-  - dropbox
   - freelens
   - google-chrome
   - google-drive
@@ -50,7 +47,6 @@ homebrew_cask_apps:
   - monitorcontrol
   - musescore
   - obsidian
-  - openclaw
   - transmission
   - utm
   - visual-studio-code
