@@ -23,6 +23,7 @@ homebrew_installed_packages:
   - mole
   - nvim
   - nvm
+  - openjdk  # sonarqube IDE plugin
   - pdm
   - uv
   - virtctl
