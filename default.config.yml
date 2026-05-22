@@ -2,7 +2,6 @@
 homebrew_taps:
   - homebrew/core
   - homebrew/cask
-  - homebrew/cask-versions
   - hashicorp/tap
   - fluxcd/tap
   - doodlescheduling/flux-build
