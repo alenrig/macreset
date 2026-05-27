@@ -39,6 +39,7 @@ homebrew_cask_apps:
   - docker-desktop
   - drawio
   - freelens
+  - ghostty
   - google-chrome
   - google-drive
   - hiddenbar
@@ -117,8 +118,8 @@ dockitems_persist:
   - name: "Заметки"
     path: "/Applications/Notes.app/"
     pos: 6
-  - name: "iTerm"
-    path: "/Applications/iTerm.app/"
+  - name: "Ghostty"
+    path: "/Applications/Ghostty.app/"
     pos: 7
   - name: "WebSSH"
     path: "/Applications/WebSSH.app/"
