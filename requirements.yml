@@ -5,3 +5,8 @@ roles:
 
 collections:
   - name: geerlingguy.mac
+  # Pin a Homebrew 5.x-compatible version. Older releases detect installed
+  # packages by grepping `brew info` text, which newer Homebrew no longer
+  # emits, causing "already installed and up-to-date" to be treated as a failure.
+  - name: community.general
+    version: ">=10.1.0"

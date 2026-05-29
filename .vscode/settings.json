@@ -30,5 +30,12 @@
     "yaml.schemas": {
         "file:///Users/alenrig/.vscode/extensions/atlassian.atlascode-3.0.4/resources/schemas/pipelines-schema.json": "bitbucket-pipelines.yml",
         "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/tasks": "file:///Users/alenrig/code/macreset/roles/etc/tasks/main.yml"
+    },
+    "workbench.colorCustomizations": {
+        "activityBar.background": "#293101",
+        "titleBar.activeBackground": "#3A4401",
+        "titleBar.activeForeground": "#F7FED2",
+        "titleBar.inactiveBackground": "#293101",
+        "titleBar.inactiveForeground": "#F7FED2"
     }
 }
