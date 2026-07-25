@@ -48,6 +48,7 @@ homebrew_cask_apps:
   - monitorcontrol
   - musescore
   - obsidian
+  - shottr
   - transmission
   - utm
   - visual-studio-code
