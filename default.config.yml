@@ -37,7 +37,6 @@ homebrew_cask_apps:
   - dbeaver-community
   - docker
   - docker-desktop
-  - drawio
   - freelens
   - ghostty
   - google-chrome
