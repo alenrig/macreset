@@ -77,8 +77,6 @@ mas_installed_apps:
     id: 1278508951
   - name: "GoodNotes"
     id: 1444383602
-  - name: "MindNode"
-    id: 1289197285
   - name: "Streaks"
     id: 963034692
   - name: "GoodLinks"
