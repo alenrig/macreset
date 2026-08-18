@@ -1,23 +1,25 @@
 ---
 homebrew_taps:
-  - homebrew/core
-  - homebrew/cask
-  - hashicorp/tap
-  - fluxcd/tap
+  - 1jehuang/jcode
   - doodlescheduling/flux-build
+  - fluxcd/tap
+  - hashicorp/tap
+  - homebrew/cask
+  - homebrew/core
 
 homebrew_installed_packages:
   - ansible
   - ansible-lint
   - cmake
+  - flux-build
+  - fluxcd/tap/flux
   - golang
   - gopls
-  - flux-build
-  - kubectl
   - hashicorp/tap/terraform
   - hashicorp/tap/terraform-ls
-  - fluxcd/tap/flux
+  - jcode
   - krew
+  - kubectl
   - minikube
   - mole
   - nvim
@@ -37,9 +39,9 @@ homebrew_cask_apps:
   - dbeaver-community
   - docker
   - docker-desktop
+  - firefox
   - freelens
   - ghostty
-  - google-chrome
   - google-drive
   - hiddenbar
   - home-assistant
