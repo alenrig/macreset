@@ -1,6 +1,5 @@
 ---
 homebrew_taps:
-  - 1jehuang/jcode
   - doodlescheduling/flux-build
   - fluxcd/tap
   - hashicorp/tap
@@ -17,7 +16,6 @@ homebrew_installed_packages:
   - gopls
   - hashicorp/tap/terraform
   - hashicorp/tap/terraform-ls
-  - jcode
   - krew
   - kubectl
   - minikube
