@@ -36,6 +36,8 @@ homebrew_cask_apps:
   - appcleaner
   - balenaetcher
   - bruno
+  - claude-code
+  - codex
   - cursor
   - dbeaver-community
   - docker
