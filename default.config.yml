@@ -16,6 +16,7 @@ homebrew_installed_packages:
   - gopls
   - hashicorp/tap/terraform
   - hashicorp/tap/terraform-ls
+  - herdr
   - krew
   - kubectl
   - minikube
