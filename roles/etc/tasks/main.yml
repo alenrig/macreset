@@ -2,10 +2,10 @@
 - name: Check OMZ
   ansible.builtin.stat:
     path: ~/.oh-my-zsh
-  register: omz_dir
+  register: etc_omz_dir
 
 - name: Install OMZ
-  when: not omz_dir.stat.path
+  when: not etc_omz_dir.stat.path
   block:
     - name: Download OMZ
       ansible.builtin.get_url:
