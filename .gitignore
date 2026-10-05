@@ -1,4 +1,6 @@
 .vscode/
+
+.ansible/
 inventory/
 
 config.yml
