@@ -11,13 +11,13 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
-import sys
 import tempfile
+
+from declarations import load_list, reject_duplicate, require_fields, validate_ref
 
 
 SOURCE = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
 NAME = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
-REF = re.compile(r"^[A-Za-z0-9_./-]+$")
 
 
 def fail(message):
@@ -26,27 +26,18 @@ def fail(message):
 
 
 def load_desired():
-    try:
-        desired = json.loads(os.environ["AI_SKILLS_JSON"])
-    except (KeyError, json.JSONDecodeError) as exc:
-        fail(f"ai_skills must be a JSON-compatible list: {exc}")
-    if not isinstance(desired, list):
-        fail("ai_skills must be a list")
+    desired = load_list("AI_SKILLS_JSON", "ai_skills", fail)
     seen = set()
     for item in desired:
-        if not isinstance(item, dict) or set(item) - {"source", "name", "ref"}:
-            fail("Each ai_skills entry needs source, name, and optional ref only")
+        require_fields(item, {"source", "name", "ref"}, "ai_skills", fail)
         source, name, ref = item.get("source"), item.get("name"), item.get("ref")
-        if not isinstance(source, str) or not SOURCE.fullmatch(source):
+        if (not isinstance(source, str) or not SOURCE.fullmatch(source)
+                or any(part in (".", "..") for part in source.split("/"))):
             fail(f"Invalid skill source {source!r}; use GitHub owner/repo shorthand")
         if not isinstance(name, str) or not NAME.fullmatch(name):
             fail(f"Invalid skill name {name!r}")
-        if ref is not None and (not isinstance(ref, str) or not REF.fullmatch(ref)
-                                or ref.startswith("/") or ".." in ref.split("/")):
-            fail(f"Invalid Git ref for {name}: {ref!r}")
-        if name in seen:
-            fail(f"Duplicate skill name in ai_skills: {name}")
-        seen.add(name)
+        validate_ref(ref, name, fail)
+        reject_duplicate(name, seen, "skill name in ai_skills", fail)
     return desired
 
 
@@ -55,9 +46,54 @@ def load_lock(home):
     lock_path = (Path(state_home) / "skills" / ".skill-lock.json" if state_home
                  else home / ".agents" / ".skill-lock.json")
     try:
-        return json.loads(lock_path.read_text()).get("skills", {}) if lock_path.exists() else {}
-    except (OSError, json.JSONDecodeError, AttributeError) as exc:
+        lock = json.loads(lock_path.read_text()).get("skills", {}) if lock_path.exists() else {}
+        if not isinstance(lock, dict):
+            raise ValueError("skills is not an object")
+        return lock
+    except (OSError, json.JSONDecodeError, AttributeError, ValueError) as exc:
         fail(f"Cannot read skills provenance at {lock_path}: {exc}")
+
+
+def check_conflicts(desired, lock, home):
+    canonical = home / ".agents" / "skills"
+    agent_dirs = [home / ".codex" / "skills", home / ".cursor" / "skills"]
+    for item in desired:
+        name, source = item["name"], item["source"]
+        paths = [canonical / name] + [directory / name for directory in agent_dirs]
+        occupied = any(path.exists() or path.is_symlink() for path in paths)
+        recorded = lock.get(name)
+        if occupied and (not isinstance(recorded, dict)
+                         or recorded.get("sourceType") != "github"
+                         or not isinstance(recorded.get("source"), str)
+                         or recorded["source"].lower() != source.lower()):
+            fail(f"Skill {name} already exists, but its recorded source is not {source}; "
+                 "resolve this conflict manually before rerunning macreset")
+        if (isinstance(recorded, dict) and isinstance(recorded.get("source"), str)
+                and recorded["source"].lower() != source.lower()):
+            fail(f"Skill {name} is recorded from {recorded['source']}, not {source}")
+
+
+def find_skill_paths(checkout, name):
+    matches = []
+    for candidate in Path(checkout).rglob("SKILL.md"):
+        if ".git" in candidate.parts:
+            continue
+        if candidate.parent.name == name:
+            matches.append(candidate.parent.relative_to(checkout).as_posix())
+            continue
+        try:
+            lines = candidate.read_text().splitlines()
+        except OSError as exc:
+            fail(f"Cannot inspect upstream skill {candidate}: {exc}")
+        if lines and lines[0].strip() == "---":
+            for line in lines[1:]:
+                if line.strip() == "---":
+                    break
+                if line.strip() in (f"name: {name}", f'name: "{name}"',
+                                    f"name: '{name}'"):
+                    matches.append(candidate.parent.relative_to(checkout).as_posix())
+                    break
+    return matches
 
 
 def upstream_hashes(desired, lock):
@@ -90,9 +126,11 @@ def upstream_hashes(desired, lock):
                 fail(f"Could not check upstream skills from {source}: "
                      f"{result.stderr.strip() or result.stdout.strip()}")
             for name, folder in skills:
-                if folder is None:
-                    hashes[name] = None
-                    continue
+                matches = find_skill_paths(checkout, name)
+                if len(matches) != 1:
+                    fail(f"Skill {name} from {source} has "
+                         f"{len(matches)} matching upstream paths; check the source or name")
+                folder = matches[0]
                 result = subprocess.run(
                     ["git", "-C", checkout, "rev-parse", "--verify", f"HEAD:{folder}"],
                     text=True, capture_output=True, check=False,
@@ -114,20 +152,7 @@ def main():
     canonical = home / ".agents" / "skills"
     agent_dirs = [home / ".codex" / "skills", home / ".cursor" / "skills"]
 
-    # Check every declaration before any installer invocation can mutate a skill.
-    for item in desired:
-        name, source = item["name"], item["source"]
-        paths = [canonical / name] + [directory / name for directory in agent_dirs]
-        occupied = any(path.exists() or path.is_symlink() for path in paths)
-        recorded = lock.get(name)
-        if occupied and (not isinstance(recorded, dict)
-                         or recorded.get("sourceType") != "github"
-                         or recorded.get("source", "").lower() != source.lower()):
-            fail(f"Skill {name} already exists, but its recorded source is not {source}; "
-                 "resolve this conflict manually before rerunning macreset")
-        if (isinstance(recorded, dict) and isinstance(recorded.get("source"), str)
-                and recorded["source"].lower() != source.lower()):
-            fail(f"Skill {name} is recorded from {recorded['source']}, not {source}")
+    check_conflicts(desired, lock, home)
 
     # Complete conflict checks before fetching or changing any declared skill.
     hashes = upstream_hashes(desired, lock)
