@@ -1,0 +1,10 @@
+---
+- name: Reconcile declared Herdr marketplace plugins
+  ansible.builtin.command:
+    argv:
+      - python3
+      - "{{ role_path }}/files/reconcile_plugins.py"
+  environment:
+    AI_HERDR_PLUGINS_JSON: "{{ ai_herdr_plugins | to_json }}"
+  register: ai_herdr_plugins_result
+  changed_when: (ai_herdr_plugins_result.stdout | from_json).changed

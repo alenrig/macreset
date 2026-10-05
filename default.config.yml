@@ -220,3 +220,7 @@ ai_skills:
   - { source: mattpocock/skills, name: wayfinder }
   - { source: mattpocock/skills, name: wizard }
   - { source: mattpocock/skills, name: writing-for-agents }
+
+# Public GitHub Herdr plugins. config.yml replaces this list in full.
+# Entries use { source: owner/repo[/subdir], ref: optional-git-ref }.
+ai_herdr_plugins: []
