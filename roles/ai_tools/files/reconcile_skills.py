@@ -12,6 +12,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 
 
 SOURCE = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
@@ -59,6 +60,50 @@ def load_lock(home):
         fail(f"Cannot read skills provenance at {lock_path}: {exc}")
 
 
+def upstream_hashes(desired, lock):
+    """Read Git tree hashes for the declared, installed, unpinned skills only."""
+    by_source = {}
+    for item in desired:
+        name = item["name"]
+        recorded = lock.get(name)
+        if item.get("ref") is not None or not isinstance(recorded, dict):
+            continue
+        skill_path = recorded.get("skillPath")
+        if not isinstance(skill_path, str):
+            by_source.setdefault(item["source"], []).append((name, None))
+            continue
+        path = Path(skill_path)
+        if (path.is_absolute() or path.name != "SKILL.md"
+                or not path.parent.parts or ".." in path.parts):
+            fail(f"Invalid recorded skill path for {name}: {skill_path!r}")
+        by_source.setdefault(item["source"], []).append((name, path.parent.as_posix()))
+
+    hashes = {}
+    for source, skills in by_source.items():
+        with tempfile.TemporaryDirectory(prefix="macreset-skills-") as checkout:
+            result = subprocess.run(
+                ["git", "clone", "--quiet", "--depth", "1", "--filter=blob:none",
+                 f"https://github.com/{source}.git", checkout],
+                text=True, capture_output=True, check=False,
+            )
+            if result.returncode:
+                fail(f"Could not check upstream skills from {source}: "
+                     f"{result.stderr.strip() or result.stdout.strip()}")
+            for name, folder in skills:
+                if folder is None:
+                    hashes[name] = None
+                    continue
+                result = subprocess.run(
+                    ["git", "-C", checkout, "rev-parse", "--verify", f"HEAD:{folder}"],
+                    text=True, capture_output=True, check=False,
+                )
+                if result.returncode:
+                    fail(f"Skill {name} is no longer at its recorded path in {source}; "
+                         "resolve the upstream move before rerunning macreset")
+                hashes[name] = result.stdout.strip()
+    return hashes
+
+
 def main():
     desired = load_desired()
     for command in ("python3", "node", "npx", "git"):
@@ -80,17 +125,24 @@ def main():
                          or recorded.get("source", "").lower() != source.lower()):
             fail(f"Skill {name} already exists, but its recorded source is not {source}; "
                  "resolve this conflict manually before rerunning macreset")
-        if recorded and recorded.get("source") and recorded["source"].lower() != source.lower():
+        if (isinstance(recorded, dict) and isinstance(recorded.get("source"), str)
+                and recorded["source"].lower() != source.lower()):
             fail(f"Skill {name} is recorded from {recorded['source']}, not {source}")
 
+    # Complete conflict checks before fetching or changing any declared skill.
+    hashes = upstream_hashes(desired, lock)
     installed = []
     for item in desired:
         name, source, ref = item["name"], item["source"], item.get("ref")
         paths = [canonical / name] + [directory / name for directory in agent_dirs]
         recorded = lock.get(name, {})
-        if (all(path.exists() for path in paths) and isinstance(recorded, dict)
-                and recorded.get("source", "").lower() == source.lower()
-                and recorded.get("ref") == ref):
+        present = all(path.exists() for path in paths)
+        same_ref = isinstance(recorded, dict) and recorded.get("ref") == ref
+        current = (ref is not None or
+                   (isinstance(recorded, dict)
+                    and recorded.get("skillFolderHash") == hashes.get(name)
+                    and hashes.get(name) is not None))
+        if present and same_ref and current:
             continue
         source_arg = f"{source}#{ref}" if ref else source
         argv = ["npx", "--yes", "skills@latest", "add", source_arg,
