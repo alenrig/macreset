@@ -6,5 +6,5 @@
       - "{{ role_path }}/files/reconcile_skills.py"
   environment:
     AI_SKILLS_JSON: "{{ ai_skills | to_json }}"
-  register: ai_skills_result
-  changed_when: (ai_skills_result.stdout | from_json).changed
+  register: ai_tools_skills_result
+  changed_when: (ai_tools_skills_result.stdout | from_json).changed

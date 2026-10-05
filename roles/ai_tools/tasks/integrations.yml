@@ -4,17 +4,18 @@
     argv:
       - python3
       - "{{ role_path }}/files/herdr_integration_status.py"
-  register: ai_herdr_integration_status
+  register: ai_tools_herdr_integration_status
   changed_when: false
 
 - name: Record Herdr integration state
   ansible.builtin.set_fact:
-    ai_herdr_integration_states: "{{ ai_herdr_integration_status.stdout | from_json }}"
+    ai_tools_herdr_integration_states: "{{ ai_tools_herdr_integration_status.stdout | from_json }}"
 
 - name: Ensure Codex and Cursor config directories exist when integration is needed
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: directory
+    mode: "0700"
   loop:
     - name: codex
       path: "{{ lookup('ansible.builtin.env', 'CODEX_HOME') | default(lookup('ansible.builtin.env', 'HOME') ~ '/.codex', true) }}"
@@ -22,7 +23,7 @@
       path: "{{ lookup('ansible.builtin.env', 'CURSOR_CONFIG_DIR') | default(lookup('ansible.builtin.env', 'HOME') ~ '/.cursor', true) }}"
   loop_control:
     label: "{{ item.name }}"
-  when: ai_herdr_integration_states[item.name] != 'current'
+  when: ai_tools_herdr_integration_states[item.name] != 'current'
 
 - name: Install missing or outdated Herdr integrations
   ansible.builtin.command:
@@ -34,4 +35,5 @@
   loop:
     - codex
     - cursor
-  when: ai_herdr_integration_states[item] != 'current'
+  when: ai_tools_herdr_integration_states[item] != 'current'
+  changed_when: true
