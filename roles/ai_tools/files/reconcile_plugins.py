@@ -11,9 +11,10 @@ import re
 import shutil
 import subprocess
 
+from declarations import load_list, reject_duplicate, require_fields, validate_ref
+
 
 SOURCE_PART = re.compile(r"^[A-Za-z0-9_.-]+$")
-REF = re.compile(r"^[A-Za-z0-9_./-]+$")
 COMMIT = re.compile(r"^[0-9a-fA-F]{40}$")
 
 
@@ -34,28 +35,18 @@ def run(argv, description):
 
 
 def load_desired():
-    try:
-        desired = json.loads(os.environ["AI_HERDR_PLUGINS_JSON"])
-    except (KeyError, json.JSONDecodeError) as exc:
-        fail(f"ai_herdr_plugins must be a JSON-compatible list: {exc}")
-    if not isinstance(desired, list):
-        fail("ai_herdr_plugins must be a list")
+    desired = load_list("AI_HERDR_PLUGINS_JSON", "ai_herdr_plugins", fail)
     seen = set()
     for item in desired:
-        if not isinstance(item, dict) or set(item) - {"source", "ref"}:
-            fail("Each ai_herdr_plugins entry needs source and optional ref only")
+        require_fields(item, {"source", "ref"}, "ai_herdr_plugins", fail)
         source, ref = item.get("source"), item.get("ref")
         parts = source.split("/") if isinstance(source, str) else []
         if (len(parts) < 2 or any(not SOURCE_PART.fullmatch(part) or part in (".", "..")
                                   for part in parts)):
             fail(f"Invalid Herdr plugin source {source!r}; use public GitHub owner/repo[/subdir]")
-        if ref is not None and (not isinstance(ref, str) or not REF.fullmatch(ref)
-                                or ref.startswith("/") or ".." in ref.split("/")):
-            fail(f"Invalid Git ref for Herdr plugin {source}: {ref!r}")
+        validate_ref(ref, f"Herdr plugin {source}", fail)
         normalized = source.lower()
-        if normalized in seen:
-            fail(f"Duplicate Herdr plugin source: {source}")
-        seen.add(normalized)
+        reject_duplicate(normalized, seen, "Herdr plugin source", fail)
     return desired
 
 

@@ -11,7 +11,7 @@ MANAGED = ("codex", "cursor")
 STATUS = re.compile(r"^(?P<name>[a-z][a-z0-9-]*):\s*(?P<state>current|outdated|not installed)(?:\s|$)")
 
 
-def main():
+def get_states():
     if shutil.which("herdr") is None:
         raise RuntimeError("Herdr is missing from PATH. Install Herdr before running the AI tools role.")
 
@@ -45,7 +45,11 @@ def main():
             f"Herdr did not report a supported status for {names}. Upgrade Herdr to a version "
             "that supports the Codex and Cursor integrations."
         )
-    print(json.dumps(states))
+    return states
+
+
+def main():
+    print(json.dumps(get_states()))
 
 
 if __name__ == "__main__":
