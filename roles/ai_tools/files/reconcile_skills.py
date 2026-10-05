@@ -138,7 +138,7 @@ def upstream_hashes(desired, lock):
                 if result.returncode:
                     fail(f"Skill {name} is no longer at its recorded path in {source}; "
                          "resolve the upstream move before rerunning macreset")
-                hashes[name] = result.stdout.strip()
+                hashes[name] = (result.stdout.strip(), f"{folder}/SKILL.md")
     return hashes
 
 
@@ -165,8 +165,9 @@ def main():
         same_ref = isinstance(recorded, dict) and recorded.get("ref") == ref
         current = (ref is not None or
                    (isinstance(recorded, dict)
-                    and recorded.get("skillFolderHash") == hashes.get(name)
-                    and hashes.get(name) is not None))
+                    and hashes.get(name) is not None
+                    and recorded.get("skillFolderHash") == hashes[name][0]
+                    and recorded.get("skillPath") == hashes[name][1]))
         if present and same_ref and current:
             continue
         source_arg = f"{source}#{ref}" if ref else source
