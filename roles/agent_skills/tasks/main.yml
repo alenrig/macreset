@@ -1,10 +1,7 @@
 ---
 - name: Locate Homebrew nvm
   ansible.builtin.command:
-    argv:
-      - brew
-      - --prefix
-      - nvm
+    argv: [brew, --prefix, nvm]
   register: agent_skills_nvm_prefix
   changed_when: false
 
@@ -14,15 +11,65 @@
     state: directory
     mode: '0755'
 
-- name: Install or refresh Node.js LTS with nvm
+- name: Resolve current remote Node.js LTS
   ansible.builtin.command:
     argv:
       - /bin/zsh
       - -c
-      - source "$NVM_SCRIPT" && nvm install --lts && nvm alias default 'lts/*'
+      - source "$NVM_SCRIPT" && nvm version-remote --lts
+  environment: &nvm_environment
+    NVM_DIR: "{{ ansible_env.HOME }}/.nvm"
+    NVM_SCRIPT: "{{ agent_skills_nvm_prefix.stdout }}/nvm.sh"
+  register: agent_skills_remote_node
+  changed_when: false
+  failed_when: agent_skills_remote_node.rc != 0 or agent_skills_remote_node.stdout is not regex('^v[0-9]+\.[0-9]+\.[0-9]+$')
+
+- name: Check installed Node.js LTS version
+  ansible.builtin.command:
+    argv:
+      - /bin/zsh
+      - -c
+      - source "$NVM_SCRIPT" && nvm version "$NODE_VERSION"
   environment:
     NVM_DIR: "{{ ansible_env.HOME }}/.nvm"
     NVM_SCRIPT: "{{ agent_skills_nvm_prefix.stdout }}/nvm.sh"
+    NODE_VERSION: "{{ agent_skills_remote_node.stdout }}"
+  register: agent_skills_installed_node
+  changed_when: false
+  failed_when: agent_skills_installed_node.rc not in [0, 3] or agent_skills_installed_node.stdout not in [agent_skills_remote_node.stdout, 'N/A']
+
+- name: Install missing Node.js LTS version
+  ansible.builtin.command:
+    argv:
+      - /bin/zsh
+      - -c
+      - source "$NVM_SCRIPT" && nvm install "$NODE_VERSION"
+  environment:
+    NVM_DIR: "{{ ansible_env.HOME }}/.nvm"
+    NVM_SCRIPT: "{{ agent_skills_nvm_prefix.stdout }}/nvm.sh"
+    NODE_VERSION: "{{ agent_skills_remote_node.stdout }}"
+  when: agent_skills_installed_node.stdout == 'N/A'
+  changed_when: true
+
+- name: Check nvm default alias
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.nvm/alias/default"
+  register: agent_skills_default_alias_stat
+
+- name: Read nvm default alias
+  ansible.builtin.slurp:
+    src: "{{ ansible_env.HOME }}/.nvm/alias/default"
+  register: agent_skills_default_alias
+  when: agent_skills_default_alias_stat.stat.exists
+
+- name: Point nvm default alias at LTS
+  ansible.builtin.command:
+    argv:
+      - /bin/zsh
+      - -c
+      - source "$NVM_SCRIPT" && nvm alias default 'lts/*'
+  environment: *nvm_environment
+  when: not agent_skills_default_alias_stat.stat.exists or (agent_skills_default_alias.content | b64decode | trim) != 'lts/*'
   changed_when: true
 
 - name: Resolve nvm-managed Node.js executable
@@ -30,82 +77,163 @@
     argv:
       - /bin/zsh
       - -c
-      - source "$NVM_SCRIPT" && nvm which 'lts/*'
+      - source "$NVM_SCRIPT" && nvm which "$NODE_VERSION"
   environment:
     NVM_DIR: "{{ ansible_env.HOME }}/.nvm"
     NVM_SCRIPT: "{{ agent_skills_nvm_prefix.stdout }}/nvm.sh"
+    NODE_VERSION: "{{ agent_skills_remote_node.stdout }}"
   register: agent_skills_node_executable
   changed_when: false
 
 - name: List installed Flux plugins
   ansible.builtin.command:
-    argv:
-      - flux
-      - plugin
-      - list
+    argv: [flux, plugin, list]
   register: agent_skills_flux_plugins
   changed_when: false
 
-- name: Install Flux schema plugin
+- name: Check Flux plugin catalog
   ansible.builtin.command:
-    argv:
-      - flux
-      - plugin
-      - install
-      - schema
-  when: agent_skills_flux_plugins.stdout is not regex('(?m)^schema\s')
+    argv: [flux, plugin, search, schema]
+  register: agent_skills_flux_catalog
+  changed_when: false
+  failed_when: agent_skills_flux_catalog.rc != 0 or agent_skills_flux_catalog.stdout is not regex('(?m)^schema\s')
+
+- name: Resolve latest Flux schema release
+  ansible.builtin.uri:
+    url: https://github.com/fluxcd/flux-schema/releases/latest
+    method: HEAD
+    follow_redirects: none
+    status_code: 302
+  register: agent_skills_flux_release
+  changed_when: false
+  failed_when: >-
+    agent_skills_flux_release.status != 302
+    or agent_skills_flux_release.location is not regex('^https://github.com/fluxcd/flux-schema/releases/tag/v[0-9]+\.[0-9]+\.[0-9]+$')
+
+- name: Record Flux schema versions
+  ansible.builtin.set_fact:
+    agent_skills_flux_installed_version: >-
+      {{ (agent_skills_flux_plugins.stdout | regex_findall('(?m)^schema\s+v?([0-9]+\.[0-9]+\.[0-9]+)\s') | first) | default('') }}
+    agent_skills_flux_latest_version: >-
+      {{ agent_skills_flux_release.location | regex_search('v[0-9]+\.[0-9]+\.[0-9]+$') | regex_replace('^v', '') }}
+
+- name: Install missing Flux schema plugin
+  ansible.builtin.command:
+    argv: [flux, plugin, install, schema]
+  when: agent_skills_flux_installed_version == ''
   changed_when: true
 
-- name: Update Flux schema plugin
+- name: Update stale Flux schema plugin
   ansible.builtin.command:
-    argv:
-      - flux
-      - plugin
-      - update
-      - schema
-  when: agent_skills_flux_plugins.stdout is regex('(?m)^schema\s')
+    argv: [flux, plugin, update, schema]
+  when: agent_skills_flux_installed_version != '' and agent_skills_flux_installed_version != agent_skills_flux_latest_version
   changed_when: true
 
-- name: Install or refresh configured Flux agent skills
+- name: Verify Flux schema plugin
+  ansible.builtin.command:
+    argv: [flux, plugin, list]
+  register: agent_skills_flux_verified
+  changed_when: false
+  failed_when: >-
+    agent_skills_flux_verified.rc != 0
+    or agent_skills_flux_verified.stdout is not regex('(?m)^schema\s+v?' ~ (agent_skills_flux_latest_version | regex_escape) ~ '\s')
+
+- name: Inventory global skills
   ansible.builtin.command:
     argv:
       - "{{ agent_skills_node_executable.stdout | dirname }}/npx"
       - --yes
       - skills
-      - add
-      - fluxcd/agent-skills
-      - --skill
-      - "{{ item }}"
+      - list
       - --global
-      - --agent
-      - codex
-      - --agent
-      - cursor
-      - --yes
       - --json
-  environment:
+  environment: &skills_environment
     PATH: "{{ agent_skills_node_executable.stdout | dirname }}:{{ ansible_env.PATH }}"
+    NO_COLOR: '1'
+  register: agent_skills_inventory_result
+  changed_when: false
+
+- name: Check global skills lock
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.agents/.skill-lock.json"
+  register: agent_skills_lock_stat
+
+- name: Read global skills lock
+  ansible.builtin.slurp:
+    src: "{{ ansible_env.HOME }}/.agents/.skill-lock.json"
+  register: agent_skills_lock_result
+  when: agent_skills_lock_stat.stat.exists
+
+- name: Set global skills inventory
+  ansible.builtin.set_fact:
+    agent_skills_inventory: "{{ agent_skills_inventory_result.stdout | from_json }}"
+    agent_skills_lock: "{{ (agent_skills_lock_result.content | b64decode | from_json).skills if agent_skills_lock_stat.stat.exists else {} }}"
+
+- name: Create temporary skill hash workspace
+  ansible.builtin.tempfile:
+    state: directory
+    prefix: macreset-skill-hash-
+  register: agent_skills_hash_workspace
+  changed_when: false
+
+- name: Initialize temporary Git object store for skill hashes
+  ansible.builtin.command:
+    argv: [git, init, --bare, "{{ agent_skills_hash_workspace.path }}/objects.git"]
+  changed_when: false
+
+- name: Maintain configured Flux skills
+  ansible.builtin.include_tasks: skill.yml
   loop: "{{ flux_agent_skills }}"
-  changed_when: true
+  loop_control:
+    loop_var: agent_skill_name
+  vars:
+    agent_skill_source: fluxcd/agent-skills
 
-- name: Install or refresh configured Matt Pocock agent skills
+- name: Maintain configured Matt Pocock skills
+  ansible.builtin.include_tasks: skill.yml
+  loop: "{{ matt_pocock_agent_skills }}"
+  loop_control:
+    loop_var: agent_skill_name
+  vars:
+    agent_skill_source: mattpocock/skills
+
+- name: Verify global skills
   ansible.builtin.command:
     argv:
       - "{{ agent_skills_node_executable.stdout | dirname }}/npx"
       - --yes
       - skills
-      - add
-      - mattpocock/skills
-      - --skill
-      - "{{ item }}"
+      - list
       - --global
-      - --agent
-      - codex
-      - --agent
-      - cursor
-      - --yes
       - --json
-  environment:
-    PATH: "{{ agent_skills_node_executable.stdout | dirname }}:{{ ansible_env.PATH }}"
+  environment: *skills_environment
+  register: agent_skills_verified_inventory
+  changed_when: false
+
+- name: Verify configured Flux skills
+  ansible.builtin.assert:
+    that:
+      - agent_skills_matches | length == 1
+      - agent_skills_matches[0].source == 'fluxcd/agent-skills'
+      - "'Codex' in agent_skills_matches[0].agents"
+      - "'Cursor' in agent_skills_matches[0].agents"
+  vars:
+    agent_skills_matches: "{{ (agent_skills_verified_inventory.stdout | from_json) | selectattr('name', 'equalto', item) | list }}"
+  loop: "{{ flux_agent_skills }}"
+
+- name: Verify configured Matt Pocock skills
+  ansible.builtin.assert:
+    that:
+      - agent_skills_matches | length == 1
+      - agent_skills_matches[0].source == 'mattpocock/skills'
+      - "'Codex' in agent_skills_matches[0].agents"
+      - "'Cursor' in agent_skills_matches[0].agents"
+  vars:
+    agent_skills_matches: "{{ (agent_skills_verified_inventory.stdout | from_json) | selectattr('name', 'equalto', item) | list }}"
   loop: "{{ matt_pocock_agent_skills }}"
-  changed_when: true
+
+- name: Remove temporary skill hash workspace
+  ansible.builtin.file:
+    path: "{{ agent_skills_hash_workspace.path }}"
+    state: absent
+  changed_when: false
