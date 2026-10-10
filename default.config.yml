@@ -22,11 +22,50 @@ homebrew_installed_packages:
   - minikube
   - mole
   - nvim
-  - nvm
   - openjdk  # sonarqube IDE plugin
   - pdm
   - uv
   - virtctl
+
+  # Prerequisites for the agent-skills role: nvm manages Node.js and supplies
+  # npx; kustomize builds the overlays used by the Flux skills.
+  - nvm
+  - kustomize
+
+flux_agent_skills:
+  - gitops-knowledge
+  - gitops-repo-audit
+  - gitops-cluster-debug
+
+matt_pocock_agent_skills:
+  # Engineering
+  - ask-matt
+  - code-review
+  - codebase-design
+  - diagnosing-bugs
+  - domain-modeling
+  - grill-with-docs
+  - implement-spec
+  - implement
+  - improve-codebase-architecture
+  - pr
+  - prototype
+  - research
+  - retro
+  - setup-matt-pocock-skills
+  - tdd
+  - to-spec
+  - to-tickets
+  - triage
+  - wayfinder
+  # Productivity
+  - grill-me
+  - grilling
+  - handoff
+  - teach
+  - to-questionnaire
+  - wait-what
+  - writing-for-agents
 
 homebrew_cask_uninstalled_apps:
   - google-chrome
