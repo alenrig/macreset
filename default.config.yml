@@ -22,15 +22,14 @@ homebrew_installed_packages:
   - minikube
   - mole
   - nvim
-  - nvm
   - openjdk  # sonarqube IDE plugin
   - pdm
   - uv
   - virtctl
 
-  # Prerequisites for the agent-skills role: Node.js supplies npx, and
-  # kustomize builds the overlays used by the Flux skills.
-  - node
+  # Prerequisites for the agent-skills role: nvm manages Node.js and supplies
+  # npx; kustomize builds the overlays used by the Flux skills.
+  - nvm
   - kustomize
 
 flux_agent_skills:

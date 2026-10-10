@@ -1,4 +1,42 @@
 ---
+- name: Locate Homebrew nvm
+  ansible.builtin.command:
+    argv:
+      - brew
+      - --prefix
+      - nvm
+  register: agent_skills_nvm_prefix
+  changed_when: false
+
+- name: Create nvm directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.nvm"
+    state: directory
+    mode: '0755'
+
+- name: Install or refresh Node.js LTS with nvm
+  ansible.builtin.command:
+    argv:
+      - /bin/zsh
+      - -c
+      - source "$NVM_SCRIPT" && nvm install --lts --default
+  environment:
+    NVM_DIR: "{{ ansible_env.HOME }}/.nvm"
+    NVM_SCRIPT: "{{ agent_skills_nvm_prefix.stdout }}/nvm.sh"
+  changed_when: true
+
+- name: Resolve nvm-managed Node.js executable
+  ansible.builtin.command:
+    argv:
+      - /bin/zsh
+      - -c
+      - source "$NVM_SCRIPT" && nvm which --lts
+  environment:
+    NVM_DIR: "{{ ansible_env.HOME }}/.nvm"
+    NVM_SCRIPT: "{{ agent_skills_nvm_prefix.stdout }}/nvm.sh"
+  register: agent_skills_node_executable
+  changed_when: false
+
 - name: List installed Flux plugins
   ansible.builtin.command:
     argv:
@@ -31,7 +69,7 @@
 - name: Install or refresh configured Flux agent skills
   ansible.builtin.command:
     argv:
-      - npx
+      - "{{ agent_skills_node_executable.stdout | dirname }}/npx"
       - --yes
       - skills
       - add
@@ -45,13 +83,15 @@
       - cursor
       - --yes
       - --json
+  environment:
+    PATH: "{{ agent_skills_node_executable.stdout | dirname }}:{{ ansible_env.PATH }}"
   loop: "{{ flux_agent_skills }}"
   changed_when: true
 
 - name: Install or refresh configured Matt Pocock agent skills
   ansible.builtin.command:
     argv:
-      - npx
+      - "{{ agent_skills_node_executable.stdout | dirname }}/npx"
       - --yes
       - skills
       - add
@@ -65,5 +105,7 @@
       - cursor
       - --yes
       - --json
+  environment:
+    PATH: "{{ agent_skills_node_executable.stdout | dirname }}:{{ ansible_env.PATH }}"
   loop: "{{ matt_pocock_agent_skills }}"
   changed_when: true
