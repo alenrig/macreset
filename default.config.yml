@@ -30,6 +30,9 @@ homebrew_installed_packages:
 
 homebrew_cask_uninstalled_apps:
   - google-chrome
+  - 1password
+  - claude-code
+  - iterm2
 
 homebrew_cask_appdir: /Applications
 homebrew_cask_apps:
