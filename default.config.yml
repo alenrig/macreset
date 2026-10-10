@@ -58,18 +58,6 @@ matt_pocock_agent_skills:
   - to-tickets
   - triage
   - wayfinder
-  - wizard
-  # In progress
-  - claude-handoff
-  - loop-me
-  - setup-ts-deep-modules
-  - writing-beats
-  - writing-fragments
-  - writing-shape
-  # Miscellaneous
-  - git-guardrails-claude-code
-  - migrate-to-shoehorn
-  - setup-pre-commit
   # Productivity
   - grill-me
   - grilling
