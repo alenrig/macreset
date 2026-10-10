@@ -19,7 +19,7 @@
     argv:
       - /bin/zsh
       - -c
-      - source "$NVM_SCRIPT" && nvm install --lts --default
+      - source "$NVM_SCRIPT" && nvm install --lts && nvm alias default 'lts/*'
   environment:
     NVM_DIR: "{{ ansible_env.HOME }}/.nvm"
     NVM_SCRIPT: "{{ agent_skills_nvm_prefix.stdout }}/nvm.sh"
@@ -30,7 +30,7 @@
     argv:
       - /bin/zsh
       - -c
-      - source "$NVM_SCRIPT" && nvm which default
+      - source "$NVM_SCRIPT" && nvm which 'lts/*'
   environment:
     NVM_DIR: "{{ ansible_env.HOME }}/.nvm"
     NVM_SCRIPT: "{{ agent_skills_nvm_prefix.stdout }}/nvm.sh"
