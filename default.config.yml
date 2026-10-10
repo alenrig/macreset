@@ -40,7 +40,6 @@ homebrew_cask_apps:
   - appcleaner
   - balenaetcher
   - bruno
-  - claude-code
   - codex
   - cursor
   - dbeaver-community
@@ -52,7 +51,6 @@ homebrew_cask_apps:
   - google-drive
   - hiddenbar
   - home-assistant
-  - iterm2
   - monitorcontrol
   - musescore
   - obsidian
