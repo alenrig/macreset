@@ -1,0 +1,128 @@
+---
+- name: Find configured skill in inventory
+  ansible.builtin.set_fact:
+    agent_skills_inventory_entry: "{{ (agent_skills_inventory | selectattr('name', 'equalto', agent_skill_name) | list | first) | default({}) }}"
+    agent_skills_lock_entry: "{{ agent_skills_lock.get(agent_skill_name, {}) }}"
+
+- name: Check canonical skill directory
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.agents/skills/{{ agent_skill_name }}"
+  register: agent_skills_canonical_stat
+
+- name: Hash existing canonical skill files
+  ansible.builtin.command:
+    argv:
+      - git
+      - "--git-dir={{ agent_skills_hash_workspace.path }}/objects.git"
+      - "--work-tree={{ ansible_env.HOME }}/.agents/skills/{{ agent_skill_name }}"
+      - add
+      - -A
+  environment:
+    GIT_INDEX_FILE: "{{ agent_skills_hash_workspace.path }}/{{ agent_skill_name }}.index"
+  when: agent_skills_canonical_stat.stat.isdir | default(false)
+  changed_when: false
+
+- name: Read existing canonical skill hash
+  ansible.builtin.command:
+    argv:
+      - git
+      - "--git-dir={{ agent_skills_hash_workspace.path }}/objects.git"
+      - write-tree
+  environment:
+    GIT_INDEX_FILE: "{{ agent_skills_hash_workspace.path }}/{{ agent_skill_name }}.index"
+  register: agent_skills_local_hash
+  when: agent_skills_canonical_stat.stat.isdir | default(false)
+  changed_when: false
+
+- name: Repair missing or mismatched global skill
+  ansible.builtin.command:
+    argv:
+      - "{{ agent_skills_node_executable.stdout | dirname }}/npx"
+      - --yes
+      - skills
+      - add
+      - "{{ agent_skill_source }}"
+      - --skill
+      - "{{ agent_skill_name }}"
+      - --global
+      - --agent
+      - codex
+      - --agent
+      - cursor
+      - --yes
+      - --json
+  environment:
+    PATH: "{{ agent_skills_node_executable.stdout | dirname }}:{{ ansible_env.PATH }}"
+    NO_COLOR: '1'
+  register: agent_skills_add_result
+  when: >-
+    agent_skills_inventory_entry.source | default('') != agent_skill_source
+    or 'Codex' not in (agent_skills_inventory_entry.agents | default([]))
+    or 'Cursor' not in (agent_skills_inventory_entry.agents | default([]))
+    or agent_skills_lock_entry.source | default('') != agent_skill_source
+    or not (agent_skills_lock_entry.skillFolderHash | default(''))
+    or not (agent_skills_lock_entry.skillPath | default(''))
+    or not (agent_skills_canonical_stat.stat.isdir | default(false))
+    or agent_skills_local_hash.stdout | default('') != agent_skills_lock_entry.skillFolderHash | default('')
+  changed_when: true
+  failed_when: >-
+    agent_skills_add_result.rc != 0
+    or (agent_skills_add_result.stdout | from_json | selectattr('name', 'equalto', agent_skill_name) | list | length) != 1
+
+- name: Refresh present global skill
+  ansible.builtin.command:
+    argv:
+      - "{{ agent_skills_node_executable.stdout | dirname }}/npx"
+      - --yes
+      - skills
+      - update
+      - "{{ agent_skill_name }}"
+      - --global
+      - --yes
+  environment:
+    PATH: "{{ agent_skills_node_executable.stdout | dirname }}:{{ ansible_env.PATH }}"
+    NO_COLOR: '1'
+  register: agent_skills_update_result
+  when: agent_skills_add_result is skipped
+  changed_when: agent_skills_update_result.stdout is search('Updated ' ~ agent_skill_name)
+  failed_when: >-
+    agent_skills_update_result.rc != 0
+    or agent_skills_update_result.stdout is search('Failed to check skills from|Failed to update|cannot be checked automatically|No global skills to check')
+    or (agent_skills_update_result.stdout is not search('Updated ' ~ agent_skill_name)
+        and agent_skills_update_result.stdout is not search('All global skills are up to date'))
+
+- name: Hash maintained canonical skill files
+  ansible.builtin.command:
+    argv:
+      - git
+      - "--git-dir={{ agent_skills_hash_workspace.path }}/objects.git"
+      - "--work-tree={{ ansible_env.HOME }}/.agents/skills/{{ agent_skill_name }}"
+      - add
+      - -A
+  environment:
+    GIT_INDEX_FILE: "{{ agent_skills_hash_workspace.path }}/{{ agent_skill_name }}.index"
+  changed_when: false
+
+- name: Read maintained canonical skill hash
+  ansible.builtin.command:
+    argv:
+      - git
+      - "--git-dir={{ agent_skills_hash_workspace.path }}/objects.git"
+      - write-tree
+  environment:
+    GIT_INDEX_FILE: "{{ agent_skills_hash_workspace.path }}/{{ agent_skill_name }}.index"
+  register: agent_skills_maintained_hash
+  changed_when: false
+
+- name: Read updated skill lock
+  ansible.builtin.slurp:
+    src: "{{ ansible_env.HOME }}/.agents/.skill-lock.json"
+  register: agent_skills_updated_lock
+
+- name: Verify maintained skill content
+  ansible.builtin.assert:
+    that:
+      - agent_skills_maintained_hash.stdout == agent_skills_updated_entry.skillFolderHash
+      - agent_skills_updated_entry.source == agent_skill_source
+  vars:
+    agent_skills_updated_entry: "{{ (agent_skills_updated_lock.content | b64decode | from_json).skills.get(agent_skill_name, {}) }}"
