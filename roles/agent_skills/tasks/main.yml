@@ -1,0 +1,49 @@
+---
+- name: List installed Flux plugins
+  ansible.builtin.command:
+    argv:
+      - flux
+      - plugin
+      - list
+  register: agent_skills_flux_plugins
+  changed_when: false
+
+- name: Install Flux schema plugin
+  ansible.builtin.command:
+    argv:
+      - flux
+      - plugin
+      - install
+      - schema
+  when: agent_skills_flux_plugins.stdout is not regex('(?m)^schema\s')
+  changed_when: true
+
+- name: Update Flux schema plugin
+  ansible.builtin.command:
+    argv:
+      - flux
+      - plugin
+      - update
+      - schema
+  when: agent_skills_flux_plugins.stdout is regex('(?m)^schema\s')
+  changed_when: true
+
+- name: Install or refresh configured Flux agent skills
+  ansible.builtin.command:
+    argv:
+      - npx
+      - --yes
+      - skills
+      - add
+      - fluxcd/agent-skills
+      - --skill
+      - "{{ item }}"
+      - --global
+      - --agent
+      - codex
+      - --agent
+      - cursor
+      - --yes
+      - --json
+  loop: "{{ flux_agent_skills }}"
+  changed_when: true

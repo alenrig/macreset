@@ -28,6 +28,16 @@ homebrew_installed_packages:
   - uv
   - virtctl
 
+  # Prerequisites for the agent-skills role: Node.js supplies npx, and
+  # kustomize builds the overlays used by the Flux skills.
+  - node
+  - kustomize
+
+flux_agent_skills:
+  - gitops-knowledge
+  - gitops-repo-audit
+  - gitops-cluster-debug
+
 homebrew_cask_uninstalled_apps:
   - google-chrome
   - 1password
