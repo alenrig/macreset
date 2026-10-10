@@ -30,7 +30,7 @@
     argv:
       - /bin/zsh
       - -c
-      - source "$NVM_SCRIPT" && nvm which --lts
+      - source "$NVM_SCRIPT" && nvm which default
   environment:
     NVM_DIR: "{{ ansible_env.HOME }}/.nvm"
     NVM_SCRIPT: "{{ agent_skills_nvm_prefix.stdout }}/nvm.sh"
