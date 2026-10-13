@@ -12,6 +12,7 @@ homebrew_installed_packages:
   - cmake
   - flux-build
   - fluxcd/tap/flux
+  - glow
   - golang
   - gopls
   - hashicorp/tap/terraform
