@@ -1,6 +1,8 @@
 ---
-- name: Prepare Mac for Rock!
+- name: Prepare host Pi and local model
   hosts: localhost
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
   vars_files: default.config.yml
 
   pre_tasks:
@@ -11,8 +13,23 @@
 
   roles:
     - geerlingguy.mac.homebrew
-    - herdr
+    - local_llm
+
+- name: Configure Herdr and finish Mac setup
+  hosts: localhost
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+  vars_files: default.config.yml
+
+  pre_tasks:
+    - name: Include playbook configuration
+      ansible.builtin.include_vars: "{{ item }}"
+      with_fileglob:
+        - "{{ playbook_dir }}/config.yml"
+
+  roles:
     - agent_skills
+    - herdr
     - geerlingguy.mac.mas
     - geerlingguy.mac.dock
     - geerlingguy.dotfiles

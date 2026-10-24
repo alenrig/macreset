@@ -1,0 +1,130 @@
+---
+- name: Validate local model selection
+  ansible.builtin.assert:
+    that:
+      - local_llm_model is string
+      - local_llm_model | length > 0
+      - local_llm_context_length | int > 0
+
+- name: Find Homebrew prefix
+  ansible.builtin.command:
+    argv: [brew, --prefix]
+  register: local_llm_brew_prefix
+  changed_when: false
+
+- name: Install Ollama
+  community.general.homebrew:
+    name: ollama
+    state: present
+    update_homebrew: false
+
+- name: Create user LaunchAgents directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/Library/LaunchAgents"
+    state: directory
+    mode: '0755'
+
+- name: Configure loopback Ollama service
+  ansible.builtin.template:
+    src: ollama.plist.j2
+    dest: "{{ ansible_env.HOME }}/Library/LaunchAgents/com.macreset.ollama.plist"
+    mode: '0644'
+  register: local_llm_ollama_settings
+
+- name: Check Ollama service
+  ansible.builtin.command:
+    argv: [launchctl, print, "gui/{{ ansible_user_uid }}/com.macreset.ollama"]
+  register: local_llm_ollama_service
+  changed_when: false
+  failed_when: false
+
+- name: Unload Ollama after settings change
+  ansible.builtin.command:
+    argv: [launchctl, bootout, "gui/{{ ansible_user_uid }}/com.macreset.ollama"]
+  when:
+    - local_llm_ollama_settings.changed
+    - local_llm_ollama_service.rc == 0
+  changed_when: true
+
+- name: Start Ollama at login
+  ansible.builtin.command:
+    argv:
+      - launchctl
+      - bootstrap
+      - "gui/{{ ansible_user_uid }}"
+      - "{{ ansible_env.HOME }}/Library/LaunchAgents/com.macreset.ollama.plist"
+  when: local_llm_ollama_settings.changed or local_llm_ollama_service.rc != 0
+  changed_when: true
+
+- name: Start a loaded but stopped Ollama service
+  ansible.builtin.command:
+    argv: [launchctl, kickstart, "gui/{{ ansible_user_uid }}/com.macreset.ollama"]
+  when:
+    - not local_llm_ollama_settings.changed
+    - local_llm_ollama_service.rc == 0
+    - "'state = running' not in local_llm_ollama_service.stdout"
+  changed_when: true
+
+- name: Wait for Ollama
+  ansible.builtin.uri:
+    url: http://127.0.0.1:11434/api/tags
+    return_content: true
+    timeout: 5
+  register: local_llm_models
+  until: local_llm_models.status == 200
+  retries: 12
+  delay: 2
+
+- name: Download Qwen when missing
+  ansible.builtin.command:
+    argv: ["{{ local_llm_brew_prefix.stdout }}/bin/ollama", pull, "{{ local_llm_model }}"]
+  environment:
+    OLLAMA_HOST: 127.0.0.1:11434
+  when: >-
+    local_llm_models.json.models | default([])
+    | selectattr('name', 'equalto', local_llm_model) | list | length == 0
+  changed_when: true
+
+- name: Check supported Pi installation paths
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop:
+    - "{{ ansible_env.HOME }}/.pi/agent/bin/pi"
+    - "{{ ansible_env.HOME }}/.local/bin/pi"
+    - "{{ local_llm_brew_prefix.stdout }}/bin/pi"
+  register: local_llm_pi_paths
+
+- name: Install missing host Pi
+  community.general.npm:
+    name: "@earendil-works/pi-coding-agent"
+    global: true
+    state: present
+    executable: "{{ local_llm_brew_prefix.stdout }}/bin/npm"
+    ignore_scripts: true
+  environment:
+    NPM_CONFIG_PREFIX: "{{ ansible_env.HOME }}/.local"
+    PATH: "{{ local_llm_brew_prefix.stdout }}/bin:{{ ansible_env.PATH }}"
+  when: local_llm_pi_paths.results | selectattr('stat.exists') | list | length == 0
+
+- name: Create host Pi configuration directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.pi/agent"
+    state: directory
+    mode: '0700'
+
+- name: Configure host Pi to use Ollama
+  ansible.builtin.template:
+    src: models.json.j2
+    dest: "{{ ansible_env.HOME }}/.pi/agent/models.json"
+    mode: '0600'
+    backup: true
+
+- name: Select Qwen as the host Pi default
+  ansible.builtin.template:
+    src: settings.json.j2
+    dest: "{{ ansible_env.HOME }}/.pi/agent/settings.json"
+    mode: '0600'
+    backup: true
+
+- name: Configure sbx access to host Ollama
+  ansible.builtin.include_tasks: sbx.yml

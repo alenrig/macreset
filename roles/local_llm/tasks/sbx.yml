@@ -1,0 +1,61 @@
+---
+# sbx policy has no Ansible module; each CLI change follows an inspection.
+- name: Inspect global sbx policy before changing it
+  ansible.builtin.command:
+    argv: [sbx, policy, ls, --source, local, --include-inactive, --json]
+  register: local_llm_sbx_policy_inventory
+  changed_when: false
+  failed_when: false
+
+- name: Reject sbx policy inspection errors unrelated to first setup
+  ansible.builtin.assert:
+    that:
+      - >-
+        local_llm_sbx_policy_inventory.rc == 0 or
+        (local_llm_sbx_policy_inventory.stderr | lower is search('not initialized|no network policy|policy.*uninitialized'))
+    fail_msg: >-
+      Cannot inspect sbx policy: {{ local_llm_sbx_policy_inventory.stderr | default('unknown error') }}.
+      Start Docker Desktop, sign in to Docker if required, and rerun the playbook.
+      The current policy preset was not changed.
+
+- name: Initialize missing sbx policy with balanced preset
+  ansible.builtin.command:
+    argv: [sbx, policy, init, balanced]
+  register: local_llm_sbx_policy_init
+  changed_when: true
+  when: >-
+    local_llm_sbx_policy_inventory.rc != 0 or
+    'local-policy' not in local_llm_sbx_policy_inventory.stdout
+
+- name: Inspect global local sbx policy rules
+  ansible.builtin.command:
+    argv: [sbx, policy, inspect, local-policy, --json]
+  register: local_llm_sbx_local_policy
+  changed_when: false
+
+- name: Add global host Ollama port allow rule if absent
+  ansible.builtin.command:
+    argv: [sbx, policy, allow, network, localhost:11434]
+  register: local_llm_sbx_port_rule
+  changed_when: true
+  when: "'localhost:11434' not in local_llm_sbx_local_policy.stdout"
+
+- name: Verify host Ollama port is allowed by sbx policy
+  ansible.builtin.command:
+    argv: [sbx, policy, check, network, --json, localhost:11434]
+  register: local_llm_sbx_policy_check
+  changed_when: false
+  failed_when: false
+
+- name: Explain a policy denial after adding the host port rule
+  ansible.builtin.assert:
+    that:
+      - >-
+        local_llm_sbx_policy_check.rc == 0 and
+        (local_llm_sbx_policy_check.stdout | from_json).allowed | default(false) | bool
+    fail_msg: >-
+      sbx did not allow localhost:11434:
+      {{ local_llm_sbx_policy_check.stdout | default(local_llm_sbx_policy_check.stderr, true) }}.
+      Inspect sbx policy ls --include-inactive; if organization governance
+      disables the local rule, ask the Docker policy administrator to allow
+      localhost:11434, then rerun the playbook.
