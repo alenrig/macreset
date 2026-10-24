@@ -1,0 +1,5 @@
+---
+# Maintenance switches are deliberately absent from default.config.yml and
+# config.yml. Set them only with --extra-vars for the run being maintained.
+local_llm_upgrade: false
+local_llm_refresh_model: false
