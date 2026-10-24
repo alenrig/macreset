@@ -4,7 +4,7 @@ The normal `ansible-playbook main.yml --ask-become-pass` run installs missing
 components, starts a stopped Ollama service, checks the selected local model
 tag and full manifest digest, and reports versions and actions. An unchanged
 run does not contact the model registry, pull the model, update Pi or Ollama,
-or restart a healthy Ollama service.
+rebuild the Pi sandbox image, or restart a healthy Ollama service.
 
 The default model is `qwen3.5:9b-q4_K_M` at 32,768 tokens. To select the 4B
 alternative, set **both** `local_llm_model: qwen3.5:4b-q4_K_M` and its
@@ -24,6 +24,8 @@ the second pulls the selected tag even if it exists locally. Both default to
 false and are not saved in the normal configuration. After a pull or an
 upgrade request, the playbook makes a small inference request. Ollama
 restarts only when its formula version or managed LaunchAgent settings change.
+When the host Pi version changes, Ansible builds a new Pi sandbox image for
+new Herdr sandboxes. Existing sandboxes keep their original image.
 
 If installation, service startup, an upgrade, model pull, digest verification,
 or inference fails, read the reported component and observed state, repair the

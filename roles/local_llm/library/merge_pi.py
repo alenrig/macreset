@@ -1,11 +1,10 @@
-#!/usr/bin/env python3
-"""Merge macreset's Ollama model into Pi's user configuration."""
+"""Ansible module to merge macreset's Ollama model into Pi configuration."""
 
 import json
 import os
 from pathlib import Path
-import sys
 import tempfile
+from ansible.module_utils.basic import AnsibleModule
 
 
 def quoted_string_end(source, start):
@@ -75,10 +74,12 @@ def read_json(path):
     return data
 
 
-def write_if_changed(path, data):
+def write_if_changed(path, data, check_mode):
     desired = json.dumps(data, indent=2, ensure_ascii=False) + "\n"
     if path.exists() and path.read_text() == desired:
         return False
+    if check_mode:
+        return True
     fd, staged = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
     try:
         with os.fdopen(fd, "w") as output:
@@ -91,10 +92,10 @@ def write_if_changed(path, data):
     return True
 
 
-def main():
-    agent_dir, model_id, context_length, base_url = sys.argv[1:]
+def merge(agent_dir, model_id, context_length, base_url, check_mode):
     agent_dir = Path(agent_dir)
-    agent_dir.mkdir(parents=True, exist_ok=True)
+    if not check_mode:
+        agent_dir.mkdir(parents=True, exist_ok=True)
     models_path = agent_dir / "models.json"
     settings_path = agent_dir / "settings.json"
     models = read_json(models_path)
@@ -116,9 +117,26 @@ def main():
     settings = read_json(settings_path)
     settings["defaultProvider"] = "ollama"
     settings["defaultModel"] = model_id
-    changed = write_if_changed(models_path, models)
-    changed = write_if_changed(settings_path, settings) or changed
-    print(json.dumps({"changed": changed, "models": str(models_path), "settings": str(settings_path)}))
+    models_changed = write_if_changed(models_path, models, check_mode)
+    settings_changed = write_if_changed(settings_path, settings, check_mode)
+    return models_changed or settings_changed
+
+
+def main():
+    module = AnsibleModule(
+        argument_spec={
+            "agent_dir": {"type": "path", "required": True},
+            "model_id": {"type": "str", "required": True},
+            "context_length": {"type": "int", "required": True},
+            "base_url": {"type": "str", "required": True},
+        },
+        supports_check_mode=True,
+    )
+    try:
+        changed = merge(check_mode=module.check_mode, **module.params)
+    except (OSError, ValueError, TypeError) as error:
+        module.fail_json(msg=str(error))
+    module.exit_json(changed=changed)
 
 
 if __name__ == "__main__":

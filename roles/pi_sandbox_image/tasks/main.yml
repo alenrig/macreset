@@ -1,0 +1,36 @@
+---
+- name: Install supported Pi package in the sandbox image
+  community.general.npm:
+    name: "@earendil-works/pi-coding-agent"
+    global: true
+    state: present
+    executable: /usr/bin/npm
+    ignore_scripts: true
+
+- name: Create sandbox-local Pi configuration directory
+  ansible.builtin.file:
+    path: /home/agent/.pi/agent
+    state: directory
+    mode: '0700'
+
+- name: Configure sandbox Pi provider for host Ollama
+  ansible.builtin.template:
+    src: models.json.j2
+    dest: /home/agent/.pi/agent/models.json
+    mode: '0600'
+
+- name: Select the managed model in new sandbox Pi sessions
+  ansible.builtin.template:
+    src: settings.json.j2
+    dest: /home/agent/.pi/agent/settings.json
+    mode: '0600'
+
+- name: Verify Pi starts in the sandbox image
+  ansible.builtin.command:
+    argv: [/usr/local/share/npm-global/bin/pi, --version]
+  register: pi_sandbox_image_version
+  changed_when: false
+
+- name: Report Pi version packaged for new sandboxes
+  ansible.builtin.debug:
+    msg: "Pi sandbox image has {{ pi_sandbox_image_version.stdout }}"

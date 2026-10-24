@@ -1,6 +1,8 @@
 ---
-- name: Prepare Mac for Rock!
+- name: Prepare host local model and sandbox image
   hosts: localhost
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
   vars_files: default.config.yml
 
   pre_tasks:
@@ -12,6 +14,33 @@
   roles:
     - geerlingguy.mac.homebrew
     - local_llm
+
+  post_tasks:
+    - name: Prepare Ansible-managed Pi sandbox image
+      ansible.builtin.import_tasks: tasks/prepare-pi-sandbox.yml
+
+- name: Install Pi inside the sandbox image
+  hosts: pi_sandbox_build
+  gather_facts: false
+  roles:
+    - role: pi_sandbox_image
+      when: local_llm_sandbox_build_required | bool
+
+- name: Configure Herdr and finish Mac setup
+  hosts: localhost
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+  vars_files: default.config.yml
+
+  pre_tasks:
+    - name: Include playbook configuration
+      ansible.builtin.include_vars: "{{ item }}"
+      with_fileglob:
+        - "{{ playbook_dir }}/config.yml"
+    - name: Load Ansible-managed Pi sandbox image
+      ansible.builtin.import_tasks: tasks/load-pi-sandbox.yml
+
+  roles:
     - herdr
     - agent_skills
     - geerlingguy.mac.mas

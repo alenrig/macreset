@@ -22,49 +22,36 @@
       Pass either as a per-run --extra-vars value, then rerun.
 
 - name: Find Homebrew prefix
+  # The Homebrew module manages formula state but does not return the prefix.
   ansible.builtin.command:
     argv: [brew, --prefix]
   register: local_llm_brew_prefix
   changed_when: false
 
 - name: Check Ollama formula installation
+  # The Homebrew module does not expose the installed version for comparison.
   ansible.builtin.command:
     argv: [brew, list, --versions, ollama]
   register: local_llm_ollama_formula
   changed_when: false
   failed_when: false
 
-- name: Install missing Ollama formula
-  when: local_llm_ollama_formula.rc != 0
+- name: Install or explicitly upgrade Ollama through Homebrew
+  when: local_llm_ollama_formula.rc != 0 or local_llm_upgrade | bool
   block:
-    - name: Install Ollama through Homebrew
-      ansible.builtin.command:
-        argv: [brew, install, ollama]
-      register: local_llm_ollama_install
-      changed_when: true
+    - name: Manage Ollama formula
+      community.general.homebrew:
+        name: ollama
+        state: "{{ 'latest' if local_llm_upgrade | bool else 'present' }}"
+        update_homebrew: false
+      register: local_llm_ollama_package
   rescue:
-    - name: Explain Ollama installation failure
+    - name: Explain Ollama package failure
       ansible.builtin.fail:
         msg: >-
-          Ollama formula installation failed: {{ ansible_failed_result.stderr | default(ansible_failed_result.msg) }}.
-          Repair Homebrew, then rerun the playbook.
-
-- name: Upgrade installed Ollama when requested
-  when:
-    - local_llm_upgrade | bool
-    - local_llm_ollama_formula.rc == 0
-  block:
-    - name: Upgrade Ollama through Homebrew
-      ansible.builtin.command:
-        argv: [brew, upgrade, ollama]
-      register: local_llm_ollama_upgrade_result
-      changed_when: false
-  rescue:
-    - name: Explain Ollama upgrade failure
-      ansible.builtin.fail:
-        msg: >-
-          Ollama Homebrew upgrade failed: {{ ansible_failed_result.stderr | default(ansible_failed_result.msg) }}.
-          Repair Homebrew and rerun with -e local_llm_upgrade=true.
+          Ollama Homebrew install or upgrade failed: {{ ansible_failed_result.msg }}.
+          Repair Homebrew and rerun, keeping -e local_llm_upgrade=true
+          if this was an upgrade.
 
 - name: Read installed Ollama formula after maintenance
   ansible.builtin.command:
@@ -100,6 +87,7 @@
   register: local_llm_ollama_settings
 
 - name: Check Ollama LaunchAgent state
+  # launchctl has no Ansible module; inspect before changing service state.
   ansible.builtin.command:
     argv: [launchctl, print, "gui/{{ ansible_user_uid }}/com.macreset.ollama"]
   register: local_llm_ollama_launchagent
@@ -187,6 +175,7 @@
       delay: 2
 
     - name: Read Ollama port listeners
+      # No Ansible module reports the owning PID and bind address together.
       ansible.builtin.command:
         argv: [lsof, -nP, -iTCP:11434, -sTCP:LISTEN]
       register: local_llm_ollama_listeners
@@ -229,6 +218,7 @@
   when: local_llm_selected_models | length == 0 or local_llm_refresh_model | bool
   block:
     - name: Download selected model
+      # Ollama model pulls have no Ansible module; the tag was checked above.
       ansible.builtin.command:
         argv: ["{{ local_llm_brew_prefix.stdout }}/bin/ollama", pull, "{{ local_llm_model }}"]
       environment:
@@ -270,33 +260,35 @@
       different upstream manifest, verify it independently and explicitly
       update local_llm_expected_digest before rerunning.
 
-- name: Find Pi executable
-  ansible.builtin.shell: command -v pi
-  args:
-    executable: /bin/sh
-  environment:
-    PATH: "{{ ansible_env.HOME }}/.pi/agent/bin:{{ ansible_env.HOME }}/.local/bin:{{ local_llm_brew_prefix.stdout }}/bin:{{ ansible_env.PATH }}"
-  register: local_llm_pi_path
-  changed_when: false
-  failed_when: false
+- name: Check supported Pi installation paths
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop:
+    - "{{ ansible_env.HOME }}/.pi/agent/bin/pi"
+    - "{{ ansible_env.HOME }}/.local/bin/pi"
+    - "{{ local_llm_brew_prefix.stdout }}/bin/pi"
+  register: local_llm_pi_paths
+
+- name: Select existing Pi executable
+  ansible.builtin.set_fact:
+    local_llm_pi_executable: >-
+      {{ (local_llm_pi_paths.results | selectattr('stat.exists') | map(attribute='item') | list | first)
+         | default(ansible_env.HOME ~ '/.local/bin/pi', true) }}
 
 - name: Install missing host Pi
-  when: local_llm_pi_path.rc != 0
+  when: local_llm_pi_paths.results | selectattr('stat.exists') | list | length == 0
   block:
-    - name: Download supported Pi installer
-      ansible.builtin.get_url:
-        url: https://pi.dev/install.sh
-        dest: "{{ ansible_env.HOME }}/.pi-install.sh"
-        mode: '0600'
-        force: true
-    - name: Run supported Pi installer
-      ansible.builtin.command:
-        argv: [sh, "{{ ansible_env.HOME }}/.pi-install.sh"]
-        stdin: ''
+    - name: Install Pi using its supported npm package
+      community.general.npm:
+        name: "@earendil-works/pi-coding-agent"
+        global: true
+        state: present
+        executable: "{{ local_llm_brew_prefix.stdout }}/bin/npm"
+        ignore_scripts: true
       environment:
-        PATH: "{{ ansible_env.HOME }}/.pi/agent/bin:{{ ansible_env.HOME }}/.local/bin:{{ local_llm_brew_prefix.stdout }}/bin:{{ ansible_env.PATH }}"
+        NPM_CONFIG_PREFIX: "{{ ansible_env.HOME }}/.local"
+        PATH: "{{ local_llm_brew_prefix.stdout }}/bin:{{ ansible_env.PATH }}"
       register: local_llm_pi_install
-      changed_when: true
   rescue:
     - name: Explain Pi installation failure
       ansible.builtin.fail:
@@ -307,13 +299,27 @@
 - name: Upgrade installed host Pi when requested
   when:
     - local_llm_upgrade | bool
-    - local_llm_pi_path.rc == 0
+    - local_llm_pi_paths.results | selectattr('stat.exists') | list | length > 0
   block:
-    - name: Ask Pi to update itself
+    - name: Read Pi version before requested update
       ansible.builtin.command:
-        argv: ["{{ local_llm_pi_path.stdout }}", update]
+        argv: ["{{ local_llm_pi_executable }}", --version]
+      register: local_llm_pi_version_before
+      changed_when: false
+    - name: Ask Pi to update itself
+      # Pi has no Ansible module; its CLI reports "already up to date" on a no-op.
+      ansible.builtin.command:
+        argv: ["{{ local_llm_pi_executable }}", update]
       register: local_llm_pi_upgrade_result
-      changed_when: true
+      changed_when: "'already up to date' not in (local_llm_pi_upgrade_result.stdout | lower)"
+    - name: Read Pi version after requested update
+      ansible.builtin.command:
+        argv: ["{{ local_llm_pi_executable }}", --version]
+      register: local_llm_pi_version_after
+      changed_when: false
+    - name: Record whether Pi version changed
+      ansible.builtin.set_fact:
+        local_llm_pi_updated: "{{ local_llm_pi_version_before.stdout != local_llm_pi_version_after.stdout }}"
   rescue:
     - name: Explain Pi upgrade failure
       ansible.builtin.fail:
@@ -322,17 +328,13 @@
           Repair Pi or network access and rerun with -e local_llm_upgrade=true.
 
 - name: Locate installed Pi
-  ansible.builtin.shell: command -v pi
-  args:
-    executable: /bin/sh
-  environment:
-    PATH: "{{ ansible_env.HOME }}/.pi/agent/bin:{{ ansible_env.HOME }}/.local/bin:{{ local_llm_brew_prefix.stdout }}/bin:{{ ansible_env.PATH }}"
+  ansible.builtin.stat:
+    path: "{{ local_llm_pi_executable }}"
   register: local_llm_pi_path
-  changed_when: false
 
 - name: Verify Pi installer exposed its executable
   ansible.builtin.assert:
-    that: local_llm_pi_path.rc == 0
+    that: local_llm_pi_path.stat.exists
     fail_msg: >-
       Host Pi is still unavailable after installation. Inspect the installer
       output and PATH, then rerun the playbook.
@@ -340,16 +342,12 @@
 - name: Merge host Pi Ollama provider and default model
   block:
     - name: Preserve existing Pi settings while adding Ollama
-      ansible.builtin.command:
-        argv:
-          - "{{ ansible_playbook_python }}"
-          - "{{ role_path }}/files/merge_pi.py"
-          - "{{ ansible_env.HOME }}/.pi/agent"
-          - "{{ local_llm_model }}"
-          - "{{ local_llm_context_length | string }}"
-          - http://127.0.0.1:11434/v1
+      merge_pi:
+        agent_dir: "{{ ansible_env.HOME }}/.pi/agent"
+        model_id: "{{ local_llm_model }}"
+        context_length: "{{ local_llm_context_length }}"
+        base_url: http://127.0.0.1:11434/v1
       register: local_llm_pi_config
-      changed_when: (local_llm_pi_config.stdout | from_json).changed
   rescue:
     - name: Explain Pi configuration failure
       ansible.builtin.fail:
@@ -392,7 +390,7 @@
 
 - name: Read installed Pi version
   ansible.builtin.command:
-    argv: ["{{ local_llm_pi_path.stdout }}", --version]
+    argv: ["{{ local_llm_pi_executable }}", --version]
   register: local_llm_pi_version
   changed_when: false
 
@@ -409,7 +407,7 @@
       ollama_version: "{{ local_llm_ollama_version.stdout }}"
       model: "{{ local_llm_model }}"
       observed_digest: "{{ local_llm_observed_models[0].digest }}"
-      ollama_installed: "{{ local_llm_ollama_install is defined and local_llm_ollama_install.changed }}"
+      ollama_installed: "{{ local_llm_ollama_formula.rc != 0 and local_llm_ollama_package is defined and local_llm_ollama_package.changed }}"
       ollama_version_changed: "{{ local_llm_ollama_formula.rc == 0 and local_llm_ollama_binary_changed }}"
       ollama_restarted: "{{ local_llm_ollama_bootout is defined and local_llm_ollama_bootout.changed }}"
       ollama_started: >-
@@ -419,7 +417,8 @@
       model_pulled: "{{ local_llm_model_pull is defined and local_llm_model_pull.changed }}"
       model_refreshed: "{{ local_llm_refresh_model | bool and local_llm_model_pull is defined and local_llm_model_pull.changed }}"
       pi_installed: "{{ local_llm_pi_install is defined and local_llm_pi_install.changed }}"
-      pi_update_requested: "{{ local_llm_pi_upgrade_result is defined and local_llm_pi_upgrade_result.changed }}"
+      pi_updated: "{{ local_llm_pi_updated | default(false) }}"
+      pi_update_changed: "{{ local_llm_pi_upgrade_result is defined and local_llm_pi_upgrade_result.changed }}"
       pi_config_changed: "{{ local_llm_pi_config.changed }}"
 
 - name: Configure sbx access to host Ollama

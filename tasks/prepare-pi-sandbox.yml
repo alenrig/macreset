@@ -1,0 +1,38 @@
+---
+- name: Name the Pi sandbox image for its managed model settings
+  ansible.builtin.set_fact:
+    local_llm_sandbox_image: >-
+      docker.io/library/macreset-pi:{{ ([local_llm_model, local_llm_context_length, local_llm_pi_version.stdout, 1] | to_json | hash('sha256'))[:16] }}
+
+- name: Check for an existing Pi sandbox image
+  community.docker.docker_image_info:
+    name: "{{ local_llm_sandbox_image }}"
+  register: local_llm_sandbox_image_info
+
+- name: Prepare a new Pi sandbox image when missing
+  when: local_llm_sandbox_image_info.images | length == 0
+  block:
+    - name: Ensure Docker's shell sandbox base image is available
+      community.docker.docker_image:
+        name: docker.io/docker/sandbox-templates:shell
+        source: pull
+
+    - name: Start disposable sandbox image build container
+      community.docker.docker_container:
+        name: macreset-pi-image-build
+        image: docker.io/docker/sandbox-templates:shell
+        command: [sleep, infinity]
+        state: started
+        recreate: true
+        detach: true
+
+- name: Register sandbox image build target
+  ansible.builtin.add_host:
+    name: macreset-pi-image-build
+    groups: pi_sandbox_build
+    ansible_connection: community.docker.docker
+    ansible_user: agent
+    local_llm_model: "{{ local_llm_model }}"
+    local_llm_context_length: "{{ local_llm_context_length }}"
+    local_llm_sandbox_build_required: "{{ local_llm_sandbox_image_info.images | length == 0 }}"
+  changed_when: false

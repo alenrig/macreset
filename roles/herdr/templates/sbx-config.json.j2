@@ -1,13 +1,13 @@
 {
   "agentKind": "pi",
+  "template": {{ local_llm_sandbox_image | to_json }},
   "customAgents": {
     "pi": {
       "title": "Pi",
       "sbxAgent": "shell",
-      "command": ["bash", "-lc", "export PATH=\"$HOME/.local/node-v22.19.0/bin:$PATH\"; exec \"$HOME/.local/bin/pi\" \"$@\"", "--"],
+      "command": ["/usr/local/share/npm-global/bin/pi"],
       "defaultArgs": ["--provider", "ollama", "--model", {{ local_llm_model | to_json }}],
-      "herdrDetectionKind": null,
-      "setupScript": {{ lookup('ansible.builtin.template', role_path ~ '/templates/pi-sandbox-setup.sh.j2') | to_json }}
+      "herdrDetectionKind": null
     }
   }
 }

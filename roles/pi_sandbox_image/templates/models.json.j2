@@ -1,0 +1,1 @@
+{"providers":{"ollama":{"baseUrl":"http://host.docker.internal:11434/v1","api":"openai-completions","apiKey":"ollama","models":[{"id":{{ local_llm_model | to_json }},"contextWindow":{{ local_llm_context_length | int }}]}}}

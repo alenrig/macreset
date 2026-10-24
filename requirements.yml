@@ -10,3 +10,4 @@ collections:
   # emits, causing "already installed and up-to-date" to be treated as a failure.
   - name: community.general
     version: ">=10.1.0"
+  - name: community.docker

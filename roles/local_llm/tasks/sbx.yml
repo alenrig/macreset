@@ -1,4 +1,5 @@
 ---
+# sbx policy has no Ansible module; each CLI change follows an inspection.
 - name: Inspect global sbx policy before changing it
   ansible.builtin.command:
     argv: [sbx, policy, ls, --source, local, --include-inactive, --json]

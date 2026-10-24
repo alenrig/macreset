@@ -1,0 +1,49 @@
+---
+- name: Commit the Ansible-provisioned Pi sandbox image
+  # Docker has no Ansible module for committing a configured container.
+  ansible.builtin.command:
+    argv: [docker, container, commit, macreset-pi-image-build, "{{ local_llm_sandbox_image }}"]
+  changed_when: true
+  when: hostvars['localhost'].local_llm_sandbox_image_info.images | length == 0
+
+- name: Remove completed sandbox image build container
+  community.docker.docker_container:
+    name: macreset-pi-image-build
+    state: absent
+  when: hostvars['localhost'].local_llm_sandbox_image_info.images | length == 0
+
+- name: List images in the Docker sandbox runtime
+  ansible.builtin.command:
+    argv: [sbx, template, ls, --quiet]
+  register: local_llm_sbx_templates
+  changed_when: false
+
+- name: Load Pi image into the Docker sandbox runtime when missing
+  when: local_llm_sandbox_image not in local_llm_sbx_templates.stdout_lines
+  block:
+    - name: Export the Ansible-provisioned image
+      community.docker.docker_image_export:
+        names: ["{{ local_llm_sandbox_image }}"]
+        path: "/private/tmp/macreset-pi-{{ local_llm_sandbox_image.split(':')[-1] }}.tar"
+
+    - name: Import the Pi image into sbx
+      # sbx has no Ansible module for its separate template image store.
+      ansible.builtin.command:
+        argv:
+          - sbx
+          - template
+          - load
+          - "/private/tmp/macreset-pi-{{ local_llm_sandbox_image.split(':')[-1] }}.tar"
+      changed_when: true
+
+    - name: Remove temporary Pi image archive
+      ansible.builtin.file:
+        path: "/private/tmp/macreset-pi-{{ local_llm_sandbox_image.split(':')[-1] }}.tar"
+        state: absent
+
+- name: Verify the Pi image is available to new sandboxes
+  ansible.builtin.command:
+    argv: [sbx, template, ls, --quiet]
+  register: local_llm_sbx_templates_after
+  changed_when: false
+  failed_when: local_llm_sandbox_image not in local_llm_sbx_templates_after.stdout_lines
