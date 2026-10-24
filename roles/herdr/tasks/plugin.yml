@@ -1,0 +1,31 @@
+---
+- name: Install missing Herdr plugin
+  ansible.builtin.command:
+    argv: [herdr, plugin, install, --yes, "{{ herdr_plugin.source }}"]
+  when: >-
+    (herdr_plugin_inventory.stdout | from_json).result.plugins
+    | selectattr('plugin_id', 'equalto', herdr_plugin.id)
+    | list | length == 0
+  changed_when: true
+
+- name: Verify newly installed Herdr plugin
+  ansible.builtin.command:
+    argv: [herdr, plugin, list, --json, --plugin, "{{ herdr_plugin.id }}"]
+  register: herdr_plugin_after_install
+  changed_when: false
+  when: >-
+    (herdr_plugin_inventory.stdout | from_json).result.plugins
+    | selectattr('plugin_id', 'equalto', herdr_plugin.id)
+    | list | length == 0
+
+- name: Confirm installed Herdr plugin source and enabled state
+  ansible.builtin.assert:
+    that:
+      - herdr_new_plugin | length == 1
+      - herdr_new_plugin[0].source.kind == 'github'
+      - herdr_new_plugin[0].source.owner == herdr_plugin.source.split('/')[0]
+      - herdr_new_plugin[0].source.repo == herdr_plugin.source.split('/')[1]
+      - herdr_new_plugin[0].enabled
+  vars:
+    herdr_new_plugin: "{{ (herdr_plugin_after_install.stdout | from_json).result.plugins | selectattr('plugin_id', 'equalto', herdr_plugin.id) | list }}"
+  when: not herdr_plugin_after_install.skipped | default(false)

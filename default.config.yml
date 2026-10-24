@@ -17,7 +17,7 @@ homebrew_installed_packages:
   - gopls
   - hashicorp/tap/terraform
   - hashicorp/tap/terraform-ls
-  - herdr
+  - herdr  # Prerequisite for this and future Herdr roles.
   - krew
   - kubectl
   - llmfit
@@ -68,6 +68,14 @@ matt_pocock_agent_skills:
   - to-questionnaire
   - wait-what
   - writing-for-agents
+
+herdr_plugins:
+  - id: chmarax.herdr-nvim
+    source: ChmaraX/herdr-nvim
+  - id: herdr-file-viewer
+    source: smarzban/herdr-file-viewer
+  - id: herdr.auto-title
+    source: kryptamine/herdr-auto-title
 
 homebrew_cask_uninstalled_apps:
   - google-chrome
