@@ -25,15 +25,23 @@ homebrew_installed_packages:
   - minikube
   - mole
   - nvim
+  - node
   - openjdk  # sonarqube IDE plugin
   - pdm
   - uv
   - virtctl
 
-  # Prerequisites for the agent-skills role: nvm manages Node.js and supplies
-  # npx; kustomize builds the overlays used by the Flux skills.
+  # Prerequisites for the agent-skills role: nvm supplies npx;
+  # kustomize builds the overlays used by the Flux skills.
   - nvm
   - kustomize
+
+# The Ollama registry manifest digest for qwen3.5:9b-q4_K_M, retrieved from
+# https://registry.ollama.ai/v2/library/qwen3.5/manifests/9b-q4_K_M
+# on 2026-10-24. Change the model and expected digest together to select 4B.
+local_llm_model: qwen3.5:9b-q4_K_M
+local_llm_expected_digest: 56671c2ab9385f9cfcb404638e32cd62d88e3501d44822208363c010179a3c90
+local_llm_context_length: 32768
 
 flux_agent_skills:
   - gitops-knowledge

@@ -1,0 +1,282 @@
+---
+- name: Validate local model selection
+  ansible.builtin.assert:
+    that:
+      - local_llm_model is string
+      - local_llm_model | length > 0
+      - local_llm_expected_digest is match('^[0-9a-f]{64}$')
+      - local_llm_context_length | int > 0
+    fail_msg: >-
+      Local LLM configuration needs a model tag, its full 64-character
+      expected manifest digest, and a positive context length. Set these
+      together in config.yml, then rerun the playbook.
+
+- name: Find Homebrew prefix
+  ansible.builtin.command:
+    argv: [brew, --prefix]
+  register: local_llm_brew_prefix
+  changed_when: false
+
+- name: Check Ollama formula installation
+  ansible.builtin.command:
+    argv: [brew, list, --versions, ollama]
+  register: local_llm_ollama_formula
+  changed_when: false
+  failed_when: false
+
+- name: Install missing Ollama formula
+  when: local_llm_ollama_formula.rc != 0
+  block:
+    - name: Install Ollama through Homebrew
+      ansible.builtin.command:
+        argv: [brew, install, ollama]
+      register: local_llm_ollama_install
+      changed_when: true
+  rescue:
+    - name: Explain Ollama installation failure
+      ansible.builtin.fail:
+        msg: >-
+          Ollama formula installation failed: {{ ansible_failed_result.stderr | default(ansible_failed_result.msg) }}.
+          Repair Homebrew, then rerun the playbook.
+
+- name: Create user LaunchAgents directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/Library/LaunchAgents"
+    state: directory
+    mode: '0755'
+
+- name: Manage loopback-only Ollama LaunchAgent
+  ansible.builtin.template:
+    src: ollama.plist.j2
+    dest: "{{ ansible_env.HOME }}/Library/LaunchAgents/com.macreset.ollama.plist"
+    mode: '0644'
+  register: local_llm_ollama_settings
+
+- name: Check Ollama LaunchAgent state
+  ansible.builtin.command:
+    argv: [launchctl, print, "gui/{{ ansible_user_uid }}/com.macreset.ollama"]
+  register: local_llm_ollama_launchagent
+  changed_when: false
+  failed_when: false
+
+- name: Reload Ollama after managed settings change
+  ansible.builtin.command:
+    argv: [launchctl, bootout, "gui/{{ ansible_user_uid }}/com.macreset.ollama"]
+  changed_when: true
+  when:
+    - local_llm_ollama_settings.changed
+    - local_llm_ollama_launchagent.rc == 0
+
+- name: Start Ollama now and at login
+  when: local_llm_ollama_settings.changed or local_llm_ollama_launchagent.rc != 0
+  block:
+    - name: Bootstrap Ollama LaunchAgent
+      ansible.builtin.command:
+        argv:
+          - launchctl
+          - bootstrap
+          - "gui/{{ ansible_user_uid }}"
+          - "{{ ansible_env.HOME }}/Library/LaunchAgents/com.macreset.ollama.plist"
+      register: local_llm_ollama_start
+      changed_when: true
+  rescue:
+    - name: Explain Ollama service failure
+      ansible.builtin.fail:
+        msg: >-
+          Ollama user service failed to start: {{ ansible_failed_result.stderr | default(ansible_failed_result.msg) }}.
+          Inspect ~/Library/Logs/macreset-ollama.log and rerun the playbook.
+
+- name: Verify loopback Ollama API is available
+  block:
+    - name: Wait for Ollama model API
+      ansible.builtin.uri:
+        url: http://127.0.0.1:11434/api/tags
+        return_content: true
+        timeout: 5
+      register: local_llm_model_list
+      until: local_llm_model_list.status == 200
+      retries: 12
+      delay: 2
+  rescue:
+    - name: Explain Ollama API failure
+      ansible.builtin.fail:
+        msg: >-
+          Ollama did not answer on 127.0.0.1:11434: {{ ansible_failed_result.msg | default('API unavailable') }}.
+          Inspect ~/Library/Logs/macreset-ollama.log, repair the service,
+          and rerun the playbook.
+
+- name: Find selected local model
+  ansible.builtin.set_fact:
+    local_llm_selected_models: >-
+      {{ local_llm_model_list.json.models | default([])
+         | selectattr('name', 'equalto', local_llm_model) | list }}
+
+- name: Pull missing selected model
+  when: local_llm_selected_models | length == 0
+  block:
+    - name: Download selected model
+      ansible.builtin.command:
+        argv: ["{{ local_llm_brew_prefix.stdout }}/bin/ollama", pull, "{{ local_llm_model }}"]
+      environment:
+        OLLAMA_HOST: 127.0.0.1:11434
+      register: local_llm_model_pull
+      changed_when: true
+  rescue:
+    - name: Explain model pull failure
+      ansible.builtin.fail:
+        msg: >-
+          Ollama pull failed for {{ local_llm_model }}: {{ ansible_failed_result.stderr | default(ansible_failed_result.msg) }}.
+          Check network access and free disk space, then rerun the playbook.
+          An interrupted or partial pull is retried on the next run.
+
+- name: Read local models after any pull
+  ansible.builtin.uri:
+    url: http://127.0.0.1:11434/api/tags
+    return_content: true
+  register: local_llm_verified_models
+
+- name: Identify observed manifest digest
+  ansible.builtin.set_fact:
+    local_llm_observed_models: >-
+      {{ local_llm_verified_models.json.models | default([])
+         | selectattr('name', 'equalto', local_llm_model) | list }}
+
+- name: Verify selected model and pinned digest
+  ansible.builtin.assert:
+    that:
+      - local_llm_observed_models | length == 1
+      - local_llm_observed_models[0].digest | default('missing') == local_llm_expected_digest
+    fail_msg: >-
+      Ollama model {{ local_llm_model }} digest mismatch or missing tag.
+      Expected {{ local_llm_expected_digest }}, observed
+      {{ local_llm_observed_models[0].digest if local_llm_observed_models | length else 'missing' }}.
+      Check the selected tag and pinned digest in config.yml. To accept a
+      different upstream manifest, verify it independently and explicitly
+      update local_llm_expected_digest before rerunning.
+
+- name: Check a newly pulled model can answer
+  when: local_llm_model_pull is defined and local_llm_model_pull.changed
+  block:
+    - name: Generate a small local response
+      ansible.builtin.uri:
+        url: http://127.0.0.1:11434/api/generate
+        method: POST
+        body_format: json
+        body:
+          model: "{{ local_llm_model }}"
+          prompt: "Reply with one word: ready"
+          stream: false
+          options:
+            num_predict: 8
+        return_content: true
+        timeout: 180
+      register: local_llm_inference
+    - name: Verify inference produced text
+      ansible.builtin.assert:
+        that: local_llm_inference.json.response | default('') | trim | length > 0
+  rescue:
+    - name: Explain model inference failure
+      ansible.builtin.fail:
+        msg: >-
+          Ollama inference failed for {{ local_llm_model }} after its pull:
+          {{ ansible_failed_result.msg | default('empty model response') }}.
+          Check Ollama logs, available memory, and the selected model, then
+          rerun the playbook.
+
+- name: Find Pi executable
+  ansible.builtin.shell: command -v pi
+  args:
+    executable: /bin/sh
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.pi/agent/bin:{{ ansible_env.HOME }}/.local/bin:{{ local_llm_brew_prefix.stdout }}/bin:{{ ansible_env.PATH }}"
+  register: local_llm_pi_path
+  changed_when: false
+  failed_when: false
+
+- name: Install missing host Pi
+  when: local_llm_pi_path.rc != 0
+  block:
+    - name: Download supported Pi installer
+      ansible.builtin.get_url:
+        url: https://pi.dev/install.sh
+        dest: "{{ ansible_env.HOME }}/.pi-install.sh"
+        mode: '0600'
+        force: true
+    - name: Run supported Pi installer
+      ansible.builtin.command:
+        argv: [sh, "{{ ansible_env.HOME }}/.pi-install.sh"]
+        stdin: ''
+      environment:
+        PATH: "{{ ansible_env.HOME }}/.pi/agent/bin:{{ ansible_env.HOME }}/.local/bin:{{ local_llm_brew_prefix.stdout }}/bin:{{ ansible_env.PATH }}"
+      register: local_llm_pi_install
+      changed_when: true
+  rescue:
+    - name: Explain Pi installation failure
+      ansible.builtin.fail:
+        msg: >-
+          Host Pi installation failed: {{ ansible_failed_result.stderr | default(ansible_failed_result.msg) }}.
+          Confirm Node.js 22.19 or newer and network access, then rerun the playbook.
+
+- name: Locate installed Pi
+  ansible.builtin.shell: command -v pi
+  args:
+    executable: /bin/sh
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.pi/agent/bin:{{ ansible_env.HOME }}/.local/bin:{{ local_llm_brew_prefix.stdout }}/bin:{{ ansible_env.PATH }}"
+  register: local_llm_pi_path
+  changed_when: false
+
+- name: Verify Pi installer exposed its executable
+  ansible.builtin.assert:
+    that: local_llm_pi_path.rc == 0
+    fail_msg: >-
+      Host Pi is still unavailable after installation. Inspect the installer
+      output and PATH, then rerun the playbook.
+
+- name: Merge host Pi Ollama provider and default model
+  block:
+    - name: Preserve existing Pi settings while adding Ollama
+      ansible.builtin.command:
+        argv:
+          - "{{ ansible_playbook_python }}"
+          - "{{ role_path }}/files/merge_pi.py"
+          - "{{ ansible_env.HOME }}/.pi/agent"
+          - "{{ local_llm_model }}"
+          - "{{ local_llm_context_length | string }}"
+          - http://127.0.0.1:11434/v1
+      register: local_llm_pi_config
+      changed_when: (local_llm_pi_config.stdout | from_json).changed
+  rescue:
+    - name: Explain Pi configuration failure
+      ansible.builtin.fail:
+        msg: >-
+          Host Pi configuration failed: {{ ansible_failed_result.stderr | default(ansible_failed_result.msg) }}.
+          Repair invalid JSON in ~/.pi/agent/models.json or settings.json,
+          then rerun the playbook. Other Pi providers and preferences were
+          not intentionally removed.
+
+- name: Read installed Pi version
+  ansible.builtin.command:
+    argv: ["{{ local_llm_pi_path.stdout }}", --version]
+  register: local_llm_pi_version
+  changed_when: false
+
+- name: Read installed Ollama version
+  ansible.builtin.command:
+    argv: ["{{ local_llm_brew_prefix.stdout }}/bin/ollama", --version]
+  register: local_llm_ollama_version
+  changed_when: false
+
+- name: Report host local LLM state
+  ansible.builtin.debug:
+    msg:
+      pi_version: "{{ local_llm_pi_version.stdout }}"
+      ollama_version: "{{ local_llm_ollama_version.stdout }}"
+      model: "{{ local_llm_model }}"
+      observed_digest: "{{ local_llm_observed_models[0].digest }}"
+      ollama_installed: "{{ local_llm_ollama_install is defined and local_llm_ollama_install.changed }}"
+      ollama_restarted: "{{ local_llm_ollama_settings.changed }}"
+      ollama_started: "{{ local_llm_ollama_start is defined and local_llm_ollama_start.changed }}"
+      model_pulled: "{{ local_llm_model_pull is defined and local_llm_model_pull.changed }}"
+      pi_installed: "{{ local_llm_pi_install is defined and local_llm_pi_install.changed }}"
+      pi_config_changed: "{{ local_llm_pi_config.changed }}"

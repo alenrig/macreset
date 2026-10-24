@@ -11,6 +11,7 @@
 
   roles:
     - geerlingguy.mac.homebrew
+    - local_llm
     - herdr
     - agent_skills
     - geerlingguy.mac.mas
