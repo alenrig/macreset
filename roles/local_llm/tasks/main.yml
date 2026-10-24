@@ -421,3 +421,6 @@
       pi_installed: "{{ local_llm_pi_install is defined and local_llm_pi_install.changed }}"
       pi_update_requested: "{{ local_llm_pi_upgrade_result is defined and local_llm_pi_upgrade_result.changed }}"
       pi_config_changed: "{{ local_llm_pi_config.changed }}"
+
+- name: Configure sbx access to host Ollama
+  ansible.builtin.include_tasks: sbx.yml
