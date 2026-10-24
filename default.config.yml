@@ -36,8 +36,8 @@ homebrew_installed_packages:
   - nvm
   - kustomize
 
-local_llm_model: qwen3.5:9b-q4_K_M
-local_llm_context_length: 32768
+local_llm_model: hf.co/unsloth/Qwen3.8-27B-GGUF:UD-IQ2_S
+local_llm_context_length: 131072
 
 flux_agent_skills:
   - gitops-knowledge
