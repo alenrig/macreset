@@ -41,8 +41,8 @@
     state: directory
     mode: '0755'
 
-- name: Configure sbx plugin to launch Codex
-  ansible.builtin.copy:
-    src: sbx-config.json
+- name: Prepare custom Pi adapter while retaining Codex as the default
+  ansible.builtin.template:
+    src: sbx-config.json.j2
     dest: "{{ ansible_env.HOME }}/.config/herdr/plugins/config/sbx.sandbox/config.json"
     mode: '0644'
