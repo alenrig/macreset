@@ -1,0 +1,36 @@
+---
+- name: Inventory installed Herdr plugins
+  ansible.builtin.command:
+    argv: [herdr, plugin, list, --json]
+  register: herdr_plugin_inventory
+  changed_when: false
+
+- name: Install missing managed Herdr plugins
+  ansible.builtin.include_tasks: plugin.yml
+  loop: "{{ herdr_plugins }}"
+  loop_control:
+    loop_var: herdr_plugin
+
+- name: Create Herdr configuration directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.config/herdr"
+    state: directory
+    mode: '0755'
+
+- name: Restore Herdr settings and keybindings
+  ansible.builtin.copy:
+    src: config.toml
+    dest: "{{ ansible_env.HOME }}/.config/herdr/config.toml"
+    mode: '0644'
+
+- name: Create file viewer configuration directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.config/herdr/plugins/config/herdr-file-viewer"
+    state: directory
+    mode: '0755'
+
+- name: Restore file viewer settings
+  ansible.builtin.copy:
+    src: file-viewer-config.toml
+    dest: "{{ ansible_env.HOME }}/.config/herdr/plugins/config/herdr-file-viewer/config.toml"
+    mode: '0644'
