@@ -1,0 +1,18 @@
+---
+- name: Select managed Herdr plugin from inventory
+  ansible.builtin.set_fact:
+    herdr_verified_plugins: >-
+      {{ (herdr_inventory_result.stdout | from_json).result.plugins
+         | selectattr('plugin_id', 'equalto', herdr_plugin.id) | list }}
+
+- name: Verify managed Herdr plugin source, revision, and enabled state
+  ansible.builtin.assert:
+    that:
+      - herdr_verified_plugins | length == 1
+      - herdr_verified_plugins[0].source.kind == 'github'
+      - herdr_verified_plugins[0].source.owner == herdr_plugin.source.split('/')[0]
+      - herdr_verified_plugins[0].source.repo == herdr_plugin.source.split('/')[1]
+      - herdr_verified_plugins[0].source.resolved_commit is match('^[0-9a-f]{40}$')
+      - herdr_verified_plugins[0].enabled is boolean
+      - not herdr_require_enabled or herdr_verified_plugins[0].enabled
+    fail_msg: "Cannot verify configured source, commit, or enabled state for {{ herdr_plugin.id }}"
