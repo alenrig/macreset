@@ -8,61 +8,61 @@ import sys
 import tempfile
 
 
+def quoted_string_end(source, start):
+    """Return the index just after a JSON string, including escaped quotes."""
+    escaped = False
+    for index in range(start + 1, len(source)):
+        char = source[index]
+        if escaped:
+            escaped = False
+        elif char == "\\":
+            escaped = True
+        elif char == '"':
+            return index + 1
+    return len(source)
+
+
 def strip_jsonc(source):
     """Pi accepts comments and trailing commas in existing settings files."""
     source = source.lstrip("\ufeff")
     output = []
     index = 0
-    quoted = False
-    escaped = False
     while index < len(source):
         char = source[index]
         next_char = source[index + 1] if index + 1 < len(source) else ""
-        if quoted:
-            output.append(char)
-            if escaped:
-                escaped = False
-            elif char == "\\":
-                escaped = True
-            elif char == '"':
-                quoted = False
-        elif char == '"':
-            quoted = True
-            output.append(char)
+        if char == '"':
+            end = quoted_string_end(source, index)
+            output.append(source[index:end])
+            index = end
         elif char == "/" and next_char == "/":
             index = source.find("\n", index)
             if index < 0:
                 break
             output.append("\n")
+            index += 1
         elif char == "/" and next_char == "*":
             end = source.find("*/", index + 2)
             if end < 0:
                 raise ValueError("Unclosed JSON comment")
             output.append(" ")
-            index = end + 1
+            index = end + 2
         else:
             output.append(char)
-        index += 1
+            index += 1
     without_comments = "".join(output)
     output = []
-    quoted = False
-    escaped = False
-    for index, char in enumerate(without_comments):
-        if quoted:
-            output.append(char)
-            if escaped:
-                escaped = False
-            elif char == "\\":
-                escaped = True
-            elif char == '"':
-                quoted = False
-        elif char == '"':
-            quoted = True
-            output.append(char)
+    index = 0
+    while index < len(without_comments):
+        char = without_comments[index]
+        if char == '"':
+            end = quoted_string_end(without_comments, index)
+            output.append(without_comments[index:end])
+            index = end
         elif char == "," and without_comments[index + 1 :].lstrip().startswith(("]", "}")):
-            continue
+            index += 1
         else:
             output.append(char)
+            index += 1
     return "".join(output)
 
 
