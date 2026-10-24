@@ -1,31 +1,111 @@
 ---
-- name: Install missing Herdr plugin
-  ansible.builtin.command:
-    argv: [herdr, plugin, install, --yes, "{{ herdr_plugin.source }}"]
-  when: >-
-    (herdr_plugin_inventory.stdout | from_json).result.plugins
-    | selectattr('plugin_id', 'equalto', herdr_plugin.id)
-    | list | length == 0
-  changed_when: true
+- name: Find managed Herdr plugin in initial inventory
+  ansible.builtin.set_fact:
+    herdr_initial_plugins: >-
+      {{ (herdr_plugin_inventory.stdout | from_json).result.plugins
+         | selectattr('plugin_id', 'equalto', herdr_plugin.id) | list }}
 
-- name: Verify newly installed Herdr plugin
-  ansible.builtin.command:
-    argv: [herdr, plugin, list, --json, --plugin, "{{ herdr_plugin.id }}"]
-  register: herdr_plugin_after_install
-  changed_when: false
-  when: >-
-    (herdr_plugin_inventory.stdout | from_json).result.plugins
-    | selectattr('plugin_id', 'equalto', herdr_plugin.id)
-    | list | length == 0
-
-- name: Confirm installed Herdr plugin source and enabled state
+- name: Validate managed Herdr plugin inventory
   ansible.builtin.assert:
     that:
-      - herdr_new_plugin | length == 1
-      - herdr_new_plugin[0].source.kind == 'github'
-      - herdr_new_plugin[0].source.owner == herdr_plugin.source.split('/')[0]
-      - herdr_new_plugin[0].source.repo == herdr_plugin.source.split('/')[1]
-      - herdr_new_plugin[0].enabled
+      - herdr_initial_plugins | length <= 1
+    fail_msg: "Herdr returned multiple registrations for {{ herdr_plugin.id }}"
+
+- name: Identify registration from another source
+  ansible.builtin.set_fact:
+    herdr_source_mismatch: >-
+      {{ herdr_initial_plugins | length == 1 and
+         ((herdr_initial_plugins[0].source | default({})).kind | default('')) != 'github' or
+         herdr_initial_plugins | length == 1 and
+         ((herdr_initial_plugins[0].source | default({})).owner | default('')) != herdr_plugin.source.split('/')[0] or
+         herdr_initial_plugins | length == 1 and
+         ((herdr_initial_plugins[0].source | default({})).repo | default('')) != herdr_plugin.source.split('/')[1] }}
+
+- name: Unlink managed Herdr plugin registered from a local checkout
+  ansible.builtin.command:
+    argv: [herdr, plugin, unlink, "{{ herdr_plugin.id }}"]
+  when: >-
+    herdr_source_mismatch and
+    ((herdr_initial_plugins[0].source | default({})).kind | default('')) == 'local'
+  changed_when: true
+
+- name: Uninstall managed Herdr plugin registered from another source
+  ansible.builtin.command:
+    argv: [herdr, plugin, uninstall, "{{ herdr_plugin.id }}"]
+  when: >-
+    herdr_source_mismatch and
+    ((herdr_initial_plugins[0].source | default({})).kind | default('')) != 'local'
+  changed_when: true
+
+- name: Install absent or source-repaired Herdr plugin
+  ansible.builtin.command:
+    argv: [herdr, plugin, install, "{{ herdr_plugin.source }}", --yes]
+  when: herdr_initial_plugins | length == 0 or herdr_source_mismatch
+  changed_when: true
+
+- name: Read managed Herdr plugin after installation or repair
+  ansible.builtin.command:
+    argv: [herdr, plugin, list, --plugin, "{{ herdr_plugin.id }}", --json]
+  register: herdr_plugin_before_update
+  changed_when: false
+
+- name: Validate managed Herdr plugin source and revision
+  ansible.builtin.assert:
+    that:
+      - herdr_before_plugins | length == 1
+      - herdr_before_plugins[0].source.kind == 'github'
+      - herdr_before_plugins[0].source.owner == herdr_plugin.source.split('/')[0]
+      - herdr_before_plugins[0].source.repo == herdr_plugin.source.split('/')[1]
+      - herdr_before_plugins[0].source.resolved_commit is match('^[0-9a-f]{40}$')
+      - herdr_before_plugins[0].enabled is boolean
+    fail_msg: "Cannot verify source, commit, or enabled state for {{ herdr_plugin.id }}"
   vars:
-    herdr_new_plugin: "{{ (herdr_plugin_after_install.stdout | from_json).result.plugins | selectattr('plugin_id', 'equalto', herdr_plugin.id) | list }}"
-  when: not herdr_plugin_after_install.skipped | default(false)
+    herdr_before_plugins: >-
+      {{ (herdr_plugin_before_update.stdout | from_json).result.plugins
+         | selectattr('plugin_id', 'equalto', herdr_plugin.id) | list }}
+
+- name: Enable disabled managed Herdr plugin
+  ansible.builtin.command:
+    argv: [herdr, plugin, enable, "{{ herdr_plugin.id }}"]
+  when: >-
+    not ((herdr_plugin_before_update.stdout | from_json).result.plugins
+         | selectattr('plugin_id', 'equalto', herdr_plugin.id) | first).enabled
+  changed_when: true
+
+- name: Check managed Herdr plugin for an upstream update
+  ansible.builtin.command:
+    argv: [herdr, plugin, update, "{{ herdr_plugin.id }}", --yes]
+  changed_when: false
+
+- name: Read managed Herdr plugin after update
+  ansible.builtin.command:
+    argv: [herdr, plugin, list, --plugin, "{{ herdr_plugin.id }}", --json]
+  register: herdr_plugin_after_update
+  changed_when: false
+
+- name: Verify managed Herdr plugin after update
+  ansible.builtin.assert:
+    that:
+      - herdr_after_plugins | length == 1
+      - herdr_after_plugins[0].source.kind == 'github'
+      - herdr_after_plugins[0].source.owner == herdr_plugin.source.split('/')[0]
+      - herdr_after_plugins[0].source.repo == herdr_plugin.source.split('/')[1]
+      - herdr_after_plugins[0].source.resolved_commit is match('^[0-9a-f]{40}$')
+      - herdr_after_plugins[0].enabled
+    fail_msg: "Herdr did not converge {{ herdr_plugin.id }} to its configured source and enabled state"
+  vars:
+    herdr_after_plugins: >-
+      {{ (herdr_plugin_after_update.stdout | from_json).result.plugins
+         | selectattr('plugin_id', 'equalto', herdr_plugin.id) | list }}
+
+- name: Report managed Herdr plugin revision change
+  ansible.builtin.debug:
+    msg: "Updated {{ herdr_plugin.id }} to its current upstream commit"
+  when: >-
+    ((herdr_plugin_before_update.stdout | from_json).result.plugins
+      | selectattr('plugin_id', 'equalto', herdr_plugin.id)
+      | first).source.resolved_commit !=
+    ((herdr_plugin_after_update.stdout | from_json).result.plugins
+      | selectattr('plugin_id', 'equalto', herdr_plugin.id)
+      | first).source.resolved_commit
+  changed_when: true
