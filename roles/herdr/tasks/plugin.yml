@@ -49,27 +49,21 @@
   register: herdr_plugin_before_update
   changed_when: false
 
-- name: Validate managed Herdr plugin source and revision
-  ansible.builtin.assert:
-    that:
-      - herdr_before_plugins | length == 1
-      - herdr_before_plugins[0].source.kind == 'github'
-      - herdr_before_plugins[0].source.owner == herdr_plugin.source.split('/')[0]
-      - herdr_before_plugins[0].source.repo == herdr_plugin.source.split('/')[1]
-      - herdr_before_plugins[0].source.resolved_commit is match('^[0-9a-f]{40}$')
-      - herdr_before_plugins[0].enabled is boolean
-    fail_msg: "Cannot verify source, commit, or enabled state for {{ herdr_plugin.id }}"
+- name: Verify managed Herdr plugin before update
+  ansible.builtin.include_tasks: verify-plugin.yml
   vars:
-    herdr_before_plugins: >-
-      {{ (herdr_plugin_before_update.stdout | from_json).result.plugins
-         | selectattr('plugin_id', 'equalto', herdr_plugin.id) | list }}
+    herdr_inventory_result: "{{ herdr_plugin_before_update }}"
+    herdr_require_enabled: false
+
+- name: Remember managed Herdr plugin revision before update
+  ansible.builtin.set_fact:
+    herdr_before_commit: "{{ herdr_verified_plugins[0].source.resolved_commit }}"
 
 - name: Enable disabled managed Herdr plugin
   ansible.builtin.command:
     argv: [herdr, plugin, enable, "{{ herdr_plugin.id }}"]
   when: >-
-    not ((herdr_plugin_before_update.stdout | from_json).result.plugins
-         | selectattr('plugin_id', 'equalto', herdr_plugin.id) | first).enabled
+    not herdr_verified_plugins[0].enabled
   changed_when: true
 
 - name: Check managed Herdr plugin for an upstream update
@@ -84,28 +78,13 @@
   changed_when: false
 
 - name: Verify managed Herdr plugin after update
-  ansible.builtin.assert:
-    that:
-      - herdr_after_plugins | length == 1
-      - herdr_after_plugins[0].source.kind == 'github'
-      - herdr_after_plugins[0].source.owner == herdr_plugin.source.split('/')[0]
-      - herdr_after_plugins[0].source.repo == herdr_plugin.source.split('/')[1]
-      - herdr_after_plugins[0].source.resolved_commit is match('^[0-9a-f]{40}$')
-      - herdr_after_plugins[0].enabled
-    fail_msg: "Herdr did not converge {{ herdr_plugin.id }} to its configured source and enabled state"
+  ansible.builtin.include_tasks: verify-plugin.yml
   vars:
-    herdr_after_plugins: >-
-      {{ (herdr_plugin_after_update.stdout | from_json).result.plugins
-         | selectattr('plugin_id', 'equalto', herdr_plugin.id) | list }}
+    herdr_inventory_result: "{{ herdr_plugin_after_update }}"
+    herdr_require_enabled: true
 
 - name: Report managed Herdr plugin revision change
   ansible.builtin.debug:
     msg: "Updated {{ herdr_plugin.id }} to its current upstream commit"
-  when: >-
-    ((herdr_plugin_before_update.stdout | from_json).result.plugins
-      | selectattr('plugin_id', 'equalto', herdr_plugin.id)
-      | first).source.resolved_commit !=
-    ((herdr_plugin_after_update.stdout | from_json).result.plugins
-      | selectattr('plugin_id', 'equalto', herdr_plugin.id)
-      | first).source.resolved_commit
+  when: herdr_before_commit != herdr_verified_plugins[0].source.resolved_commit
   changed_when: true
