@@ -2,12 +2,15 @@
 
 A project for fast Mac system reinstallation without TimeCapsule, but with most important things.
 
-## Codex in Docker Sandboxes
+## Local Pi in Herdr sandboxes
 
-The Herdr `sbx.sandbox` plugin is configured to launch Codex in every new sandbox. After installing `sbx` and signing in with `sbx login`, authenticate on the host with the OpenAI account that has your Codex subscription:
+A normal `ansible-playbook main.yml --ask-become-pass` run installs host Pi and
+Ollama, pulls the pinned Qwen3.5 model, and configures Herdr to start Pi in
+**new** Docker Sandboxes. Pi inside a sandbox uses the Mac's model through
+`host.docker.internal:11434`; it does not download another model. Ollama is
+bound to the Mac's loopback interface. Existing Codex sandboxes and their
+credentials remain in place.
 
-```sh
-sbx secret set openai --oauth
-```
-
-The OAuth flow opens a browser and stores credentials in the host keychain, so it must be completed interactively. An OpenAI API key takes precedence over OAuth when both are present. If you previously stored an OpenAI API key, run `sbx secret rm openai` before the OAuth command. Remove any sandbox-scoped OpenAI API keys with `sbx secret rm openai --sandbox <name>` as well, and avoid `sbx secret import openai`. The managed plugin config is restored on each Ansible run.
+Read the [rollout and rollback checklist](docs/local-llm-rollout.md) before
+switching the Herdr default. The [maintenance guide](docs/local-llm-maintenance.md)
+covers the pinned digest, deliberate updates, model refreshes, and recovery.
