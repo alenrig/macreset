@@ -1,0 +1,90 @@
+---
+- name: Find managed Herdr plugin in initial inventory
+  ansible.builtin.set_fact:
+    herdr_initial_plugins: >-
+      {{ (herdr_plugin_inventory.stdout | from_json).result.plugins
+         | selectattr('plugin_id', 'equalto', herdr_plugin.id) | list }}
+
+- name: Validate managed Herdr plugin inventory
+  ansible.builtin.assert:
+    that:
+      - herdr_initial_plugins | length <= 1
+    fail_msg: "Herdr returned multiple registrations for {{ herdr_plugin.id }}"
+
+- name: Identify registration from another source
+  ansible.builtin.set_fact:
+    herdr_source_mismatch: >-
+      {{ herdr_initial_plugins | length == 1 and
+         ((herdr_initial_plugins[0].source | default({})).kind | default('')) != 'github' or
+         herdr_initial_plugins | length == 1 and
+         ((herdr_initial_plugins[0].source | default({})).owner | default('')) != herdr_plugin.source.split('/')[0] or
+         herdr_initial_plugins | length == 1 and
+         ((herdr_initial_plugins[0].source | default({})).repo | default('')) != herdr_plugin.source.split('/')[1] }}
+
+- name: Unlink managed Herdr plugin registered from a local checkout
+  ansible.builtin.command:
+    argv: [herdr, plugin, unlink, "{{ herdr_plugin.id }}"]
+  when: >-
+    herdr_source_mismatch and
+    ((herdr_initial_plugins[0].source | default({})).kind | default('')) == 'local'
+  changed_when: true
+
+- name: Uninstall managed Herdr plugin registered from another source
+  ansible.builtin.command:
+    argv: [herdr, plugin, uninstall, "{{ herdr_plugin.id }}"]
+  when: >-
+    herdr_source_mismatch and
+    ((herdr_initial_plugins[0].source | default({})).kind | default('')) != 'local'
+  changed_when: true
+
+- name: Install absent or source-repaired Herdr plugin
+  ansible.builtin.command:
+    argv: [herdr, plugin, install, "{{ herdr_plugin.source }}", --yes]
+  when: herdr_initial_plugins | length == 0 or herdr_source_mismatch
+  changed_when: true
+
+- name: Read managed Herdr plugin after installation or repair
+  ansible.builtin.command:
+    argv: [herdr, plugin, list, --plugin, "{{ herdr_plugin.id }}", --json]
+  register: herdr_plugin_before_update
+  changed_when: false
+
+- name: Verify managed Herdr plugin before update
+  ansible.builtin.include_tasks: verify-plugin.yml
+  vars:
+    herdr_inventory_result: "{{ herdr_plugin_before_update }}"
+    herdr_require_enabled: false
+
+- name: Remember managed Herdr plugin revision before update
+  ansible.builtin.set_fact:
+    herdr_before_commit: "{{ herdr_verified_plugins[0].source.resolved_commit }}"
+
+- name: Enable disabled managed Herdr plugin
+  ansible.builtin.command:
+    argv: [herdr, plugin, enable, "{{ herdr_plugin.id }}"]
+  when: >-
+    not herdr_verified_plugins[0].enabled
+  changed_when: true
+
+- name: Check managed Herdr plugin for an upstream update
+  ansible.builtin.command:
+    argv: [herdr, plugin, update, "{{ herdr_plugin.id }}", --yes]
+  changed_when: false
+
+- name: Read managed Herdr plugin after update
+  ansible.builtin.command:
+    argv: [herdr, plugin, list, --plugin, "{{ herdr_plugin.id }}", --json]
+  register: herdr_plugin_after_update
+  changed_when: false
+
+- name: Verify managed Herdr plugin after update
+  ansible.builtin.include_tasks: verify-plugin.yml
+  vars:
+    herdr_inventory_result: "{{ herdr_plugin_after_update }}"
+    herdr_require_enabled: true
+
+- name: Report managed Herdr plugin revision change
+  ansible.builtin.debug:
+    msg: "Updated {{ herdr_plugin.id }} to its current upstream commit"
+  when: herdr_before_commit != herdr_verified_plugins[0].source.resolved_commit
+  changed_when: true
