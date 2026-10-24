@@ -1,6 +1,7 @@
 ---
 homebrew_taps:
   - doodlescheduling/flux-build
+  - docker/tap
   - fluxcd/tap
   - hashicorp/tap
   - homebrew/cask
@@ -72,6 +73,8 @@ matt_pocock_agent_skills:
 herdr_plugins:
   - id: chmarax.herdr-nvim
     source: ChmaraX/herdr-nvim
+  - id: sbx.sandbox
+    source: dirien/herdr-sbx-plugin
   - id: herdr-file-viewer
     source: smarzban/herdr-file-viewer
   - id: herdr.auto-title
@@ -94,6 +97,7 @@ homebrew_cask_apps:
   - dbeaver-community
   - docker
   - docker-desktop
+  - docker/tap/sbx
   - firefox
   - freelens
   - ghostty
