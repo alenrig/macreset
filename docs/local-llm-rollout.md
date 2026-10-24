@@ -1,7 +1,7 @@
 # Local Pi rollout and rollback
 
 The playbook installs Ollama and Pi on the Mac, downloads
-`qwen3.8:27b` with a 64K context window, and selects it as Pi's default model. Override
+`qwen3.5:9b-q4_K_M` with a 64K context window, and selects it as Pi's default model. Override
 `local_llm_model` and `local_llm_context_length` in `config.yml` if needed.
 New Herdr sandboxes install Pi and use the Mac's Ollama service; they do not
 download a second copy of Qwen.

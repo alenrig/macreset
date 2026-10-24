@@ -36,7 +36,7 @@ homebrew_installed_packages:
   - nvm
   - kustomize
 
-local_llm_model: qwen3.8:27b
+local_llm_model: qwen3.5:9b-q4_K_M
 local_llm_context_length: 65536
 
 flux_agent_skills:
