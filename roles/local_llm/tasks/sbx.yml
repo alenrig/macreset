@@ -41,16 +41,20 @@
 
 - name: Verify host Ollama port is allowed by sbx policy
   ansible.builtin.command:
-    argv: [sbx, policy, check, network, localhost:11434]
+    argv: [sbx, policy, check, network, --json, localhost:11434]
   register: local_llm_sbx_policy_check
   changed_when: false
+  failed_when: false
 
 - name: Explain a policy denial after adding the host port rule
   ansible.builtin.assert:
     that:
-      - local_llm_sbx_policy_check.stdout is search('Allowed: localhost:11434')
+      - >-
+        local_llm_sbx_policy_check.rc == 0 and
+        (local_llm_sbx_policy_check.stdout | from_json).allowed | default(false) | bool
     fail_msg: >-
-      sbx still denies localhost:11434: {{ local_llm_sbx_policy_check.stdout | default('no decision') }}.
+      sbx did not allow localhost:11434:
+      {{ local_llm_sbx_policy_check.stdout | default(local_llm_sbx_policy_check.stderr, true) }}.
       Inspect sbx policy ls --include-inactive; if organization governance
       disables the local rule, ask the Docker policy administrator to allow
       localhost:11434, then rerun the playbook.
