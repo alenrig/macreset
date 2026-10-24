@@ -26,6 +26,12 @@ formatting and other rules already enforced by `ansible-lint` to the linter.
    for `ansible.builtin` modules applies when a suitable built-in module
    exists; it does not ban the project's declared Ansible dependencies.
 
+The Herdr sbx plugin's `customAgents.pi.setupScript` is a narrow exception to
+the first rule. Herdr runs it inside each newly created sandbox, which is not
+an Ansible inventory host. It may install Pi and copy Ansible-managed model
+files and host skills into that sandbox. Keep the setup in the plugin's
+configuration and limit it to those first-start actions.
+
 ## Review guidelines: structure and execution
 
 - Let a play choose the target host and the sequence of roles or tasks. Keep
@@ -72,7 +78,7 @@ formatting and other rules already enforced by `ansible-lint` to the linter.
 For each changed setup path, ask:
 
 1. Is the complete setup expressed through Ansible tasks, including any later
-   setup inside a generated environment?
+   setup inside a generated environment, apart from the Herdr Pi exception?
 2. If `command` appears, is there genuinely no suitable module, is the CLI
    invoked directly without a script or interpreter, and is repeat-run state
    handled explicitly?

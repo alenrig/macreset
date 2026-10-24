@@ -1,13 +1,21 @@
 {
   "agentKind": "pi",
-  "template": {{ local_llm_sandbox_image | to_json }},
+  "extraWorkspaces": [
+    {{ (ansible_env.HOME ~ '/.config/herdr/plugins/config/sbx.sandbox/pi:ro') | to_json }},
+    {{ (ansible_env.HOME ~ '/.agents/skills:ro') | to_json }}
+  ],
   "customAgents": {
     "pi": {
       "title": "Pi",
       "sbxAgent": "shell",
       "command": ["/usr/local/share/npm-global/bin/pi"],
       "defaultArgs": ["--provider", "ollama", "--model", {{ local_llm_model | to_json }}],
-      "herdrDetectionKind": null
+      "herdrDetectionKind": null,
+      "setupScript": {{ ('npm install --global --ignore-scripts @earendil-works/pi-coding-agent && '
+        ~ 'mkdir -p /home/agent/.pi/agent /home/agent/.agents/skills && '
+        ~ 'cp ' ~ ((ansible_env.HOME ~ '/.config/herdr/plugins/config/sbx.sandbox/pi/models.json') | quote) ~ ' /home/agent/.pi/agent/models.json && '
+        ~ 'cp ' ~ ((ansible_env.HOME ~ '/.config/herdr/plugins/config/sbx.sandbox/pi/settings.json') | quote) ~ ' /home/agent/.pi/agent/settings.json && '
+        ~ 'cp -RL ' ~ ((ansible_env.HOME ~ '/.agents/skills/.') | quote) ~ ' /home/agent/.agents/skills/') | to_json }}
     }
   }
 }

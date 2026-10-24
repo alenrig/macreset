@@ -93,6 +93,24 @@
     - not herdr_sbx_rollback_config.stat.exists
     - not herdr_sbx_current_config.stat.exists
 
+- name: Create Pi sandbox configuration directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.config/herdr/plugins/config/sbx.sandbox/pi"
+    state: directory
+    mode: '0755'
+
+- name: Configure sandbox Pi to reach host Ollama
+  ansible.builtin.template:
+    src: sandbox-models.json.j2
+    dest: "{{ ansible_env.HOME }}/.config/herdr/plugins/config/sbx.sandbox/pi/models.json"
+    mode: '0644'
+
+- name: Select Qwen as the sandbox Pi default
+  ansible.builtin.template:
+    src: sandbox-settings.json.j2
+    dest: "{{ ansible_env.HOME }}/.config/herdr/plugins/config/sbx.sandbox/pi/settings.json"
+    mode: '0644'
+
 - name: Configure custom Pi adapter as the default for new sandboxes
   ansible.builtin.template:
     src: sbx-config.json.j2
