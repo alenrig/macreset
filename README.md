@@ -4,7 +4,7 @@ A project for fast Mac system reinstallation without TimeCapsule, but with most 
 
 ## Local Pi in Herdr sandboxes
 
-A normal `ansible-playbook main.yml --ask-become-pass` run installs host Pi and
+A normal `ansible-playbook main.yml` run installs host Pi and
 Ollama, pulls `qwen3.5:9b-q4_K_M`, and configures Herdr to start Pi in
 **new** Docker Sandboxes. Pi inside a sandbox uses the Mac's model through
 `host.docker.internal:11434`; it does not download another model. Ollama is

@@ -3,7 +3,7 @@
 The normal playbook run installs missing Ollama and Pi packages, starts the
 Ollama LaunchAgent, and pulls the selected model only if its tag is absent.
 It writes the host and sandbox Pi model settings and updates Herdr's default
-adapter. Run `ansible-playbook main.yml --ask-become-pass` again after changing
+adapter. Run `ansible-playbook main.yml` again after changing
 `local_llm_model` or `local_llm_context_length` in `config.yml`.
 
 The Ollama LaunchAgent is `com.macreset.ollama`; its log is

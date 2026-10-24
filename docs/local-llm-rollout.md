@@ -9,7 +9,7 @@ download a second copy of Qwen.
 ## Check a new setup
 
 1. Start Docker Desktop and sign in to Docker and `sbx` if prompted. Run
-   `ansible-playbook main.yml --ask-become-pass`.
+   `ansible-playbook main.yml`.
 2. Run `pi --print 'Reply with one word: ready'` on the Mac. Check that
    `~/.pi/agent/models.json` points to `127.0.0.1:11434` and
    `~/.pi/agent/settings.json` selects Qwen. The playbook keeps backups when

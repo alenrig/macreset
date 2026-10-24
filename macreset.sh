@@ -14,4 +14,4 @@ echo "### Install Ansible Requirements ###"
 "$HOME"/.local/pipx/venvs/ansible/bin/ansible-galaxy install -r requirements.yml
 
 echo "### Run Ansible Playbook ###"
-"$HOME"/.local/pipx/venvs/ansible/bin/ansible-playbook main.yml --ask-become-pass
+"$HOME"/.local/pipx/venvs/ansible/bin/ansible-playbook main.yml
