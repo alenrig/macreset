@@ -34,3 +34,15 @@
     src: file-viewer-config.toml
     dest: "{{ ansible_env.HOME }}/.config/herdr/plugins/config/herdr-file-viewer/config.toml"
     mode: '0644'
+
+- name: Create sbx plugin configuration directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.config/herdr/plugins/config/sbx.sandbox"
+    state: directory
+    mode: '0755'
+
+- name: Configure sbx plugin to launch Codex
+  ansible.builtin.copy:
+    src: sbx-config.json
+    dest: "{{ ansible_env.HOME }}/.config/herdr/plugins/config/sbx.sandbox/config.json"
+    mode: '0644'
