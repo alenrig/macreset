@@ -1,10 +1,25 @@
 # Local Pi rollout and rollback
 
 The playbook installs Ollama and Pi on the Mac, downloads
-`qwen3.5:9b-q4_K_M` with a 64K context window, and selects it as Pi's default model. Override
-`local_llm_model` and `local_llm_context_length` in `config.yml` if needed.
-New Herdr sandboxes install Pi and use the Mac's Ollama service; they do not
-download a second copy of Qwen.
+`qwen3.5:9b-q4_K_M` with a 64K context window as an optional local model.
+Pi defaults to `openai/gpt-6.1-sol` with medium thinking on the host and low
+thinking in sandboxes. For the local-model
+checks below, set these overrides in `config.yml`:
+
+```yaml
+pi_default_provider: ollama
+pi_default_model: qwen3.5:9b-q4_K_M
+pi_default_thinking_level: medium
+```
+
+Override `local_llm_model` and `local_llm_context_length` separately to change
+the downloaded Ollama model and its context window. Without these Pi overrides,
+use Pi's `/login` for OpenAI in each environment instead of the local checks.
+Herdr defaults to Codex with GPT-6.1-Sol, low reasoning, YOLO permissions, and
+a read-write workspace mount. To opt into local Pi for new sandboxes, set
+`herdr_sbx_agent_kind: pi` in `config.yml` before running the playbook.
+Pi sandboxes use the Mac's Ollama service; they do not download a second copy
+of Qwen.
 
 ## Check a new setup
 
@@ -29,15 +44,10 @@ Ollama is bound to the Mac's loopback interface. The playbook adds the
 reach the host service. Check access with
 `sbx policy check network localhost:11434`.
 
-## Restore the previous Herdr default
+## Restore the Codex default
 
-Before selecting Pi, the playbook saves a Codex-selecting configuration as
-`~/.config/herdr/plugins/config/sbx.sandbox/config.codex-rollback.json`.
-To use Codex for new sandboxes again:
-
-```sh
-cp ~/.config/herdr/plugins/config/sbx.sandbox/config.codex-rollback.json \
-   ~/.config/herdr/plugins/config/sbx.sandbox/config.json
-```
-
-Existing sandboxes are not changed. A later playbook run selects Pi again.
+Remove `herdr_sbx_agent_kind: pi` from `config.yml` (or set it to `codex`),
+then run `ansible-playbook main.yml` again. New sandboxes use Codex with the
+managed model and reasoning defaults. Existing sandboxes are not changed.
+Older `config.codex-rollback.json` files are left untouched, but are no longer
+created or required by the playbook.

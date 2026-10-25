@@ -41,58 +41,6 @@
     state: directory
     mode: '0755'
 
-- name: Check for saved Herdr sbx rollback configuration
-  ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.config/herdr/plugins/config/sbx.sandbox/config.codex-rollback.json"
-  register: herdr_sbx_rollback_config
-
-- name: Check current Herdr sbx configuration before the default switch
-  ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.config/herdr/plugins/config/sbx.sandbox/config.json"
-  register: herdr_sbx_current_config
-  when: not herdr_sbx_rollback_config.stat.exists
-
-- name: Read current Herdr sbx configuration for rollback
-  ansible.builtin.slurp:
-    src: "{{ ansible_env.HOME }}/.config/herdr/plugins/config/sbx.sandbox/config.json"
-  register: herdr_sbx_current_config_contents
-  when:
-    - not herdr_sbx_rollback_config.stat.exists
-    - herdr_sbx_current_config.stat.exists
-
-- name: Ensure the saved rollback configuration will select Codex
-  ansible.builtin.assert:
-    that:
-      - (herdr_sbx_current_config_contents.content | b64decode | from_json).agentKind == 'codex'
-    fail_msg: >-
-      Herdr sbx config.json does not select Codex and no Codex rollback copy exists.
-      Save a known-good Codex configuration as config.codex-rollback.json before
-      running the playbook again.
-  when:
-    - not herdr_sbx_rollback_config.stat.exists
-    - herdr_sbx_current_config.stat.exists
-
-- name: Save current Herdr sbx configuration for Codex rollback
-  ansible.builtin.copy:
-    src: "{{ ansible_env.HOME }}/.config/herdr/plugins/config/sbx.sandbox/config.json"
-    dest: "{{ ansible_env.HOME }}/.config/herdr/plugins/config/sbx.sandbox/config.codex-rollback.json"
-    remote_src: true
-    force: false
-    mode: '0644'
-  when:
-    - not herdr_sbx_rollback_config.stat.exists
-    - herdr_sbx_current_config.stat.exists
-
-- name: Save prior managed Codex default for first-time Herdr setup
-  ansible.builtin.copy:
-    src: sbx-config.json
-    dest: "{{ ansible_env.HOME }}/.config/herdr/plugins/config/sbx.sandbox/config.codex-rollback.json"
-    force: false
-    mode: '0644'
-  when:
-    - not herdr_sbx_rollback_config.stat.exists
-    - not herdr_sbx_current_config.stat.exists
-
 - name: Create Pi sandbox configuration directory
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.config/herdr/plugins/config/sbx.sandbox/pi"
@@ -105,13 +53,13 @@
     dest: "{{ ansible_env.HOME }}/.config/herdr/plugins/config/sbx.sandbox/pi/models.json"
     mode: '0644'
 
-- name: Select Qwen as the sandbox Pi default
+- name: Configure sandbox Pi model and thinking defaults
   ansible.builtin.template:
     src: sandbox-settings.json.j2
     dest: "{{ ansible_env.HOME }}/.config/herdr/plugins/config/sbx.sandbox/pi/settings.json"
     mode: '0644'
 
-- name: Configure custom Pi adapter as the default for new sandboxes
+- name: Configure the default agent for new mounted sandboxes
   ansible.builtin.template:
     src: sbx-config.json.j2
     dest: "{{ ansible_env.HOME }}/.config/herdr/plugins/config/sbx.sandbox/config.json"

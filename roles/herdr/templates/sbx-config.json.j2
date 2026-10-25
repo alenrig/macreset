@@ -1,15 +1,30 @@
 {
-  "agentKind": "pi",
+  "agentKind": {{ herdr_sbx_agent_kind | to_json }},
+  "workspaceMode": "mount",
+  "agentArgs": {
+    "codex": [
+      "--dangerously-bypass-approvals-and-sandbox",
+      "--model", {{ herdr_sbx_codex_model | to_json }},
+      "-c", {{ ('model_reasoning_effort=' ~ (herdr_sbx_codex_reasoning_effort | to_json)) | to_json }}
+    ]
+  },
   "extraWorkspaces": [
     {{ (ansible_env.HOME ~ '/.config/herdr/plugins/config/sbx.sandbox/pi:ro') | to_json }},
     {{ (ansible_env.HOME ~ '/.agents/skills:ro') | to_json }}
   ],
   "customAgents": {
+    "codex": {
+      "title": "Codex CLI",
+      "sbxAgent": "codex",
+      "command": ["bash", "-lc", "workspace=$(git rev-parse --show-toplevel 2>/dev/null || pwd); workspace=${workspace//\\\\/\\\\\\\\}; workspace=${workspace//\\\"/\\\\\\\"}; exec codex -c \"projects.\\\"$workspace\\\".trust_level=\\\"trusted\\\"\" \"$@\"", "codex"],
+      "defaultArgs": ["--dangerously-bypass-approvals-and-sandbox"],
+      "herdrDetectionKind": "codex"
+    },
     "pi": {
       "title": "Pi",
       "sbxAgent": "shell",
       "command": ["/usr/local/share/npm-global/bin/pi"],
-      "defaultArgs": ["--provider", "ollama", "--model", {{ local_llm_model | to_json }}],
+      "defaultArgs": ["--provider", {{ pi_default_provider | to_json }}, "--model", {{ pi_default_model | to_json }}, "--thinking", {{ herdr_sbx_pi_thinking_level | to_json }}],
       "herdrDetectionKind": null,
       "setupScript": {{ ('npm install --global --ignore-scripts @earendil-works/pi-coding-agent && '
         ~ 'mkdir -p /home/agent/.pi/agent /home/agent/.agents/skills && '

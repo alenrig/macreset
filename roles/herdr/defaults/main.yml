@@ -1,0 +1,5 @@
+---
+herdr_sbx_agent_kind: codex
+herdr_sbx_codex_model: gpt-6.1-sol
+herdr_sbx_codex_reasoning_effort: low
+herdr_sbx_pi_thinking_level: low

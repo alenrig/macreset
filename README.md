@@ -2,17 +2,28 @@
 
 A project for fast Mac system reinstallation without TimeCapsule, but with most important things.
 
-## Local Pi in Herdr sandboxes
+## Herdr sandboxes
 
-A normal `ansible-playbook main.yml` run installs host Pi and
-Ollama, pulls `qwen3.5:9b-q4_K_M`, and configures Herdr to start Pi in
-**new** Docker Sandboxes. Pi inside a sandbox uses the Mac's model through
-`host.docker.internal:11434`; it does not download another model. Ollama is
-bound to the Mac's loopback interface. Existing Codex sandboxes and their
-credentials remain in place. Herdr creates a new shell sandbox. On first
-start, the plugin installs Pi and copies the managed model configuration and
-`~/.agents/skills` into the sandbox.
+A normal `ansible-playbook main.yml` run configures **new** Herdr Docker
+Sandboxes to launch Codex with `gpt-6.1-sol`, low reasoning, and YOLO permissions
+(`--dangerously-bypass-approvals-and-sandbox`). The working repository is
+bind-mounted read-write at the same path inside the sandbox, not copied or
+cloned: agent edits immediately change the host checkout.
 
-Read the [rollout and rollback checklist](docs/local-llm-rollout.md) before
-switching the Herdr default. The [maintenance guide](docs/local-llm-maintenance.md)
-covers model changes and recovery.
+The launcher automatically trusts only the current repository root (or current
+working directory outside Git) for that Codex invocation. It does not change
+host Codex trust settings. Existing sandboxes and credentials remain in place.
+
+Override `herdr_sbx_agent_kind`, `herdr_sbx_codex_model`, or
+`herdr_sbx_codex_reasoning_effort` in `config.yml` to change these defaults.
+The playbook still installs host Pi and Ollama and pulls `qwen3.5:9b-q4_K_M`.
+Pi defaults to `openai/gpt-6.1-sol` with medium thinking on the host and low
+thinking in new Pi sandboxes. Override `pi_default_provider`, `pi_default_model`,
+`pi_default_thinking_level` (host), or `herdr_sbx_pi_thinking_level` (sandbox)
+in `config.yml` if needed. Authenticate with
+OpenAI through Pi's `/login`; credentials are not managed by Ansible.
+Set `herdr_sbx_agent_kind: pi` to opt into the Pi sandbox adapter.
+
+Read the [local Pi checklist](docs/local-llm-rollout.md) before opting in.
+The [maintenance guide](docs/local-llm-maintenance.md) covers local model
+changes and recovery.
