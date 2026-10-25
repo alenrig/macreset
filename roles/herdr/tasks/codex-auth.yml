@@ -1,0 +1,39 @@
+---
+# sbx's keychain-backed credential store has no Ansible module. Use its CLI,
+# not host Codex/Pi auth files, so real tokens remain outside the sandbox.
+- name: Inspect the global sbx OpenAI credential
+  ansible.builtin.command:
+    argv: [sbx, secret, ls, --global, --service, openai, --quiet]
+  register: herdr_sbx_openai_secret
+  changed_when: false
+  check_mode: false
+
+- name: Explain first-time sandbox authentication
+  ansible.builtin.debug:
+    msg: >-
+      sbx needs an OpenAI credential for new Codex sandboxes. The next task
+      opens a browser on this Mac; complete the OpenAI login within five minutes.
+      For a headless run, first run sbx secret set openai --oauth interactively,
+      or provision an API key with sbx secret set openai.
+  when: herdr_sbx_openai_secret.stdout | trim | length == 0
+
+- name: Authenticate sbx with OpenAI on the host
+  ansible.builtin.command:
+    argv: [sbx, secret, set, openai, --oauth]
+  register: herdr_sbx_openai_login
+  changed_when: herdr_sbx_openai_login.rc == 0
+  timeout: 300
+  no_log: true
+  when:
+    - herdr_sbx_openai_secret.stdout | trim | length == 0
+    - not ansible_check_mode
+
+- name: Verify the global sbx OpenAI credential after authentication
+  ansible.builtin.command:
+    argv: [sbx, secret, ls, --global, --service, openai, --quiet]
+  register: herdr_sbx_openai_secret_verified
+  changed_when: false
+  failed_when: >-
+    herdr_sbx_openai_secret_verified.rc != 0 or
+    herdr_sbx_openai_secret_verified.stdout | trim | length == 0
+  when: not ansible_check_mode

@@ -59,6 +59,12 @@
     dest: "{{ ansible_env.HOME }}/.config/herdr/plugins/config/sbx.sandbox/pi/settings.json"
     mode: '0644'
 
+- name: Prepare host authentication for new Codex sandboxes
+  ansible.builtin.include_tasks: codex-auth.yml
+  when:
+    - herdr_sbx_agent_kind == 'codex'
+    - herdr_sbx_codex_authenticate | bool
+
 - name: Configure the default agent for new mounted sandboxes
   ansible.builtin.template:
     src: sbx-config.json.j2
