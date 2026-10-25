@@ -119,7 +119,7 @@
     mode: '0600'
     backup: true
 
-- name: Select Qwen as the host Pi default
+- name: Configure host Pi model and thinking defaults
   ansible.builtin.template:
     src: settings.json.j2
     dest: "{{ ansible_env.HOME }}/.pi/agent/settings.json"

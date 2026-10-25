@@ -39,6 +39,10 @@ homebrew_installed_packages:
 local_llm_model: qwen3.5:9b-q4_K_M
 local_llm_context_length: 65536
 
+pi_default_provider: openai
+pi_default_model: gpt-6.1-sol
+pi_default_thinking_level: medium
+
 flux_agent_skills:
   - gitops-knowledge
   - gitops-repo-audit
@@ -89,6 +93,7 @@ homebrew_cask_uninstalled_apps:
   - 1password
   - claude-code
   - iterm2
+  - utm
 
 homebrew_cask_appdir: /Applications
 homebrew_cask_apps:
@@ -113,7 +118,6 @@ homebrew_cask_apps:
   - obsidian
   - shottr
   - transmission
-  - utm
   - visual-studio-code
   - voov-meeting
   - zoom

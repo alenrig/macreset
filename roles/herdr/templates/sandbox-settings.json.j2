@@ -1,1 +1,5 @@
-{"defaultProvider": "ollama", "defaultModel": {{ local_llm_model | to_json }}}
+{
+  "defaultProvider": {{ pi_default_provider | to_json }},
+  "defaultModel": {{ pi_default_model | to_json }},
+  "defaultThinkingLevel": {{ herdr_sbx_pi_thinking_level | to_json }}
+}
