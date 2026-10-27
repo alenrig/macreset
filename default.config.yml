@@ -21,6 +21,7 @@ homebrew_installed_packages:
   - herdr  # Prerequisite for this and future Herdr roles.
   - krew
   - kubectl
+  - libpg
   - llmfit
   - minikube
   - mole
