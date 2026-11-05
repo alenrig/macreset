@@ -4,8 +4,6 @@ homebrew_taps:
   - docker/tap
   - fluxcd/tap
   - hashicorp/tap
-  - homebrew/cask
-  - homebrew/core
 
 homebrew_installed_packages:
   - ansible
@@ -18,31 +16,18 @@ homebrew_installed_packages:
   - gopls
   - hashicorp/tap/terraform
   - hashicorp/tap/terraform-ls
-  - herdr  # Prerequisite for this and future Herdr roles.
   - krew
   - kubectl
-  - libpg
+  - kustomize
   - llmfit
   - minikube
   - mole
   - nvim
-  - node
+  - nvm
   - openjdk  # sonarqube IDE plugin
   - pdm
   - uv
   - virtctl
-
-  # Prerequisites for the agent-skills role: nvm supplies npx;
-  # kustomize builds the overlays used by the Flux skills.
-  - nvm
-  - kustomize
-
-local_llm_model: qwen3.5:9b-q4_K_M
-local_llm_context_length: 65536
-
-pi_default_provider: openai
-pi_default_model: gpt-6.1-sol
-pi_default_thinking_level: medium
 
 flux_agent_skills:
   - gitops-knowledge
@@ -79,16 +64,6 @@ matt_pocock_agent_skills:
   - wait-what
   - writing-for-agents
 
-herdr_plugins:
-  - id: chmarax.herdr-nvim
-    source: ChmaraX/herdr-nvim
-  - id: sbx.sandbox
-    source: dirien/herdr-sbx-plugin
-  - id: herdr-file-viewer
-    source: smarzban/herdr-file-viewer
-  - id: herdr.auto-title
-    source: kryptamine/herdr-auto-title
-
 homebrew_cask_uninstalled_apps:
   - google-chrome
   - 1password
@@ -99,7 +74,6 @@ homebrew_cask_uninstalled_apps:
 homebrew_cask_appdir: /Applications
 homebrew_cask_apps:
   - anydesk
-  - appcleaner
   - balenaetcher
   - bruno
   - codex
@@ -136,16 +110,8 @@ mas_installed_apps:
     id: 1451685025
   - name: "Telegram"
     id: 747648890
-  - name: "Pages"
-    id: 409201541
-  - name: "Numbers"
-    id: 409203825
-  - name: "Keynote"
-    id: 409183694
   - name: "Trello"
     id: 1278508951
-  - name: "GoodNotes"
-    id: 1444383602
   - name: "Streaks"
     id: 963034692
   - name: "GoodLinks"
@@ -154,13 +120,34 @@ mas_installed_apps:
     id: 1529448980
   - name: "iMovie"
     id: 408981434
+  - name: "Amphetamine"
+    id: 937984704
+  - name: "Shadowrocket"
+    id: 932747118
+  - name: "VanyaVPN"
+    id: 6444087613
+  - name: "WebSSH"
+    id: 497714887
 
-dockutil_install: false
+dockutil_install: true
 dockitems_remove:
   - App Store
   - Launchpad
   - Maps
   - Messages
+  - Приложения
+  - Сообщения
+  - Карты
+  - Фото
+  - FaceTime
+  - Телефон
+  - Контакты
+  - Keynote
+  - Numbers
+  - Pages
+  - Игры
+  - App Store
+  - Системные настройки
   - Podcasts
   - Подкасты
   - System Preferences

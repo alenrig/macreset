@@ -5,7 +5,7 @@
   register: etc_omz_dir
 
 - name: Install OMZ
-  when: not etc_omz_dir.stat.path
+  when: not etc_omz_dir.stat.exists
   block:
     - name: Download OMZ
       ansible.builtin.get_url:
