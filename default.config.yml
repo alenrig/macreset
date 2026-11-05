@@ -92,6 +92,7 @@ homebrew_cask_apps:
   - musescore
   - obsidian
   - shottr
+  - t3-code
   - transmission
   - visual-studio-code
   - voov-meeting
