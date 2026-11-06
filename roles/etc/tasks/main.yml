@@ -50,3 +50,23 @@
     clone: true
     version: master
   loop: "{{ zsh_plugins }}"
+
+- name: Install Ghostty theme
+  ansible.builtin.git:
+    repo: https://github.com/dracula/ghostty.git
+    dest: ~/.config/ghostty/themes/drcl
+    accept_hostkey: true
+    clone: true
+    version: main
+
+- name: Copy Ghostty config
+  ansible.builtin.copy:
+    src: ghostty
+    dest: ~/.config/ghostty/config
+    mode: "0644"
+
+- name: Install custom bin
+  ansible.builtin.copy:
+    src: bin/
+    dest: ~/bin/
+    mode: "0755"

@@ -1,0 +1,18 @@
+#!/bin/zsh
+
+vim +PluginUpdate +qall
+
+brew upgrade
+brew cleanup
+brew update
+brew outdated
+
+mo clean
+MOLE_ENABLE_DISK_VERIFY=1 mo optimize
+mo purge
+
+pushd ~/.oh-my-zsh/tools
+./upgrade.sh
+popd
+
+exit 0
