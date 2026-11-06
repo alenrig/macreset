@@ -16,7 +16,7 @@ host Codex trust settings. Existing sandboxes and credentials remain in place.
 
 Override `herdr_sbx_agent_kind`, `herdr_sbx_codex_model`, or
 `herdr_sbx_codex_reasoning_effort` in `config.yml` to change these defaults.
-The playbook still installs host Pi and Ollama and pulls `qwen3.5:9b-q4_K_M`.
+The playbook still installs host Pi and Ollama and pulls `qwen3-coder:30b`.
 Pi defaults to `openai/gpt-6.1-sol` with medium thinking on the host and low
 thinking in new Pi sandboxes. Override `pi_default_provider`, `pi_default_model`,
 `pi_default_thinking_level` (host), or `herdr_sbx_pi_thinking_level` (sandbox)

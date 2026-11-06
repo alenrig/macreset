@@ -1,90 +1,4 @@
 ---
-- name: Locate Homebrew nvm
-  ansible.builtin.command:
-    argv: [brew, --prefix, nvm]
-  register: agent_skills_nvm_prefix
-  changed_when: false
-
-- name: Create nvm directory
-  ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.nvm"
-    state: directory
-    mode: '0755'
-
-- name: Resolve current remote Node.js LTS
-  ansible.builtin.command:
-    argv:
-      - /bin/zsh
-      - -c
-      - source "$NVM_SCRIPT" && nvm version-remote --lts
-  environment: &nvm_environment
-    NVM_DIR: "{{ ansible_env.HOME }}/.nvm"
-    NVM_SCRIPT: "{{ agent_skills_nvm_prefix.stdout }}/nvm.sh"
-  register: agent_skills_remote_node
-  changed_when: false
-  failed_when: agent_skills_remote_node.rc != 0 or agent_skills_remote_node.stdout is not regex('^v[0-9]+\.[0-9]+\.[0-9]+$')
-
-- name: Check installed Node.js LTS version
-  ansible.builtin.command:
-    argv:
-      - /bin/zsh
-      - -c
-      - source "$NVM_SCRIPT" && nvm version "$NODE_VERSION"
-  environment:
-    NVM_DIR: "{{ ansible_env.HOME }}/.nvm"
-    NVM_SCRIPT: "{{ agent_skills_nvm_prefix.stdout }}/nvm.sh"
-    NODE_VERSION: "{{ agent_skills_remote_node.stdout }}"
-  register: agent_skills_installed_node
-  changed_when: false
-  failed_when: agent_skills_installed_node.rc not in [0, 3] or agent_skills_installed_node.stdout not in [agent_skills_remote_node.stdout, 'N/A']
-
-- name: Install missing Node.js LTS version
-  ansible.builtin.command:
-    argv:
-      - /bin/zsh
-      - -c
-      - source "$NVM_SCRIPT" && nvm install "$NODE_VERSION"
-  environment:
-    NVM_DIR: "{{ ansible_env.HOME }}/.nvm"
-    NVM_SCRIPT: "{{ agent_skills_nvm_prefix.stdout }}/nvm.sh"
-    NODE_VERSION: "{{ agent_skills_remote_node.stdout }}"
-  when: agent_skills_installed_node.stdout == 'N/A'
-  changed_when: true
-
-- name: Check nvm default alias
-  ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.nvm/alias/default"
-  register: agent_skills_default_alias_stat
-
-- name: Read nvm default alias
-  ansible.builtin.slurp:
-    src: "{{ ansible_env.HOME }}/.nvm/alias/default"
-  register: agent_skills_default_alias
-  when: agent_skills_default_alias_stat.stat.exists
-
-- name: Point nvm default alias at LTS
-  ansible.builtin.command:
-    argv:
-      - /bin/zsh
-      - -c
-      - source "$NVM_SCRIPT" && nvm alias default 'lts/*'
-  environment: *nvm_environment
-  when: not agent_skills_default_alias_stat.stat.exists or (agent_skills_default_alias.content | b64decode | trim) != 'lts/*'
-  changed_when: true
-
-- name: Resolve nvm-managed Node.js executable
-  ansible.builtin.command:
-    argv:
-      - /bin/zsh
-      - -c
-      - source "$NVM_SCRIPT" && nvm which "$NODE_VERSION"
-  environment:
-    NVM_DIR: "{{ ansible_env.HOME }}/.nvm"
-    NVM_SCRIPT: "{{ agent_skills_nvm_prefix.stdout }}/nvm.sh"
-    NODE_VERSION: "{{ agent_skills_remote_node.stdout }}"
-  register: agent_skills_node_executable
-  changed_when: false
-
 - name: List installed Flux plugins
   ansible.builtin.command:
     argv: [flux, plugin, list]
@@ -141,14 +55,14 @@
 - name: Inventory global skills
   ansible.builtin.command:
     argv:
-      - "{{ agent_skills_node_executable.stdout | dirname }}/npx"
+      - "{{ node_executable.stdout | dirname }}/npx"
       - --yes
       - skills
       - list
       - --global
       - --json
   environment: &skills_environment
-    PATH: "{{ agent_skills_node_executable.stdout | dirname }}:{{ ansible_env.PATH }}"
+    PATH: "{{ node_executable.stdout | dirname }}:{{ ansible_env.PATH }}"
     NO_COLOR: '1'
   register: agent_skills_inventory_result
   changed_when: false
@@ -200,7 +114,7 @@
 - name: Verify global skills
   ansible.builtin.command:
     argv:
-      - "{{ agent_skills_node_executable.stdout | dirname }}/npx"
+      - "{{ node_executable.stdout | dirname }}/npx"
       - --yes
       - skills
       - list
