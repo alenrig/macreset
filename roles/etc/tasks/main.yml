@@ -50,3 +50,13 @@
     clone: true
     version: master
   loop: "{{ zsh_plugins }}"
+
+- name: Copy Ghostty config
+  ansible.builtin.copy:
+    src: ghostty
+    dest: ~/.config/ghostty/config
+
+- name: Install custom bin
+  ansible.builtin.copy:
+    src: bin
+    dest: ~/bin

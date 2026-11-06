@@ -1,0 +1,7 @@
+#!/bin/zsh
+
+pushd ~/Developer/macreset
+./macreset.sh
+popd
+
+exit 0
