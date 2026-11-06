@@ -93,6 +93,7 @@ homebrew_cask_apps:
   - monitorcontrol
   - musescore
   - obsidian
+  - ollama-app
   - omnissa-horizon-client
   - shottr
   - t3-code
