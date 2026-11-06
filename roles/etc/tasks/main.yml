@@ -63,6 +63,7 @@
   ansible.builtin.copy:
     src: ghostty
     dest: ~/.config/ghostty/config
+    mode: "0644"
 
 - name: Install custom bin
   ansible.builtin.copy:
