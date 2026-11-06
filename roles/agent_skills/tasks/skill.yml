@@ -37,7 +37,7 @@
 - name: Repair missing or mismatched global skill
   ansible.builtin.command:
     argv:
-      - "{{ agent_skills_node_executable.stdout | dirname }}/npx"
+      - "{{ node_executable.stdout | dirname }}/npx"
       - --yes
       - skills
       - add
@@ -52,7 +52,7 @@
       - --yes
       - --json
   environment:
-    PATH: "{{ agent_skills_node_executable.stdout | dirname }}:{{ ansible_env.PATH }}"
+    PATH: "{{ node_executable.stdout | dirname }}:{{ ansible_env.PATH }}"
     NO_COLOR: '1'
   register: agent_skills_add_result
   when: >-
@@ -72,7 +72,7 @@
 - name: Refresh present global skill
   ansible.builtin.command:
     argv:
-      - "{{ agent_skills_node_executable.stdout | dirname }}/npx"
+      - "{{ node_executable.stdout | dirname }}/npx"
       - --yes
       - skills
       - update
@@ -80,7 +80,7 @@
       - --global
       - --yes
   environment:
-    PATH: "{{ agent_skills_node_executable.stdout | dirname }}:{{ ansible_env.PATH }}"
+    PATH: "{{ node_executable.stdout | dirname }}:{{ ansible_env.PATH }}"
     NO_COLOR: '1'
   register: agent_skills_update_result
   when: agent_skills_add_result is skipped
