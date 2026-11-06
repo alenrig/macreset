@@ -30,7 +30,7 @@ homebrew_installed_packages:
   - uv
   - virtctl
 
-local_llm_model: qwen3.5:9b-q4_K_M
+local_llm_model: qwen3-coder:30b
 local_llm_context_length: 65536
 
 pi_default_provider: openai
