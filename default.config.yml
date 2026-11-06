@@ -130,6 +130,8 @@ mas_installed_apps:
     id: 6444087613
   - name: "WebSSH"
     id: 497714887
+  - name: "Windows App"
+    id: 1295203466
 
 dockutil_install: true
 dockitems_remove:
