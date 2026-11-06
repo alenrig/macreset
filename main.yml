@@ -17,6 +17,8 @@
 
   roles:
     - geerlingguy.mac.homebrew
+    - node
+    - local_llm
     - agent_skills
     - geerlingguy.mac.mas
     - geerlingguy.mac.dock
