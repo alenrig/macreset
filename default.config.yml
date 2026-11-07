@@ -1,7 +1,7 @@
 ---
 homebrew_taps:
-  - doodlescheduling/flux-build
   - docker/tap
+  - doodlescheduling/flux-build
   - fluxcd/tap
   - hashicorp/tap
 
@@ -29,6 +29,44 @@ homebrew_installed_packages:
   - pdm
   - uv
   - virtctl
+
+homebrew_cask_uninstalled_apps:
+  - 1password
+  - claude-code
+  - google-chrome
+  - iterm2
+  - utm
+
+homebrew_cask_appdir: /Applications
+homebrew_cask_apps:
+  - anydesk
+  - balenaetcher
+  - bruno
+  - chatgpt
+  - codex
+  - cursor
+  - dbeaver-community
+  - docker
+  - docker-desktop
+  - docker/tap/sbx
+  - firefox
+  - freelens
+  - ghostty
+  - google-drive
+  - hiddenbar
+  - home-assistant
+  - monitorcontrol
+  - musescore
+  - obs
+  - obsidian
+  - ollama-app
+  - omnissa-horizon-client
+  - shottr
+  - t3-code
+  - transmission
+  - visual-studio-code
+  - voov-meeting
+  - zoom
 
 local_llm_model: qwen3-coder:30b
 local_llm_context_length: 65536
@@ -71,43 +109,6 @@ matt_pocock_agent_skills:
   - to-questionnaire
   - wait-what
   - writing-for-agents
-
-homebrew_cask_uninstalled_apps:
-  - google-chrome
-  - 1password
-  - claude-code
-  - iterm2
-  - utm
-
-homebrew_cask_appdir: /Applications
-homebrew_cask_apps:
-  - anydesk
-  - balenaetcher
-  - bruno
-  - chatgpt
-  - codex
-  - cursor
-  - dbeaver-community
-  - docker
-  - docker-desktop
-  - docker/tap/sbx
-  - firefox
-  - freelens
-  - ghostty
-  - google-drive
-  - hiddenbar
-  - home-assistant
-  - monitorcontrol
-  - musescore
-  - obsidian
-  - ollama-app
-  - omnissa-horizon-client
-  - shottr
-  - t3-code
-  - transmission
-  - visual-studio-code
-  - voov-meeting
-  - zoom
 
 mas_installed_apps:
   - name: "Xcode"
