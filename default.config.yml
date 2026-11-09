@@ -37,6 +37,7 @@ homebrew_cask_uninstalled_apps:
   - google-chrome
   - iterm2
   - utm
+  - t3-code
 
 homebrew_cask_appdir: /Applications
 homebrew_cask_apps:
@@ -64,7 +65,6 @@ homebrew_cask_apps:
   - ollama-app
   - omnissa-horizon-client
   - shottr
-  - t3-code
   - transmission
   - visual-studio-code
   - voov-meeting
