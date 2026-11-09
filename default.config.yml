@@ -16,6 +16,7 @@ homebrew_installed_packages:
   - gopls
   - hashicorp/tap/terraform
   - hashicorp/tap/terraform-ls
+  - herdr
   - krew
   - kubectl
   - kustomize
@@ -53,6 +54,7 @@ homebrew_cask_apps:
   - freelens
   - ghostty
   - google-drive
+  - herdr-app
   - hiddenbar
   - home-assistant
   - monitorcontrol
