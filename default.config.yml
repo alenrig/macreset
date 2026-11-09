@@ -197,18 +197,21 @@ dockitems_persist:
   - name: "Visual Studio Code"
     path: "/Applications/Visual Studio Code.app/"
     pos: 8
+  - name: "Herdr"
+    path: "/Applications/Herdr.app/"
+    pos: 9
   - name: "Freelens"
     path: "/Applications/Freelens.app/"
-    pos: 9
+    pos: 10
   - name: "Telegram"
     path: "/Applications/Telegram.app/"
-    pos: 10
+    pos: 11
   - name: "Музыка"
     path: "/Applications/Music.app/"
-    pos: 11
+    pos: 12
   - name: "Видеоповтор iPhone"
     path: "/System/Applications/iPhone Mirroring.app"
-    pos: 12
+    pos: 13
 
 dotfiles_repo: "ssh://git@github.com/alenrig/dotfiles.git"
 dotfiles_repo_version: main
