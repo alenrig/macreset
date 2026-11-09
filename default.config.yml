@@ -114,7 +114,19 @@ matt_pocock_agent_skills:
   - wait-what
   - writing-for-agents
 
+mas_uninstalled_apps:
+  - name: "GarageBand"
+    id: 682658836
+  - name: "iMovie"
+    id: 408981434
+
+mas_upgrade_all_apps: true
+
 mas_installed_apps:
+  - name: "Final Cut Pro"
+    id: 1631624924
+  - name: "Logic Pro"
+    id: 1615087040
   - name: "Xcode"
     id: 497799835
   - name: "Mactracker"
@@ -135,8 +147,6 @@ mas_installed_apps:
     id: 1474335294
   - name: "Reeder"
     id: 1529448980
-  - name: "iMovie"
-    id: 408981434
   - name: "Amphetamine"
     id: 937984704
   - name: "Shadowrocket"
