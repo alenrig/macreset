@@ -2,7 +2,7 @@
 
 The playbook installs Ollama and Pi on the Mac, downloads
 `qwen3-coder:30b` with a 64K context window as an optional local model.
-Pi defaults to `openai/gpt-6.1-sol` with medium thinking on the host and low
+Pi defaults to `openai/gpt-6.1-terra` with medium thinking on the host and low
 thinking in sandboxes. For the local-model
 checks below, set these overrides in `config.yml`:
 

@@ -6,9 +6,11 @@ It writes the host and sandbox Pi model settings and updates Herdr's default
 adapter. Run `ansible-playbook main.yml` again after changing
 `local_llm_model` or `local_llm_context_length` in `config.yml`. These select
 the optional Ollama model, not Pi's startup model. Pi defaults to
-`openai/gpt-6.1-sol` with medium thinking on the host and low in sandboxes;
+`openai/gpt-6.1-terra` with medium thinking on the host and low in sandboxes;
 override `pi_default_provider`, `pi_default_model`, `pi_default_thinking_level`
 (host), and `herdr_sbx_pi_thinking_level` (sandbox) to change its defaults.
+The host package list is managed by `pi_packages` and defaults to Ponytail; Pi
+installs missing packages on startup.
 
 The Ollama LaunchAgent is `com.macreset.ollama`; its log is
 `~/Library/Logs/macreset-ollama.log`. When selected with
