@@ -58,6 +58,7 @@ homebrew_cask_apps:
   - herdr-app
   - hiddenbar
   - home-assistant
+  - logitune
   - monitorcontrol
   - musescore
   - obs
