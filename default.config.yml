@@ -36,8 +36,9 @@ homebrew_cask_uninstalled_apps:
   - claude-code
   - google-chrome
   - iterm2
-  - utm
+  - logitune
   - t3-code
+  - utm
 
 homebrew_cask_appdir: /Applications
 homebrew_cask_apps:
@@ -58,13 +59,13 @@ homebrew_cask_apps:
   - herdr-app
   - hiddenbar
   - home-assistant
-  - logitune
   - monitorcontrol
   - musescore
   - obs
   - obsidian
   - ollama-app
   - omnissa-horizon-client
+  - openlogi
   - shottr
   - transmission
   - visual-studio-code
