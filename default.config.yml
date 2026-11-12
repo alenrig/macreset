@@ -9,6 +9,7 @@ homebrew_installed_packages:
   - ansible
   - ansible-lint
   - cmake
+  - cue
   - flux-build
   - fluxcd/tap/flux
   - glow
@@ -16,6 +17,7 @@ homebrew_installed_packages:
   - gopls
   - hashicorp/tap/terraform
   - hashicorp/tap/terraform-ls
+  - helm
   - herdr
   - krew
   - kubectl
