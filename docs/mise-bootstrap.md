@@ -34,10 +34,12 @@ For example:
 node = "lts"
 ```
 
-The tools task installs configured tools and selects Node LTS globally so it
-works outside this checkout; it changes the global Node selection, preserving
-installed versions. For a different global Node policy, override the `tools`
-task in your local config as well as `[tools]`. Native line entries in `.zshenv`
+The tools task installs configured tools, refreshes Node to the latest version
+matching the configured LTS request on every run, and selects Node LTS globally
+so it works outside this checkout. It preserves previously installed runtimes
+and leaves other tools at their configured install behavior. For a different
+global Node policy, override the `tools` task in your local config as well as
+`[tools]`. Native line entries in `.zshenv`
 add `~/.local/bin` and activate mise for interactive zsh without editing the
 private linked startup files. Open a new shell to pick up startup changes. Setup tasks already
 use the known mise executable and its runtime environment without a new shell.

@@ -141,7 +141,7 @@ run = "bash scripts/prerequisites.sh"
 [tasks.tools]
 description = "Install mise-managed development runtimes"
 depends = ["prerequisites"]
-run = ["mise install", "mise use --global node@lts"]
+run = ["mise install", "mise upgrade node --yes", "mise use --global node@lts"]
 
 [tasks.packages]
 description = "Apply native formula declarations with explicit Homebrew fallbacks"
