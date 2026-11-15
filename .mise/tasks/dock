@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#MISE description="Restore dock"
+#MISE depends=["apps"]
+set -euo pipefail
+source scripts/brew-env.sh
+exec mise exec -- node scripts/dock.mjs

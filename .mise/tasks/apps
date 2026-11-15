@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#MISE description="Restore apps"
+#MISE depends=["native"]
+set -euo pipefail
+source scripts/brew-env.sh
+exec mise exec -- node scripts/apps.mjs
