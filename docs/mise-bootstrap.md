@@ -58,6 +58,7 @@ Keep the YAML for the legacy path while remaining concerns migrate.
 | `flux-build` | Fully qualified `doodlescheduling/flux-build/flux-build` |
 | nvm role/runtime choice | `[tools] node = "lts"`, global selection and native shell activation |
 | Ansible / ansible-lint | Omitted; installed copies remain untouched |
+| `homebrew_brewfile_dir` | `[env] MACRESET_BREWFILE` (full path); defaults to `~/Brewfile` |
 | Other YAML settings | Not migrated by this slice; retain for legacy setup and translate when their ticket lands |
 
 ## Task interface and ordering
@@ -91,6 +92,10 @@ bootstrap` as a substitute for the ordered `setup` task.
 - Source-build DSL and post-install support differ from Homebrew. A new native
   error wording may require extending the narrow fallback recognition; do not
   convert arbitrary failures into fallback. Unknown failure messages stop setup.
+- The legacy Homebrew role also applied a user-owned `~/Brewfile` when present.
+  The packages task retains that optional extension using `brew bundle --file`;
+  set `MACRESET_BREWFILE` in local `[env]` for a different path. Its dependencies
+  and behavior remain Homebrew-owned. This is not a repository Brewfile inventory.
 - Native receipts are Homebrew-compatible. Formula verification uses `brew list`
   after each install. No cleanup, uninstall, upgrade-all or broad prune occurs.
 - Intel Homebrew is upstream Tier 3. Current bottles, third-party formula

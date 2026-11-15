@@ -1,5 +1,7 @@
 import { execFileSync, spawnSync } from 'node:child_process';
-import { arch } from 'node:os';
+import { arch, homedir } from 'node:os';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 
 const mise = process.env.MACRESET_MISE || 'mise';
 const brew = process.env.MACRESET_BREW;
@@ -33,3 +35,7 @@ for (const entry of formulas) {
   // Homebrew reads the receipts written by both installers; do not infer success from timestamps.
   execFileSync(brew, ['list', '--formula', '--versions', name], { stdio: 'inherit' });
 }
+
+// Preserve the legacy role's optional user-owned Bundle extension, not a second repo inventory.
+const brewfile = process.env.MACRESET_BREWFILE || join(homedir(), 'Brewfile');
+if (existsSync(brewfile)) execFileSync(brew, ['bundle', '--file', brewfile], { stdio: 'inherit' });
