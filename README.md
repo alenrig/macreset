@@ -2,6 +2,12 @@
 
 A project for fast Mac system reinstallation without TimeCapsule, but with most important things.
 
+## Mise migration
+
+Run `./bootstrap.sh` for the migrated development-tool bootstrap. See the
+[entrypoint, private overrides and remaining gaps](docs/mise-bootstrap.md).
+The legacy full setup remains `./macreset.sh` until the migration is complete.
+
 ## Herdr sandboxes
 
 A normal `ansible-playbook main.yml` run configures **new** Herdr Docker
