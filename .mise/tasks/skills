@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#MISE description="Repair and refresh global Codex and Cursor skills"
+#MISE depends=["tools"]
+set -euo pipefail
+cd "$MISE_PROJECT_ROOT"
+exec mise exec -- node scripts/skills.mjs

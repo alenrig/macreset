@@ -24,6 +24,8 @@ node = "lts"
 "brew:hashicorp/tap/terraform" = "latest"
 "brew:hashicorp/tap/terraform-ls" = "latest"
 "brew:helm" = "latest"
+# Dedicated temporary keyring for verified Helm 4 plugin installation.
+"brew:gnupg" = "latest"
 "brew:herdr" = "latest"
 "brew:krew" = "latest"
 "brew:kubernetes-cli" = "latest"
@@ -72,6 +74,8 @@ depends = ["native"]
 run = "echo 'Migrated setup finished; see docs/mise-bootstrap.md for remaining legacy capabilities.'"
 
 [vars]
+# JSON source/name mapping preserves the skills CLI global inventory and lock format.
+agent_skills = '{"fluxcd/agent-skills":["gitops-knowledge","gitops-repo-audit","gitops-cluster-debug"],"mattpocock/skills":["ask-matt","code-review","codebase-design","diagnosing-bugs","domain-modeling","grill-with-docs","implement-spec","implement","improve-codebase-architecture","prototype","research","retro","setup-matt-pocock-skills","tdd","to-spec","to-tickets","triage","wayfinder","grill-me","grilling","handoff","teach","to-questionnaire","wait-what","writing-for-agents"]}'
 local_llm_model = "qwen3-coder:30b"
 local_llm_context_length = "65536"
 pi_default_provider = "openai"
@@ -81,6 +85,7 @@ pi_default_thinking_level = "medium"
 pi_packages = '["git:github.com/DietrichGebert/ponytail"]'
 
 [env]
+MACRESET_AGENT_SKILLS = "{{ vars.agent_skills }}"
 MACRESET_LOCAL_LLM_MODEL = "{{ vars.local_llm_model }}"
 MACRESET_LOCAL_LLM_CONTEXT = "{{ vars.local_llm_context_length }}"
 MACRESET_PI_PROVIDER = "{{ vars.pi_default_provider }}"
