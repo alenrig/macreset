@@ -16,7 +16,9 @@ for (const entry of formulas) {
   if (entry.desired_state !== 'present' || entry.requested_version !== 'latest') {
     throw new Error(`Formula ${name}: this setup supports present/latest only; remove declarations to stop managing them.`);
   }
-  let fallback = arch() === 'x64';
+  // Native brew supports only the standard Apple Silicon prefix on macOS.
+  const cliOnly = arch() === 'x64' || process.env.HOMEBREW_PREFIX !== '/opt/homebrew';
+  let fallback = cliOnly;
   if (!fallback) {
     const result = spawnSync(mise, ['bootstrap', 'packages', 'apply', `brew:${name}`], { encoding: 'utf8' });
     process.stdout.write(result.stdout || '');
@@ -29,7 +31,7 @@ for (const entry of formulas) {
     }
   }
   if (fallback) {
-    console.error(`Homebrew CLI fallback: ${name} (${arch() === 'x64' ? 'Intel macOS' : 'unsupported native formula feature'})`);
+    console.error(`Homebrew CLI fallback: ${name} (${cliOnly ? 'architecture or prefix unsupported by native brew' : 'unsupported native formula feature'})`);
     execFileSync(brew, ['install', '--formula', name], { stdio: 'inherit' });
   }
   // Homebrew reads the receipts written by both installers; do not infer success from timestamps.

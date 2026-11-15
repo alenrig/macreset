@@ -84,7 +84,7 @@ bootstrap` as a substitute for the ordered `setup` task.
 - Homebrew itself and CLT require mise-owned prerequisite tasks.
 - Native formula management skips Intel Macs. The package runner reads mise's
   merged native package status inventory and uses `brew install --formula` for
-  every declared formula on Intel. This includes prerequisites mas and dockutil.
+  every declared formula on Intel or with a nonstandard Homebrew prefix. This includes prerequisites mas and dockutil.
 - On Apple Silicon each formula uses native apply first. Only a documented
   unsupported formula-feature error permits Homebrew CLI fallback; other errors
   remain failures. Fully qualified names retain tap provenance and Homebrew
