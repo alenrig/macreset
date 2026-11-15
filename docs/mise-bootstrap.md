@@ -4,9 +4,10 @@ From the checkout, run `./bootstrap.sh`. This slice installs or reuses mise
 2026.11.8 or newer, then prepares CLT, Homebrew, development formulae, Node LTS
 and zsh activation. It does not run the machine setup during development.
 `./macreset.sh` remains the legacy full Ansible entrypoint until cutover.
-Casks, MAS, Dock, dotfiles/plugins, skills, local-model setup and maintenance
-still use that path until their migration tickets land. Do not assume this
-slice has configured them.
+Dotfiles and terminal plugins now use the native path; see
+[mise-dotfiles.md](mise-dotfiles.md). Casks, MAS, Dock, skills, local-model setup
+and maintenance still use the legacy path until their migration tickets land.
+Do not assume this slice has configured them.
 
 Run as your login user on macOS. CLT installation is interactive: if missing,
 setup starts Apple's installer and stops before package work. Complete it and
@@ -40,9 +41,9 @@ node = "lts"
 The tools task installs configured tools and selects Node LTS globally so it
 works outside this checkout; it changes the global Node selection, preserving
 installed versions. For a different global Node policy, override the `tools`
-task in your local config as well as `[tools]`. Native activation adds managed
-blocks to zsh startup files; `~/.local/bin` is added through a native line entry
-in `.zshenv`. Open a new shell to pick up startup changes. Setup tasks already
+task in your local config as well as `[tools]`. Native line entries in `.zshenv`
+add `~/.local/bin` and activate mise for interactive zsh without editing the
+private linked startup files. Open a new shell to pick up startup changes. Setup tasks already
 use the known mise executable and its runtime environment without a new shell.
 
 `config.yml` is preserved and blocks the new entrypoint until you have reviewed
@@ -64,15 +65,15 @@ Keep the YAML for the legacy path while remaining concerns migrate.
 ## Task interface and ordering
 
 Automatic task tool installation is disabled so prerequisites run first.
-The task chain is `prerequisites` → `tools` → `packages` → `native` → `setup`.
+The task chain is `prerequisites` → `tools` → `packages` → `terminal` → `native` → `setup`.
 `./bootstrap.sh packages` can run a phase with its dependencies. Scripts source
 `scripts/brew-env.sh` after prerequisites to obtain `MACRESET_BREW`,
 `HOMEBREW_PREFIX`, and prefix-based PATH. The two conventional brew locations
 are discovery candidates only; the actual prefix comes from `brew --prefix`.
 `MACRESET_MISE` identifies the executable chosen by the outer bootstrap.
 
-Subsequent slices add `.mise/tasks/apps`, `dotfiles`, `skills`, `plugins` and
-`local-llm` and wire them into `setup` with explicit dependencies. Apps depend
+Subsequent slices add tasks for apps, skills, plugins and local-model setup and
+wire them into `setup` with explicit dependencies. Apps depend
 on packages (including mas); Dock follows apps; skills/Pi depend on tools;
 services/model readiness follow Ollama installation. Native resource application
 is `mise bootstrap --skip packages,tools,task`: package work and tools have

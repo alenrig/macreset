@@ -96,8 +96,42 @@ adopt = true
 [dotfiles]
 "~/.zshenv/macreset-path" = { line = 'export PATH="$HOME/.local/bin:$PATH"' }
 
-[bootstrap.mise_shell_activate]
-zsh = true
+# Activate outside the five private linked files; never edit their checkout.
+"~/.zshenv/macreset-mise" = { line = 'if [[ -o interactive ]] && command -v mise >/dev/null; then eval "$(mise activate zsh)"; fi' }
+"~/.gitconfig" = { source = "~/Developer/dotfiles/.gitconfig", mode = "symlink" }
+"~/.gitignore" = { source = "~/Developer/dotfiles/.gitignore", mode = "symlink" }
+"~/.vimrc" = { source = "~/Developer/dotfiles/.vimrc", mode = "symlink" }
+"~/.zshrc" = { source = "~/Developer/dotfiles/.zshrc", mode = "symlink" }
+"~/.zprofile" = { source = "~/Developer/dotfiles/.zprofile", mode = "symlink" }
+"~/.oh-my-zsh/custom/themes/example.zsh" = { mode = "absent" }
+"~/.oh-my-zsh/custom/themes/example.zsh-theme" = { mode = "absent" }
+"~/.config/ghostty/config" = { source = "roles/etc/files/ghostty", mode = "copy", permissions = "0644" }
+"~/bin/macreset" = { source = "roles/etc/files/bin/macreset", mode = "copy", permissions = "0755" }
+"~/bin/macupdate" = { source = "roles/etc/files/bin/macupdate", mode = "copy", permissions = "0755" }
+
+[bootstrap.repos]
+"~/Developer/dotfiles" = { url = "ssh://git@github.com/alenrig/dotfiles.git", ref = "main" }
+"~/.vim/bundle/Vundle.vim" = { url = "https://github.com/VundleVim/Vundle.vim.git", ref = "master" }
+"~/.vim/bundle/auto-pairs" = { url = "https://github.com/jiangmiao/auto-pairs.git", ref = "master" }
+"~/.vim/bundle/nerdtree" = { url = "https://github.com/scrooloose/nerdtree.git", ref = "master" }
+"~/.vim/bundle/vim" = { url = "https://github.com/dracula/vim.git", ref = "master" }
+"~/.vim/bundle/vim-airline" = { url = "https://github.com/bling/vim-airline.git", ref = "master" }
+"~/.vim/bundle/vim-airline-themes" = { url = "https://github.com/vim-airline/vim-airline-themes.git", ref = "master" }
+"~/.vim/bundle/vim-commentary" = { url = "https://github.com/tpope/vim-commentary.git", ref = "master" }
+"~/.vim/bundle/vim-fugitive" = { url = "https://github.com/tpope/vim-fugitive.git", ref = "master" }
+"~/.vim/bundle/vim-indentwise" = { url = "https://github.com/jeetsukumaran/vim-indentwise.git", ref = "master" }
+"~/.vim/bundle/vim-plugin-ruscmd" = { url = "https://github.com/powerman/vim-plugin-ruscmd.git", ref = "master" }
+"~/.vim/bundle/vim-repeat" = { url = "https://github.com/tpope/vim-repeat.git", ref = "master" }
+"~/.vim/bundle/vim-surround" = { url = "https://github.com/tpope/vim-surround.git", ref = "master" }
+"~/.oh-my-zsh/custom/plugins/zsh-autosuggestions" = { url = "https://github.com/zsh-users/zsh-autosuggestions", ref = "master" }
+"~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting" = { url = "https://github.com/zsh-users/zsh-syntax-highlighting.git", ref = "master" }
+"~/.oh-my-zsh/custom/themes" = { url = "https://github.com/dracula/zsh.git", ref = "master" }
+"~/.config/ghostty/themes/drcl" = { url = "https://github.com/dracula/ghostty.git", ref = "main" }
+
+[tasks.terminal]
+description = "Prepare Oh My Zsh before native repository and dotfile application"
+depends = ["packages"]
+run = "bash scripts/terminal.sh"
 
 [tasks.prerequisites]
 description = "Ensure CLT and Homebrew are usable"
@@ -115,13 +149,22 @@ run = "bash -euo pipefail -c 'source scripts/brew-env.sh; exec mise exec -- node
 
 [tasks.native]
 description = "Apply remaining native machine resources after prerequisites and formulae"
-depends = ["packages"]
+depends = ["terminal"]
 run = "mise bootstrap --skip packages,tools,task"
 
 [tasks.setup]
 description = "Set up migrated machine resources"
 depends = ["native"]
 run = "echo 'Migrated setup finished; see docs/mise-bootstrap.md for remaining legacy capabilities.'"
+
+[vars]
+local_llm_model = "qwen3-coder:30b"
+local_llm_context_length = "65536"
+pi_default_provider = "openai"
+pi_default_model = "gpt-6.1-terra"
+pi_default_thinking_level = "medium"
+# JSON array keeps package overrides unambiguous across the environment boundary.
+pi_packages = '["git:github.com/DietrichGebert/ponytail"]'
 
 [env]
 MISE_BREW_CASK_OPT_APPDIR = "/Applications"
@@ -222,3 +265,10 @@ MACRESET_DOCK_ITEMS = '''
   }
 ]
 '''
+MACRESET_LOCAL_LLM_MODEL = "{{ vars.local_llm_model }}"
+MACRESET_LOCAL_LLM_CONTEXT = "{{ vars.local_llm_context_length }}"
+MACRESET_PI_PROVIDER = "{{ vars.pi_default_provider }}"
+MACRESET_PI_MODEL = "{{ vars.pi_default_model }}"
+MACRESET_PI_THINKING = "{{ vars.pi_default_thinking_level }}"
+MACRESET_PI_PACKAGES = "{{ vars.pi_packages }}"
+
