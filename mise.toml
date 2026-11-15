@@ -13,6 +13,11 @@ node = "lts"
 "fluxcd/tap" = "https://github.com/fluxcd/homebrew-tap.git"
 "hashicorp/tap" = "https://github.com/hashicorp/homebrew-tap.git"
 
+
+# Keep existing app bundles and privacy permissions where adoption is possible.
+[bootstrap.brew]
+adopt = true
+
 [bootstrap.packages]
 "brew:cmake" = "latest"
 "brew:cue" = "latest"
@@ -40,6 +45,53 @@ node = "lts"
 # Previously installed by the MAS and Dock roles.
 "brew:mas" = "latest"
 "brew:dockutil" = "latest"
+
+"brew-cask:anydesk" = "latest"
+"brew-cask:balenaetcher" = "latest"
+"brew-cask:bruno" = "latest"
+"brew-cask:chatgpt" = "latest"
+"brew-cask:codex" = "latest"
+"brew-cask:cursor" = "latest"
+"brew-cask:dbeaver-community" = "latest"
+"brew-cask:docker" = "latest"
+"brew-cask:docker-desktop" = "latest"
+"brew-cask:docker/tap/sbx" = "latest"
+"brew-cask:firefox" = "latest"
+"brew-cask:freelens" = "latest"
+"brew-cask:ghostty" = "latest"
+"brew-cask:google-drive" = "latest"
+"brew-cask:herdr-app" = "latest"
+"brew-cask:hiddenbar" = "latest"
+"brew-cask:home-assistant" = "latest"
+"brew-cask:monitorcontrol" = "latest"
+"brew-cask:musescore" = "latest"
+"brew-cask:obs" = "latest"
+"brew-cask:obsidian" = "latest"
+"brew-cask:ollama-app" = "latest"
+"brew-cask:omnissa-horizon-client" = "latest"
+"brew-cask:openlogi" = "latest"
+"brew-cask:shottr" = "latest"
+"brew-cask:transmission" = "latest"
+"brew-cask:visual-studio-code" = "latest"
+"brew-cask:voov-meeting" = "latest"
+"brew-cask:zoom" = "latest"
+"mas:1631624924" = "latest" # Final Cut Pro
+"mas:1615087040" = "latest" # Logic Pro
+"mas:497799835" = "latest" # Xcode
+"mas:430255202" = "latest" # Mactracker
+"mas:1153157709" = "latest" # Speedtest
+"mas:425264550" = "latest" # Disk Speed Test
+"mas:1451685025" = "latest" # WireGuard
+"mas:747648890" = "latest" # Telegram
+"mas:1278508951" = "latest" # Trello
+"mas:963034692" = "latest" # Streaks
+"mas:1474335294" = "latest" # GoodLinks
+"mas:1529448980" = "latest" # Reeder
+"mas:937984704" = "latest" # Amphetamine
+"mas:932747118" = "latest" # Shadowrocket
+"mas:6444087613" = "latest" # VanyaVPN
+"mas:497714887" = "latest" # WebSSH
+"mas:1295203466" = "latest" # Windows App
 
 [dotfiles]
 "~/.zshenv/macreset-path" = { line = 'export PATH="$HOME/.local/bin:$PATH"' }
@@ -70,3 +122,103 @@ run = "mise bootstrap --skip packages,tools,task"
 description = "Set up migrated machine resources"
 depends = ["native"]
 run = "echo 'Migrated setup finished; see docs/mise-bootstrap.md for remaining legacy capabilities.'"
+
+[env]
+MISE_BREW_CASK_OPT_APPDIR = "/Applications"
+MACRESET_CASK_REMOVE = "1password claude-code google-chrome iterm2 logitune t3-code utm"
+MACRESET_MAS_REMOVE = "682658836 408981434"
+MACRESET_MAS_UPGRADE_ALL = "true"
+MACRESET_DOCK_REMOVE = '''
+[
+  "App Store",
+  "Launchpad",
+  "Maps",
+  "Messages",
+  "Приложения",
+  "Сообщения",
+  "Карты",
+  "Фото",
+  "FaceTime",
+  "Телефон",
+  "Контакты",
+  "Keynote",
+  "Numbers",
+  "Pages",
+  "Игры",
+  "App Store",
+  "Системные настройки",
+  "Podcasts",
+  "Подкасты",
+  "System Preferences",
+  "TV"
+]
+'''
+MACRESET_DOCK_ITEMS = '''
+[
+  {
+    "name": "Safari",
+    "path": "/Applications/Safari.app/",
+    "pos": 1
+  },
+  {
+    "name": "Почта",
+    "path": "/Applications/Mail.app/",
+    "pos": 2
+  },
+  {
+    "name": "Календарь",
+    "path": "/Applications/Calendar.app/",
+    "pos": 3
+  },
+  {
+    "name": "Напоминания",
+    "path": "/Applications/Reminders.app/",
+    "pos": 4
+  },
+  {
+    "name": "Заметки",
+    "path": "/Applications/Notes.app/",
+    "pos": 5
+  },
+  {
+    "name": "Ghostty",
+    "path": "/Applications/Ghostty.app/",
+    "pos": 6
+  },
+  {
+    "name": "WebSSH",
+    "path": "/Applications/WebSSH.app/",
+    "pos": 7
+  },
+  {
+    "name": "Visual Studio Code",
+    "path": "/Applications/Visual Studio Code.app/",
+    "pos": 8
+  },
+  {
+    "name": "Herdr",
+    "path": "/Applications/Herdr.app/",
+    "pos": 9
+  },
+  {
+    "name": "Freelens",
+    "path": "/Applications/Freelens.app/",
+    "pos": 10
+  },
+  {
+    "name": "Telegram",
+    "path": "/Applications/Telegram.app/",
+    "pos": 11
+  },
+  {
+    "name": "Музыка",
+    "path": "/Applications/Music.app/",
+    "pos": 12
+  },
+  {
+    "name": "Видеоповтор iPhone",
+    "path": "/System/Applications/iPhone Mirroring.app",
+    "pos": 13
+  }
+]
+'''
