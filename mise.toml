@@ -1,0 +1,72 @@
+min_version = "2026.11.8"
+
+# Prerequisites must run before mise attempts any automatic tool installation.
+[settings]
+task.run_auto_install = false
+
+[tools]
+node = "lts"
+
+[bootstrap.brew.taps]
+"docker/tap" = "https://github.com/docker/homebrew-tap.git"
+"doodlescheduling/flux-build" = "https://github.com/doodlescheduling/homebrew-flux-build.git"
+"fluxcd/tap" = "https://github.com/fluxcd/homebrew-tap.git"
+"hashicorp/tap" = "https://github.com/hashicorp/homebrew-tap.git"
+
+[bootstrap.packages]
+"brew:cmake" = "latest"
+"brew:cue" = "latest"
+"brew:doodlescheduling/flux-build/flux-build" = "latest"
+"brew:fluxcd/tap/flux" = "latest"
+"brew:glow" = "latest"
+"brew:go" = "latest"
+"brew:gopls" = "latest"
+"brew:hashicorp/tap/terraform" = "latest"
+"brew:hashicorp/tap/terraform-ls" = "latest"
+"brew:helm" = "latest"
+"brew:herdr" = "latest"
+"brew:krew" = "latest"
+"brew:kubernetes-cli" = "latest"
+"brew:kustomize" = "latest"
+"brew:llmfit" = "latest"
+"brew:minikube" = "latest"
+"brew:mole" = "latest"
+"brew:neovim" = "latest"
+"brew:ollama" = "latest"
+"brew:openjdk" = "latest"
+"brew:pdm" = "latest"
+"brew:uv" = "latest"
+"brew:virtctl" = "latest"
+# Previously installed by the MAS and Dock roles.
+"brew:mas" = "latest"
+"brew:dockutil" = "latest"
+
+[dotfiles]
+"~/.zshenv/macreset-path" = { line = 'export PATH="$HOME/.local/bin:$PATH"' }
+
+[bootstrap.mise_shell_activate]
+zsh = true
+
+[tasks.prerequisites]
+description = "Ensure CLT and Homebrew are usable"
+run = "bash scripts/prerequisites.sh"
+
+[tasks.tools]
+description = "Install mise-managed development runtimes"
+depends = ["prerequisites"]
+run = ["mise install", "mise use --global node@lts"]
+
+[tasks.packages]
+description = "Apply native formula declarations with explicit Homebrew fallbacks"
+depends = ["tools"]
+run = "bash -euo pipefail -c 'source scripts/brew-env.sh; exec mise exec -- node scripts/packages.mjs'"
+
+[tasks.native]
+description = "Apply remaining native machine resources after prerequisites and formulae"
+depends = ["packages"]
+run = "mise bootstrap --skip packages,tools,task"
+
+[tasks.setup]
+description = "Set up migrated machine resources"
+depends = ["native"]
+run = "echo 'Migrated setup finished; see docs/mise-bootstrap.md for remaining legacy capabilities.'"

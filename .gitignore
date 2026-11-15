@@ -4,3 +4,8 @@
 inventory/
 
 config.yml
+
+# Private mise overrides (native higher-precedence configuration).
+mise.local.toml
+.mise.local.toml
+miserc.local.toml
