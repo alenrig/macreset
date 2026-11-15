@@ -54,7 +54,8 @@ for (const manager of ['brew-cask', 'mas']) {
     }
     // Native casks always use /opt/homebrew; preserve Intel/custom-prefix ownership.
     const cliOnly = arch() === 'x64' || process.env.HOMEBREW_PREFIX !== '/opt/homebrew';
-    if (brewCasks.has(token(name))) {
+    if (!cliOnly && entry.managed_by === 'unknown') throw new Error(`Unknown cask ownership for ${name}; repair receipts before rerunning.`);
+    if (brewCasks.has(token(name)) && entry.managed_by !== 'mise') {
       console.error(`Keeping Homebrew-owned cask: ${name}; maintenance upgrades it through Homebrew.`);
       continue;
     }

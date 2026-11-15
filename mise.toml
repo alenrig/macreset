@@ -271,4 +271,3 @@ MACRESET_PI_PROVIDER = "{{ vars.pi_default_provider }}"
 MACRESET_PI_MODEL = "{{ vars.pi_default_model }}"
 MACRESET_PI_THINKING = "{{ vars.pi_default_thinking_level }}"
 MACRESET_PI_PACKAGES = "{{ vars.pi_packages }}"
-
