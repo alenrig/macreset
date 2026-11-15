@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+#MISE description="Restore loopback Ollama and host Pi configuration"
+#MISE depends=["native"]
+set -euo pipefail
+cd "$MISE_PROJECT_ROOT"
+source scripts/brew-env.sh
+exec mise exec -- node scripts/local-llm.mjs

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+#MISE description="Maintain Flux schema and verified helm-unittest plugins"
+#MISE depends=["packages"]
+set -euo pipefail
+cd "$MISE_PROJECT_ROOT"
+source scripts/brew-env.sh
+exec mise exec -- node scripts/plugins.mjs

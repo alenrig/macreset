@@ -1,0 +1,4 @@
+#!/bin/zsh
+set -euo pipefail
+cd "${MACRESET_ROOT:-$HOME/Developer/macreset}"
+exec ./bootstrap.sh maintenance "$@"
