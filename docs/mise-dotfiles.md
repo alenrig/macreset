@@ -2,14 +2,12 @@
 
 The mise `native` task now depends on `terminal`, which follows packages and
 runs the guarded Oh My Zsh installer before native repositories and dotfiles.
-`./bootstrap.sh native` applies this slice and its prerequisites; final setup
-orchestration remains a separate migration step. Do not run machine setup just
-to validate a checkout. The old Ansible entrypoint and utility sources remain
-usable until final cutover.
+`./bootstrap.sh native` applies this slice and its prerequisites; the complete setup task includes this phase. Do not run machine setup just
+to validate a checkout. Ansible has been retired; reusable Ghostty and bin sources live in `assets/`.
 
 `[bootstrap.repos]` in `mise.toml` owns the private dotfiles checkout (main),
 Vundle and all eleven Vim plugins (master), both Zsh plugins and Dracula Zsh
-(master), and Dracula Ghostty (main). Destinations match `default.config.yml`.
+(master), and Dracula Ghostty (main). Destinations preserve the former YAML defaults.
 SSH access to `git@github.com` and verified GitHub host trust must already work;
 setup does not provision credentials or automatically accept a host key.
 Native apply rejects dirty/untracked worktrees, wrong origins and nonempty
@@ -25,7 +23,8 @@ contents match; back them up or adopt their content yourself before retrying.
 Mise does not automatically back up those untracked files. Review conflicting existing files and mise's proposed changes rather than
 removing your own files. Copy mode intentionally manages the Ghostty config;
 move private customizations into its source or an override before applying.
-The utility scripts retain their legacy behavior until the final migration.
+The utility scripts delegate to the setup and explicit maintenance mise tasks,
+using exec so failures propagate.
 
 Oh My Zsh needs its upstream installer, including its checkout and permissions,
 rather than a bare clone. The task downloads it to a unique temporary directory,

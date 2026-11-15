@@ -3,6 +3,7 @@ import { arch, homedir } from 'node:os';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
+const upgrading = process.argv.includes('--upgrade');
 const mise = process.env.MACRESET_MISE || 'mise';
 const brew = process.env.MACRESET_BREW;
 if (!brew) throw new Error('Homebrew environment is missing; run the packages task.');
@@ -20,7 +21,7 @@ for (const entry of formulas) {
   const cliOnly = arch() === 'x64' || process.env.HOMEBREW_PREFIX !== '/opt/homebrew';
   let fallback = cliOnly;
   if (!fallback) {
-    const result = spawnSync(mise, ['bootstrap', 'packages', 'apply', `brew:${name}`], { encoding: 'utf8' });
+    const result = spawnSync(mise, ['bootstrap', 'packages', upgrading ? 'upgrade' : 'apply', ...(upgrading ? ['--yes'] : []), `brew:${name}`], { encoding: 'utf8' });
     process.stdout.write(result.stdout || '');
     process.stderr.write(result.stderr || '');
     if (result.error) throw result.error;
@@ -32,7 +33,7 @@ for (const entry of formulas) {
   }
   if (fallback) {
     console.error(`Homebrew CLI fallback: ${name} (${cliOnly ? 'architecture or prefix unsupported by native brew' : 'unsupported native formula feature'})`);
-    execFileSync(brew, ['install', '--formula', name], { stdio: 'inherit' });
+    execFileSync(brew, [upgrading ? 'upgrade' : 'install', '--formula', name], { stdio: 'inherit' });
   }
   // Homebrew reads the receipts written by both installers; do not infer success from timestamps.
   execFileSync(brew, ['list', '--formula', '--versions', name], { stdio: 'inherit' });
@@ -40,4 +41,4 @@ for (const entry of formulas) {
 
 // Preserve the legacy role's optional user-owned Bundle extension, not a second repo inventory.
 const brewfile = process.env.MACRESET_BREWFILE || join(homedir(), 'Brewfile');
-if (existsSync(brewfile)) execFileSync(brew, ['bundle', '--file', brewfile], { stdio: 'inherit' });
+if (!upgrading && existsSync(brewfile)) execFileSync(brew, ['bundle', '--file', brewfile], { stdio: 'inherit' });

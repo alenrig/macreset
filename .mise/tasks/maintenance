@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+#MISE description="Explicit package, Vim, Oh My Zsh and Mole maintenance"
+#MISE depends=["tools"]
+set -euo pipefail
+cd "$MISE_PROJECT_ROOT"
+source scripts/brew-env.sh
+exec mise exec -- node scripts/maintenance.mjs

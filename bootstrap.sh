@@ -18,6 +18,8 @@ if [[ ! $version =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] ||
   curl --fail --silent --show-error --location https://mise.run --output "$installer"
   MISE_VERSION="v$required" MISE_INSTALL_PATH="$HOME/.local/bin/mise" sh "$installer"
   mise_bin="$HOME/.local/bin/mise"
+  rm -f "$installer"
+  trap - EXIT
 fi
 "$mise_bin" --version
 export MACRESET_MISE="$mise_bin"

@@ -1,13 +1,9 @@
 # Mise bootstrap migration
 
-From the checkout, run `./bootstrap.sh`. This slice installs or reuses mise
-2026.11.8 or newer, then prepares CLT, Homebrew, development formulae, Node LTS
-and zsh activation. It does not run the machine setup during development.
-`./macreset.sh` remains the legacy full Ansible entrypoint until cutover.
-Dotfiles and terminal plugins now use the native path; see
-[mise-dotfiles.md](mise-dotfiles.md). Casks, MAS, Dock, skills, local-model setup
-and maintenance still use the legacy path until their migration tickets land.
-Do not assume this slice has configured them.
+From the checkout, run `./bootstrap.sh` or `./macreset.sh`. The outer script
+installs or reuses mise 2026.11.8 or newer, then delegates the complete setup to
+mise. Ansible is retired. See [cutover parity and native gaps](mise-cutover.md)
+for the operation inventory and maintenance ownership.
 
 Run as your login user on macOS. CLT installation is interactive: if missing,
 setup starts Apple's installer and stops before package work. Complete it and
@@ -49,9 +45,10 @@ use the known mise executable and its runtime environment without a new shell.
 `config.yml` is preserved and blocks the new entrypoint until you have reviewed
 and translated **every** private choice. `MACRESET_CONFIG_MIGRATED=1
 ./bootstrap.sh` explicitly acknowledges that review; it does not parse YAML.
-Keep the YAML for the legacy path while remaining concerns migrate.
+Keep the YAML as a private reference; it is never parsed or deleted.
+The same guard applies to explicit maintenance through the public bootstrap.
 
-| Legacy setting | New owner in this slice |
+| Legacy setting | New owner |
 | --- | --- |
 | `homebrew_taps` | `[bootstrap.brew.taps]`, tap name to Git URL |
 | `homebrew_installed_packages` | `[bootstrap.packages]` `brew:` entries |
@@ -60,22 +57,24 @@ Keep the YAML for the legacy path while remaining concerns migrate.
 | nvm role/runtime choice | `[tools] node = "lts"`, global selection and native shell activation |
 | Ansible / ansible-lint | Omitted; installed copies remain untouched |
 | `homebrew_brewfile_dir` | `[env] MACRESET_BREWFILE` (full path); defaults to `~/Brewfile` |
-| Other YAML settings | Not migrated by this slice; retain for legacy setup and translate when their ticket lands |
+| Other YAML settings | See the apps, dotfiles, skills and local-model guides linked in mise-cutover.md |
 
 ## Task interface and ordering
 
 Automatic task tool installation is disabled so prerequisites run first.
-The task chain is `prerequisites` → `tools` → `packages` → `terminal` → `native` → `setup`.
+The shared chain is `prerequisites` → `tools` → `packages` → `terminal` → `native`.
+`apps` follows native resources and `dock` follows apps. `local-llm` follows
+native resources, `skills` follows tools, and `plugins` follows packages.
+`setup` waits for dock, skills, plugins and local-llm; independent branches may
+run concurrently. Every dependent operation runs in the first invocation.
 `./bootstrap.sh packages` can run a phase with its dependencies. Scripts source
 `scripts/brew-env.sh` after prerequisites to obtain `MACRESET_BREW`,
 `HOMEBREW_PREFIX`, and prefix-based PATH. The two conventional brew locations
 are discovery candidates only; the actual prefix comes from `brew --prefix`.
 `MACRESET_MISE` identifies the executable chosen by the outer bootstrap.
 
-Subsequent slices add tasks for apps, skills, plugins and local-model setup and
-wire them into `setup` with explicit dependencies. Apps depend
-on packages (including mas); Dock follows apps; skills/Pi depend on tools;
-services/model readiness follow Ollama installation. Native resource application
+Apps depend on packages (including mas); Dock follows apps; skills/Pi depend
+on tools; service/model readiness follows Ollama installation. Native resource application
 is `mise bootstrap --skip packages,tools,task`: package work and tools have
 already run, avoiding recursive orchestration. Do not invoke plain `mise
 bootstrap` as a substitute for the ordered `setup` task.
@@ -98,7 +97,9 @@ bootstrap` as a substitute for the ordered `setup` task.
   set `MACRESET_BREWFILE` in local `[env]` for a different path. Its dependencies
   and behavior remain Homebrew-owned. This is not a repository Brewfile inventory.
 - Native receipts are Homebrew-compatible. Formula verification uses `brew list`
-  after each install. No cleanup, uninstall, upgrade-all or broad prune occurs.
+  after each install. No formula cleanup, uninstall or broad prune occurs during setup. Explicit
+app removals and MAS upgrade-all retain the prior setup behavior; package and
+Mole cleanup belong only to `maintenance`.
 - Intel Homebrew is upstream Tier 3. Current bottles, third-party formula
   availability, shell edits and first-run/rerun parity have not been verified on
   a real Mac. No tests or machine acceptance run are required or added by #41.

@@ -2,16 +2,18 @@
 
 Run `./bootstrap.sh apps` to restore applications, or `./bootstrap.sh dock` to
 restore applications then selectively edit the login user's Dock. Both tasks
-run prerequisites, tools, packages and native resources first. Final `setup`
-orchestration is completed by #47; these task entrypoints are usable now.
+run prerequisites, tools, packages and native resources first. The complete `setup`
+task waits for apps and Dock in the same invocation.
 Run in your logged-in graphical macOS session, without running mise as root.
 
-The single mise inventory is `[bootstrap.packages]`: all 29 legacy cask tokens
-(including `docker`, `docker-desktop` and `docker/tap/sbx`) and all 17 App Store
-IDs are retained. The Docker tap URL remains in `[bootstrap.brew.taps]`.
+The single mise inventory is `[bootstrap.packages]`: all 29 legacy cask tokens are accounted for by 28 declarations
+and all 17 App Store IDs are retained. Homebrew renamed `docker` to
+`docker-desktop`; those two original tokens represent one app, declared once
+under the canonical name. `docker/tap/sbx` remains separately declared. The Docker tap URL remains in `[bootstrap.brew.taps]`.
 Upstream renames, alias collisions or unavailable applications stop setup;
 review those changes rather than using force or silently dropping a choice.
-Legacy YAML remains available to the Ansible path until final cutover.
+Ansible is retired. Private YAML is preserved as a reference behind the
+bootstrap migration guard.
 
 `packages` installs `mas` and `dockutil` before apps/Dock. Sign in to the App
 Store with the Apple Account that owns the configured apps, and ensure their

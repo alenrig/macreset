@@ -1,8 +1,5 @@
 .vscode/
 
-.ansible/
-inventory/
-
 config.yml
 
 # Private mise overrides (native higher-precedence configuration).

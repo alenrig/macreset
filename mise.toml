@@ -55,7 +55,6 @@ adopt = true
 "brew-cask:codex" = "latest"
 "brew-cask:cursor" = "latest"
 "brew-cask:dbeaver-community" = "latest"
-"brew-cask:docker" = "latest"
 "brew-cask:docker-desktop" = "latest"
 "brew-cask:docker/tap/sbx" = "latest"
 "brew-cask:firefox" = "latest"
@@ -107,9 +106,9 @@ adopt = true
 "~/.zprofile" = { source = "~/Developer/dotfiles/.zprofile", mode = "symlink" }
 "~/.oh-my-zsh/custom/themes/example.zsh" = { mode = "absent" }
 "~/.oh-my-zsh/custom/themes/example.zsh-theme" = { mode = "absent" }
-"~/.config/ghostty/config" = { source = "roles/etc/files/ghostty", mode = "copy", permissions = "0644" }
-"~/bin/macreset" = { source = "roles/etc/files/bin/macreset", mode = "copy", permissions = "0755" }
-"~/bin/macupdate" = { source = "roles/etc/files/bin/macupdate", mode = "copy", permissions = "0755" }
+"~/.config/ghostty/config" = { source = "assets/ghostty", mode = "copy", permissions = "0644" }
+"~/bin/macreset" = { source = "assets/bin/macreset", mode = "copy", permissions = "0755" }
+"~/bin/macupdate" = { source = "assets/bin/macupdate", mode = "copy", permissions = "0755" }
 
 [bootstrap.repos]
 "~/Developer/dotfiles" = { url = "ssh://git@github.com/alenrig/dotfiles.git", ref = "main" }
@@ -156,8 +155,8 @@ run = "mise bootstrap --skip packages,tools,task"
 
 [tasks.setup]
 description = "Set up migrated machine resources"
-depends = ["native"]
-run = "echo 'Migrated setup finished; see docs/mise-bootstrap.md for remaining legacy capabilities.'"
+depends = ["dock", "skills", "plugins", "local-llm"]
+run = "echo 'Mac setup finished.'"
 
 [vars]
 # JSON source/name mapping preserves the skills CLI global inventory and lock format.

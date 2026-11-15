@@ -2,8 +2,7 @@
 
 Run `mise run skills` for the configured global skills and `mise run plugins`
 for Flux schema and Helm unittest. The tasks install their Node / package
-prerequisites first. Final full-setup orchestration belongs to #47; during
-migration the legacy setup remains available.
+prerequisites first. The complete setup task waits for both tasks; Ansible is retired.
 
 `vars.agent_skills` in `mise.toml` is a JSON source/name mapping. Override the
 whole mapping in ignored `mise.local.toml` to change it; this replaces the

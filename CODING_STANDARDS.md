@@ -1,8 +1,8 @@
 # Coding standards
 
-These standards apply to changed setup behavior. During the #41 migration,
-`bootstrap.sh` and mise own the migrated setup; `macreset.sh`, `main.yml`, and
-roles remain available for capabilities that have not cut over yet.
+These standards apply to setup and maintenance. `bootstrap.sh` installs or
+locates mise; mise owns machine configuration and explicit maintenance.
+`macreset.sh` delegates to the same bootstrap.
 
 ## Setup ownership
 
@@ -21,14 +21,6 @@ roles remain available for capabilities that have not cut over yet.
   Never silently ignore or delete legacy `config.yml`.
 - Do not add tests for this migration (explicit parent #41 decision). Retain
   operational checks. Record unverified machine compatibility honestly.
-
-## Legacy path until cutover
-
-Keep existing Ansible entrypoints usable while each concern migrates. Prefer
-Ansible modules for changes to remaining legacy roles, and direct CLI commands
-only for unsupported module behavior. Do not route new mise setup through
-Ansible or add new parallel inventories. Remove legacy machinery only once
-its executable behavior has a replacement.
 
 ## Review questions
 
