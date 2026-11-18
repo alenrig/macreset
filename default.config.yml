@@ -78,7 +78,7 @@ local_llm_model: qwen3-coder:30b
 local_llm_context_length: 65536
 
 pi_default_provider: openai
-pi_default_model: gpt-6.1-terra
+pi_default_model: gpt-6.2-sol
 pi_default_thinking_level: medium
 pi_packages:
   - git:github.com/DietrichGebert/ponytail
