@@ -30,6 +30,7 @@ homebrew_installed_packages:
   - nvm
   - ollama
   - openjdk  # sonarqube IDE plugin
+  - opentofu
   - pdm
   - uv
   - virtctl
