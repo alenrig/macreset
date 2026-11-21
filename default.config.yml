@@ -71,6 +71,7 @@ homebrew_cask_apps:
   - omnissa-horizon-client
   - openlogi
   - shottr
+  - stablyai/orca/orca
   - transmission
   - visual-studio-code
   - voov-meeting
