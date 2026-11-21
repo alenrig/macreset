@@ -9,6 +9,10 @@ formatting and other rules already enforced by `ansible-lint` to the linter.
 
 ## Hard requirements: Ansible owns setup
 
+During the mise rollout, issue #50 permits `install-mise.sh` to run the
+official mise installer and `mise.toml` to install and verify CUE. Apply the
+requirements below to Ansible setup.
+
 1. Express every setup action as an Ansible play, role, or task. This includes
    setup performed later in a sandbox or other environment created by the
    playbook. Do not write, download, template, or invoke Python, shell, or

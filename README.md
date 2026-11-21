@@ -2,6 +2,30 @@
 
 A project for fast Mac system reinstallation without TimeCapsule, but with most important things.
 
+## mise bootstrap
+
+The first mise phase installs and verifies CUE, an existing macreset CLI tool.
+Use a native Apple Silicon macOS terminal with internet access and a writable
+`~/.local/bin`. Apple's Command Line Tools (`xcode-select --install`) provide
+Git if you need it to clone the repo. The installer uses macOS command-line
+utilities and the [official mise installer](https://mise.jdx.dev/installing-mise.html).
+The bootstrap needs only those utilities and mise. The minimum tested mise
+release is `2026.11.11`.
+
+From the repository root, run `./install-mise.sh` to install mise. Review
+[`mise.toml`](mise.toml), then explicitly trust it and run setup:
+
+```sh
+"$HOME/.local/bin/mise" trust mise.toml
+"$HOME/.local/bin/mise" run setup
+```
+
+Setup installs CUE in mise's user data directory and prints its version. Its
+PATH addition is scoped to the task. Rerun the same setup command after
+resolving an error.
+
+The existing Ansible setup remains available through `./macreset.sh`.
+
 ## Herdr sandboxes
 
 A normal `ansible-playbook main.yml` run configures **new** Herdr Docker

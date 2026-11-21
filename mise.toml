@@ -1,0 +1,6 @@
+min_version = "2026.11.11"
+
+[tasks.setup]
+description = "Install CUE and verify the installed executable"
+tools."aqua:cue-lang/cue" = "0.17.1"
+run = "cue version"
