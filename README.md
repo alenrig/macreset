@@ -12,17 +12,16 @@ utilities and the [official mise installer](https://mise.jdx.dev/installing-mise
 The bootstrap needs only those utilities and mise. The minimum tested mise
 release is `2026.11.11`.
 
-From the repository root, run `./install-mise.sh` to install mise. Review
-[`mise.toml`](mise.toml), then explicitly trust it and run setup:
+Review [`mise.toml`](mise.toml), then run this command from the repository root:
 
 ```sh
-"$HOME/.local/bin/mise" trust mise.toml
-"$HOME/.local/bin/mise" run setup
+./bootstrap
 ```
 
-Setup installs CUE in mise's user data directory and prints its version. Its
-PATH addition is scoped to the task. Rerun the same setup command after
-resolving an error.
+Bootstrap looks for mise in `~/.local/bin` and on `PATH`, and installs it if
+absent. Approve mise's trust prompt to continue. Setup installs CUE in mise's
+user data directory and prints its version. CUE is on PATH for the setup task.
+Rerun `./bootstrap` after resolving an error.
 
 The existing Ansible setup remains available through `./macreset.sh`.
 
