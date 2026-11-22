@@ -1,0 +1,19 @@
+#!/bin/sh
+set -eu
+
+cd "$(dirname "$0")"
+
+mise="$HOME/.local/bin/mise"
+if [ ! -x "$mise" ]; then
+  if ! mise=$(command -v mise); then
+    mise="$HOME/.local/bin/mise"
+    installer=$(mktemp)
+    trap 'rm -f "$installer"' EXIT
+    curl -fsSL https://mise.run -o "$installer"
+    MISE_INSTALL_PATH="$mise" MISE_INSTALL_HELP=0 sh "$installer"
+    test -x "$mise"
+  fi
+fi
+
+printf 'mise executable: %s\n' "$mise"
+MISE_PARANOID=config "$mise" run setup
