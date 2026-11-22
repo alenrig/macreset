@@ -209,3 +209,231 @@ else
   "$MACRESET_MISE" -C / use --global --fuzzy node@lts
 fi
 '''
+
+[tasks."agents:maintain"]
+description = "Maintain the Flux schema plugin and global Codex and Cursor skills"
+depends = ["flux:schema"]
+tools.node = "lts"
+env.NO_COLOR = "1"
+env.DISABLE_TELEMETRY = "1"
+run = '''
+node --input-type=module -e '
+  import { execFileSync } from "node:child_process";
+  import { createHash } from "node:crypto";
+  import { lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, statSync } from "node:fs";
+  import { homedir, tmpdir } from "node:os";
+  import { dirname, join, sep } from "node:path";
+
+  const configured = {
+    "fluxcd/agent-skills": [
+      "gitops-knowledge", "gitops-repo-audit", "gitops-cluster-debug",
+    ],
+    "mattpocock/skills": [
+      "ask-matt", "code-review", "codebase-design", "diagnosing-bugs",
+      "domain-modeling", "grill-with-docs", "implement-spec", "implement",
+      "improve-codebase-architecture", "prototype", "research", "retro",
+      "setup-matt-pocock-skills", "tdd", "to-spec", "to-tickets", "triage",
+      "wayfinder", "grill-me", "grilling", "handoff", "teach",
+      "to-questionnaire", "wait-what", "writing-for-agents",
+    ],
+  };
+  const entries = Object.entries(configured).flatMap(
+    ([source, names]) => names.map(name => [source, name]),
+  );
+  const run = (command, args, overrides = {}) => execFileSync(command, args, {
+    encoding: "utf8",
+    env: { ...process.env, ...overrides },
+  }).trim();
+  const nodeBin = dirname(process.execPath);
+  // Keep the CLI version aligned with the content hash format below.
+  const skills = (...args) => run(join(nodeBin, "npx"), ["--yes", "skills@1.9.0", ...args], {
+    PATH: [nodeBin, process.env.PATH].join(":"),
+  });
+  const inventory = () => {
+    const items = JSON.parse(skills("list", "--global", "--json"));
+    if (!Array.isArray(items)) throw new Error("Expected a global skills inventory array.");
+    return items;
+  };
+  const agentsDir = join(homedir(), ".agents");
+  // The CLI lists universal skills for agents it detects by their config directories.
+  for (const directory of [
+    process.env.CODEX_HOME?.trim() || join(homedir(), ".codex"),
+    join(homedir(), ".cursor"),
+  ]) {
+    mkdirSync(directory, { recursive: true, mode: 0o700 });
+  }
+  const lock = () => {
+    try {
+      const { skills: metadata } = JSON.parse(readFileSync(join(agentsDir, ".skill-lock.json"), "utf8"));
+      if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) {
+        throw new Error("Expected a skills mapping in the global skill lock.");
+      }
+      return metadata;
+    } catch (error) {
+      if (error.code === "ENOENT") return {};
+      throw error;
+    }
+  };
+  // Vercel skills hashes paths and file contents for newer lock entries.
+  // https://github.com/vercel-labs/skills/blob/v1.9.0/src/skill-hash.ts
+  const contentHash = path => {
+    const files = [];
+    const root = realpathSync(path);
+    function collect(directory, prefix, parents) {
+      const realDirectory = realpathSync(directory);
+      if (parents.has(realDirectory)) return;
+      const ancestors = new Set([...parents, realDirectory]);
+      for (const item of readdirSync(directory, { withFileTypes: true })) {
+        if (item.name === "metadata.json") continue;
+        const fullPath = join(directory, item.name);
+        const relativePath = prefix + item.name;
+        let type = item;
+        if (item.isSymbolicLink()) {
+          let target;
+          try {
+            target = realpathSync(fullPath);
+          } catch (error) {
+            if (error.code === "ENOENT" || error.code === "ELOOP") continue;
+            throw error;
+          }
+          if (target !== root && !target.startsWith(root + sep)) continue;
+          type = statSync(target);
+        }
+        if (type.isDirectory()) {
+          if (![".git", "__pycache__", "__pypackages__"].includes(item.name)) {
+            collect(fullPath, relativePath + "/", ancestors);
+          }
+        } else if (type.isFile()) {
+          files.push([Buffer.from(relativePath.replaceAll("\\", "/")), fullPath]);
+        }
+      }
+    }
+    collect(path, "", new Set());
+    const hash = createHash("sha256");
+    for (const [relativePath, fullPath] of files.sort(([a], [b]) => Buffer.compare(a, b))) {
+      let content = readFileSync(fullPath);
+      if (!content.includes(0) && content.includes("\r\n")) {
+        content = Buffer.from(content.toString("latin1").replaceAll("\r\n", "\n"), "latin1");
+      }
+      hash.update(relativePath).update("\0").update(String(content.length)).update("\0").update(content);
+    }
+    return hash.digest("hex");
+  };
+  const workspace = mkdtempSync(join(tmpdir(), "macreset-skill-hash-"));
+  try {
+    const objects = join(workspace, "objects.git");
+    run("git", ["init", "--bare", "--object-format=sha1", objects]);
+    const treeHash = path => {
+      const index = join(workspace, "index");
+      rmSync(index, { force: true });
+      const options = ["--git-dir=" + objects, "--work-tree=" + path];
+      const env = { GIT_INDEX_FILE: index };
+      run("git", [...options, "add", "--all", "--force"], env);
+      return run("git", [...options, "write-tree"], env);
+    };
+    const healthy = (items, metadata, source, name) => {
+      const matches = items.filter(item => item.name === name);
+      const item = matches[0];
+      const entry = metadata[name];
+      const path = join(agentsDir, "skills", name);
+      if (!(matches.length === 1 && item.source === source
+        && item.agents?.includes("Codex") && item.agents?.includes("Cursor")
+        && entry?.source === source && typeof entry.skillPath === "string" && entry.skillPath.length > 0
+        && lstatSync(path, { throwIfNoEntry: false })?.isDirectory())) return false;
+      const expectedUrl = "https://github.com/" + source;
+      if (entry.sourceUrl && ![expectedUrl, expectedUrl + ".git"].includes(entry.sourceUrl)) return false;
+      if (/^[a-f0-9]{40}$/.test(entry.skillFolderHash)) return treeHash(path) === entry.skillFolderHash;
+      if (/^[a-f0-9]{64}$/.test(entry.skillFolderHash)) return contentHash(path) === entry.skillFolderHash;
+      return false;
+    };
+    const initial = inventory();
+    const initialLock = lock();
+    const refresh = [];
+    for (const [source, names] of Object.entries(configured)) {
+      const repair = [];
+      for (const name of names) {
+        if (healthy(initial, initialLock, source, name)) refresh.push(name);
+        else repair.push(name);
+      }
+      if (!repair.length) continue;
+      console.log("Repairing " + source + ": " + repair.join(", "));
+      const added = JSON.parse(skills("add", source, "--skill", ...repair, "--global",
+        "--agent", "codex", "--agent", "cursor", "--yes", "--json"));
+      if (!Array.isArray(added) || added.length !== repair.length
+        || repair.some(name => added.filter(item => item.name === name).length !== 1)) {
+        throw new Error("Skill repair did not confirm all requested installations from " + source);
+      }
+    }
+    if (refresh.length) {
+      const output = skills("update", ...refresh, "--global", "--yes");
+      if (/Failed to check skills from|Failed to update|cannot be checked automatically|No global skills to check/.test(output)
+        || !/Updated \d+ skill\(s\)|All global skills are up to date/.test(output)) {
+        throw new Error("Skill update did not confirm success.\n" + output);
+      }
+    }
+    const installed = inventory();
+    const installedLock = lock();
+    for (const [source, name] of entries) {
+      if (!healthy(installed, installedLock, source, name)) {
+        throw new Error("Skill inventory or lock verification failed for " + source + "/" + name);
+      }
+    }
+    console.log("Verified " + entries.length + " global skills for Codex and Cursor.");
+  } finally {
+    rmSync(workspace, { recursive: true, force: true });
+  }
+'
+'''
+
+[tasks."flux:schema"]
+description = "Install or update the Flux schema plugin and verify its version"
+env.MACRESET_MISE = "{{ mise_bin }}"
+run = '''
+set -eu
+if ! command -v flux >/dev/null; then
+  flux_prefix=$("$MACRESET_MISE" bootstrap packages where brew:fluxcd/tap/flux)
+  PATH="$flux_prefix/bin:$PATH"
+  export PATH
+fi
+
+catalog=$(flux plugin search schema)
+if ! printf '%s\n' "$catalog" | grep -q '^schema[[:space:]]'; then
+  echo "The Flux plugin catalog does not contain schema." >&2
+  exit 1
+fi
+
+release=$(curl -fsS --max-time 30 --head --output /dev/null \
+  --write-out '%{http_code} %{redirect_url}' https://github.com/fluxcd/flux-schema/releases/latest)
+latest=$(printf '%s\n' "$release" | sed -nE 's|^302 https://github.com/fluxcd/flux-schema/releases/tag/v([0-9]+\.[0-9]+\.[0-9]+)$|\1|p')
+if [ -z "$latest" ]; then
+  echo "Could not resolve the latest stable Flux schema release." >&2
+  exit 1
+fi
+
+schema_version() {
+  plugins=$(flux plugin list) || return
+  printf '%s\n' "$plugins" | awk '
+    $1 == "schema" { count++; version = $2; sub(/^v/, "", version) }
+    END {
+      if (count > 1 || (count == 1 && version !~ /^[0-9]+\.[0-9]+\.[0-9]+$/)) {
+        print "Invalid Flux schema inventory." > "/dev/stderr"
+        exit 1
+      }
+      print version
+    }
+  '
+}
+
+installed=$(schema_version)
+if [ -z "$installed" ]; then
+  flux plugin install schema
+elif [ "$installed" != "$latest" ]; then
+  flux plugin update schema
+fi
+verified=$(schema_version)
+if [ "$verified" != "$latest" ]; then
+  printf 'Flux schema verification failed (expected %s, found %s).\n' "$latest" "$verified" >&2
+  exit 1
+fi
+printf 'Verified Flux schema %s.\n' "$verified"
+'''
