@@ -64,6 +64,24 @@ homebrew_metadata = false
 "brew-cask:visual-studio-code" = { appdir = "/Applications" }
 "brew-cask:voov-meeting" = { appdir = "/Applications" }
 
+"mas:1631624924" = "latest" # Final Cut Pro
+"mas:1615087040" = "latest" # Logic Pro
+"mas:497799835" = "latest" # Xcode
+"mas:430255202" = "latest" # Mactracker
+"mas:1153157709" = "latest" # Speedtest
+"mas:425264550" = "latest" # Disk Speed Test
+"mas:1451685025" = "latest" # WireGuard
+"mas:747648890" = "latest" # Telegram
+"mas:1278508951" = "latest" # Trello
+"mas:963034692" = "latest" # Streaks
+"mas:1474335294" = "latest" # GoodLinks
+"mas:1529448980" = "latest" # Reeder
+"mas:937984704" = "latest" # Amphetamine
+"mas:932747118" = "latest" # Shadowrocket
+"mas:6444087613" = "latest" # VanyaVPN
+"mas:497714887" = "latest" # WebSSH
+"mas:1295203466" = "latest" # Windows App
+
 [tasks.packages]
 description = "Restore Homebrew formulae and desktop apps"
 interactive = true
@@ -89,5 +107,105 @@ cue_prefix=$("$MACRESET_MISE" bootstrap packages where brew:cue)
 '''
 
 [tasks.setup]
-description = "Restore macreset packages"
+description = "Restore workstation packages, App Store apps, and the terminal environment"
 depends = ["packages"]
+run = [
+  "{{ mise_bin | quote }} run app-store:apply",
+  "{{ mise_bin | quote }} run terminal:restore",
+]
+
+[tasks."app-store:apply"]
+description = "Install missing apps from the Mac App Store"
+tools.mas = "7.0.0"
+run = [
+  "mas version",
+  '{{ mise_bin | quote }} bootstrap packages apply --manager mas',
+]
+
+[tasks."app-store:upgrade"]
+description = "Upgrade all installed Mac App Store apps"
+tools.mas = "7.0.0"
+run = "mas upgrade"
+
+[bootstrap.repos]
+"~/Developer/dotfiles" = { url = "ssh://git@github.com/alenrig/dotfiles.git", ref = "main" }
+"~/.oh-my-zsh" = { url = "https://github.com/ohmyzsh/ohmyzsh.git" }
+"~/.oh-my-zsh/custom/plugins/zsh-autosuggestions" = { url = "https://github.com/zsh-users/zsh-autosuggestions" }
+"~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting" = { url = "https://github.com/zsh-users/zsh-syntax-highlighting.git" }
+"~/.oh-my-zsh/custom/dracula" = { url = "https://github.com/dracula/zsh.git" }
+"~/.vim/bundle/Vundle.vim" = { url = "https://github.com/VundleVim/Vundle.vim.git" }
+"~/.vim/bundle/auto-pairs" = { url = "https://github.com/jiangmiao/auto-pairs.git" }
+"~/.vim/bundle/nerdtree" = { url = "https://github.com/scrooloose/nerdtree.git" }
+"~/.vim/bundle/vim" = { url = "https://github.com/dracula/vim.git" }
+"~/.vim/bundle/vim-airline" = { url = "https://github.com/bling/vim-airline.git" }
+"~/.vim/bundle/vim-airline-themes" = { url = "https://github.com/vim-airline/vim-airline-themes.git" }
+"~/.vim/bundle/vim-commentary" = { url = "https://github.com/tpope/vim-commentary.git" }
+"~/.vim/bundle/vim-fugitive" = { url = "https://github.com/tpope/vim-fugitive.git" }
+"~/.vim/bundle/vim-indentwise" = { url = "https://github.com/jeetsukumaran/vim-indentwise.git" }
+"~/.vim/bundle/vim-plugin-ruscmd" = { url = "https://github.com/powerman/vim-plugin-ruscmd.git" }
+"~/.vim/bundle/vim-repeat" = { url = "https://github.com/tpope/vim-repeat.git" }
+"~/.vim/bundle/vim-surround" = { url = "https://github.com/tpope/vim-surround.git" }
+"~/.config/ghostty/themes/drcl" = { url = "https://github.com/dracula/ghostty.git", ref = "main" }
+
+[dotfiles]
+"~/.gitconfig" = { source = "~/Developer/dotfiles/.gitconfig", mode = "copy" }
+"~/.gitignore" = { source = "~/Developer/dotfiles/.gitignore", mode = "copy" }
+"~/.vimrc" = { source = "~/Developer/dotfiles/.vimrc", mode = "copy" }
+"~/.zprofile" = { source = "~/Developer/dotfiles/.zprofile", mode = "copy" }
+"~/.oh-my-zsh/custom/dracula.zsh-theme" = { source = "~/.oh-my-zsh/custom/dracula/dracula.zsh-theme", mode = "symlink" }
+"~/.config/ghostty/config" = { source = "roles/etc/files/ghostty", mode = "copy" }
+"~/.config/ghostty/themes/dracula" = { source = "~/.config/ghostty/themes/drcl/dracula", mode = "copy" }
+
+[dotfiles."~/.zshrc"]
+content = '''
+# Let mise handle version changes while keeping the nvm command available.
+zstyle ':omz:plugins:nvm' lazy no
+zstyle ':omz:plugins:nvm' autoload no
+source "$HOME/Developer/dotfiles/.zshrc"
+
+if [[ -x "$HOME/.local/bin/mise" ]]; then
+  eval "$("$HOME/.local/bin/mise" activate zsh)"
+elif (( $+commands[mise] )); then
+  eval "$(command mise activate zsh)"
+fi
+'''
+
+[bootstrap.hooks.pre-dotfiles]
+description = "Stop before replacing conflicting home files"
+run = '''
+set -eu
+mise_bin="{{ mise_bin }}"
+# Mise can replace changed copies and inline content even without --force.
+state=$("$mise_bin" dot status --json)
+printf '%s\n' "$state" | "$mise_bin" exec node@lts -- node -e '
+  const { readFileSync } = require("node:fs");
+  const { files } = JSON.parse(readFileSync(0, "utf8"));
+  for (const file of files) {
+    if (file.state === "differs" || file.state === "conflict") {
+      console.error(`Dotfile conflict at ${file.target} (${file.reason}). Back up the file and rerun setup.`);
+      process.exitCode = 1;
+    }
+  }
+'
+'''
+
+[tasks."terminal:restore"]
+description = "Restore terminal and editor files, then configure global Node"
+run = [
+  '"{{ mise_bin }}" bootstrap --only repos,dotfiles --yes',
+  '"{{ mise_bin }}" run node:global',
+]
+
+[tasks."node:global"]
+description = "Install the global Node LTS default if Node is not configured"
+env.MACRESET_MISE = "{{ mise_bin }}"
+run = '''
+set -eu
+existing=$("$MACRESET_MISE" -C / ls --global --current --no-header node)
+if [ -n "$existing" ]; then
+  printf 'Keeping the existing global Node request:\n%s\n' "$existing"
+  "$MACRESET_MISE" -C / install node
+else
+  "$MACRESET_MISE" -C / use --global --fuzzy node@lts
+fi
+'''
