@@ -14,6 +14,7 @@ homebrew_metadata = false
 [bootstrap.packages]
 "brew:cmake" = "latest"
 "brew:cue" = "latest"
+"brew:dockutil" = "latest"
 "brew:fluxcd/tap/flux" = "latest"
 "brew:glab" = "latest"
 "brew:glow" = "latest"
@@ -107,10 +108,11 @@ cue_prefix=$("$MACRESET_MISE" bootstrap packages where brew:cue)
 '''
 
 [tasks.setup]
-description = "Restore workstation packages, App Store apps, and the terminal environment"
+description = "Restore workstation packages, App Store apps, the Dock, and the terminal environment"
 depends = ["packages"]
 run = [
   "{{ mise_bin | quote }} run app-store:apply",
+  "{{ mise_bin | quote }} run dock:restore",
   "{{ mise_bin | quote }} run terminal:restore",
 ]
 
@@ -126,6 +128,99 @@ run = [
 description = "Upgrade all installed Mac App Store apps"
 tools.mas = "7.0.0"
 run = "mas upgrade"
+
+[tasks."dock:restore"]
+description = "Reconcile the login user's Dock after installing apps"
+tools.node = "lts"
+env.MACRESET_MISE = "{{ mise_bin }}"
+run = '''
+set -eu
+dockutil_prefix=$("$MACRESET_MISE" bootstrap packages where brew:dockutil)
+node --input-type=module - "$dockutil_prefix/bin/dockutil" <<'JS'
+import { execFileSync } from 'node:child_process';
+import { existsSync, realpathSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+
+const removals = [
+  'App Store', 'Launchpad', 'Maps', 'Messages', 'Приложения', 'Сообщения',
+  'Карты', 'Фото', 'FaceTime', 'Телефон', 'Контакты', 'Keynote', 'Numbers',
+  'Pages', 'Игры', 'App Store', 'Системные настройки', 'Podcasts', 'Подкасты',
+  'System Preferences', 'TV',
+];
+const apps = [
+  ['Safari', '/Applications/Safari.app'],
+  ['Почта', '/System/Applications/Mail.app'],
+  ['Календарь', '/System/Applications/Calendar.app'],
+  ['Напоминания', '/System/Applications/Reminders.app'],
+  ['Заметки', '/System/Applications/Notes.app'],
+  ['Ghostty', '/Applications/Ghostty.app'],
+  ['WebSSH', '/Applications/WebSSH.app'],
+  ['Visual Studio Code', '/Applications/Visual Studio Code.app'],
+  ['Herdr', '/Applications/Herdr.app'],
+  ['Freelens', '/Applications/Freelens.app'],
+  ['Telegram', '/Applications/Telegram.app'],
+  ['Музыка', '/System/Applications/Music.app'],
+  ['Видеоповтор iPhone', '/System/Applications/iPhone Mirroring.app'],
+];
+const missing = apps.filter(([, path]) => !existsSync(path));
+if (missing.length) {
+  for (const [, path] of missing) console.error(`Missing Dock application: ${path}`);
+  process.exit(1);
+}
+
+const dockutil = process.argv[2];
+const list = () => execFileSync(dockutil, ['--list'], { encoding: 'utf8' })
+  .split('\n')
+  .map(line => line.split('\t'))
+  .filter(([, , section]) => section);
+const persistentApps = entries => entries.filter(([, , section]) => section === 'persistentApps');
+const tilePath = url => url.startsWith('file:') ? fileURLToPath(url).replace(/\/$/, '') : url;
+const canonicalPath = path => existsSync(path) ? realpathSync(path) : path;
+const matches = (url, path) => canonicalPath(tilePath(url)) === canonicalPath(path);
+
+let entries = list();
+let changed = false;
+function edit(...args) {
+  execFileSync(dockutil, [...args, '--no-restart'], { stdio: 'inherit' });
+  entries = list();
+  changed = true;
+}
+
+for (const [label] of entries) {
+  if (removals.includes(label)) edit('--remove', label);
+}
+
+for (const [index, [label, path]] of apps.entries()) {
+  const position = String(index + 1);
+  const tiles = persistentApps(entries);
+  const legacyPath = path.replace(/^\/System\/Applications\//, '/Applications/');
+  const existing = tiles.filter(([, url]) =>
+    matches(url, path) || (!existsSync(legacyPath) && tilePath(url) === legacyPath));
+  const [tile] = existing;
+  if (existing.length === 1 && tile[0] === label && matches(tile[1], path)) {
+    if (tiles[index] !== tile) edit('--move', tile[1], '--position', position);
+  } else {
+    for (const [, url] of existing) edit('--remove', url);
+    edit('--add', path, '--label', label, '--position', position);
+  }
+}
+
+const tiles = persistentApps(entries);
+for (const [index, [label, path]] of apps.entries()) {
+  const tile = tiles[index];
+  if (tile?.[0] !== label || !matches(tile[1], path)) {
+    throw new Error(`Dock position ${index + 1} did not converge for ${label}.`);
+  }
+}
+if (entries.some(([label]) => removals.includes(label))) {
+  throw new Error('Dock removals did not converge.');
+}
+// Restart through dockutil only after the layout has changed.
+if (changed) {
+  execFileSync(dockutil, ['--move', tiles[0][1], '--position', '1'], { stdio: 'inherit' });
+}
+JS
+'''
 
 [bootstrap.repos]
 "~/Developer/dotfiles" = { url = "ssh://git@github.com/alenrig/dotfiles.git", ref = "main" }
