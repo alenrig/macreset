@@ -1,9 +1,42 @@
 min_version = "2026.11.11"
 
 [tasks.setup]
-description = "Verify CUE and restore the terminal and editor environment"
+description = "Restore App Store apps and the terminal environment, and verify CUE"
+depends = ["app-store:apply"]
 tools."aqua:cue-lang/cue" = "0.17.1"
-run = ["cue version", '"{{ mise_bin }}" run terminal:restore']
+run = ["cue version", "{{ mise_bin | quote }} run terminal:restore"]
+
+[tasks."app-store:apply"]
+description = "Install missing apps from the Mac App Store"
+tools.mas = "7.0.0"
+run = [
+  "mas version",
+  '{{ mise_bin | quote }} bootstrap packages apply --manager mas',
+]
+
+[tasks."app-store:upgrade"]
+description = "Upgrade all installed Mac App Store apps"
+tools.mas = "7.0.0"
+run = "mas upgrade"
+
+[bootstrap.packages]
+"mas:1631624924" = "latest" # Final Cut Pro
+"mas:1615087040" = "latest" # Logic Pro
+"mas:497799835" = "latest" # Xcode
+"mas:430255202" = "latest" # Mactracker
+"mas:1153157709" = "latest" # Speedtest
+"mas:425264550" = "latest" # Disk Speed Test
+"mas:1451685025" = "latest" # WireGuard
+"mas:747648890" = "latest" # Telegram
+"mas:1278508951" = "latest" # Trello
+"mas:963034692" = "latest" # Streaks
+"mas:1474335294" = "latest" # GoodLinks
+"mas:1529448980" = "latest" # Reeder
+"mas:937984704" = "latest" # Amphetamine
+"mas:932747118" = "latest" # Shadowrocket
+"mas:6444087613" = "latest" # VanyaVPN
+"mas:497714887" = "latest" # WebSSH
+"mas:1295203466" = "latest" # Windows App
 
 [bootstrap.repos]
 "~/Developer/dotfiles" = { url = "ssh://git@github.com/alenrig/dotfiles.git", ref = "main" }
