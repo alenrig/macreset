@@ -4,13 +4,12 @@ A project for fast Mac system reinstallation without TimeCapsule, but with most 
 
 ## mise bootstrap
 
-The first mise phase installs and verifies CUE, an existing macreset CLI tool.
+The mise setup restores command-line tools and desktop apps and verifies CUE.
 Use a native Apple Silicon macOS terminal with internet access and a writable
-`~/.local/bin`. Apple's Command Line Tools (`xcode-select --install`) provide
-Git if you need it to clone the repo. The installer uses macOS command-line
+`~/.local/bin`. Install Apple's Command Line Tools (`xcode-select --install`)
+for Git and tap formula setup. The installer uses macOS command-line
 utilities and the [official mise installer](https://mise.jdx.dev/installing-mise.html).
-The bootstrap needs only those utilities and mise. The minimum tested mise
-release is `2026.11.11`.
+The minimum tested mise release is `2026.11.11`.
 
 Review [`mise.toml`](mise.toml), then run this command from the repository root:
 
@@ -19,9 +18,11 @@ Review [`mise.toml`](mise.toml), then run this command from the repository root:
 ```
 
 Bootstrap looks for mise in `~/.local/bin` and on `PATH`, and installs it if
-absent. Approve mise's trust prompt to continue. Setup installs CUE in mise's
-user data directory and prints its version. CUE is on PATH for the setup task.
-Rerun `./bootstrap` after resolving an error.
+absent. Approve mise's trust prompt to continue. Setup uses mise to install
+packages into the standard Homebrew prefix and apps into `/Applications`.
+Keep a terminal open for any macOS administrator prompt. Rerun `./bootstrap`
+after resolving an error. See [package setup](docs/mise-packages.md) for the
+manual installs, legacy removals, and package ownership.
 
 The existing Ansible setup remains available through `./macreset.sh`.
 
