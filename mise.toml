@@ -304,3 +304,61 @@ else
   "$MACRESET_MISE" -C / use --global --fuzzy node@lts
 fi
 '''
+
+[tasks."agents:maintain"]
+description = "Maintain Flux schema and report deferred Packslip skills"
+depends = ["flux:schema"]
+run = 'echo "Agent skills deferred (0 installed): fluxcd/agent-skills and mattpocock/skills publish no Packslip bundle. See docs/mise-skills.md." >&2'
+
+[tasks."flux:schema"]
+description = "Install or update the Flux schema plugin and verify its version"
+env.MACRESET_MISE = "{{ mise_bin }}"
+run = '''
+set -eu
+if ! command -v flux >/dev/null; then
+  flux_prefix=$("$MACRESET_MISE" bootstrap packages where brew:fluxcd/tap/flux)
+  PATH="$flux_prefix/bin:$PATH"
+  export PATH
+fi
+
+catalog=$(flux plugin search schema)
+if ! printf '%s\n' "$catalog" | grep -q '^schema[[:space:]]'; then
+  echo "The Flux plugin catalog does not contain schema." >&2
+  exit 1
+fi
+
+release=$(curl -fsS --max-time 30 --head --output /dev/null \
+  --write-out '%{http_code} %{redirect_url}' https://github.com/fluxcd/flux-schema/releases/latest)
+latest=$(printf '%s\n' "$release" | sed -nE 's|^302 https://github.com/fluxcd/flux-schema/releases/tag/v([0-9]+\.[0-9]+\.[0-9]+)$|\1|p')
+if [ -z "$latest" ]; then
+  echo "Could not resolve the latest stable Flux schema release." >&2
+  exit 1
+fi
+
+schema_version() {
+  plugins=$(flux plugin list) || return
+  printf '%s\n' "$plugins" | awk '
+    $1 == "schema" { count++; version = $2; sub(/^v/, "", version) }
+    END {
+      if (count > 1 || (count == 1 && version !~ /^[0-9]+\.[0-9]+\.[0-9]+$/)) {
+        print "Invalid Flux schema inventory." > "/dev/stderr"
+        exit 1
+      }
+      print version
+    }
+  '
+}
+
+installed=$(schema_version)
+if [ -z "$installed" ]; then
+  flux plugin install schema
+elif [ "$installed" != "$latest" ]; then
+  flux plugin update schema
+fi
+verified=$(schema_version)
+if [ "$verified" != "$latest" ]; then
+  printf 'Flux schema verification failed (expected %s, found %s).\n' "$latest" "$verified" >&2
+  exit 1
+fi
+printf 'Verified Flux schema %s.\n' "$verified"
+'''
