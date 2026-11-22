@@ -4,7 +4,6 @@ A project for fast Mac system reinstallation without TimeCapsule, but with most 
 
 ## mise bootstrap
 
-The first mise phase installs and verifies CUE, an existing macreset CLI tool.
 Use a native Apple Silicon macOS terminal with internet access and a writable
 `~/.local/bin`. Apple's Command Line Tools (`xcode-select --install`) provide
 Git if you need it to clone the repo. The installer uses macOS command-line
@@ -19,8 +18,10 @@ Review [`mise.toml`](mise.toml), then run this command from the repository root:
 ```
 
 Bootstrap looks for mise in `~/.local/bin` and on `PATH`, and installs it if
-absent. Approve mise's trust prompt to continue. Setup installs CUE in mise's
-user data directory and prints its version. CUE is on PATH for the setup task.
+absent. Approve mise's trust prompt to continue. Setup installs and verifies CUE,
+then restores the terminal and editor environment, including a global Node default.
+Set up GitHub SSH access first and follow the terminal setup guide if dotfiles or
+checkouts need attention before retrying. [Terminal and editor setup](docs/mise-terminal.md)
 Rerun `./bootstrap` after resolving an error.
 
 The existing Ansible setup remains available through `./macreset.sh`.
