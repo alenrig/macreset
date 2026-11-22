@@ -4,13 +4,14 @@ A project for fast Mac system reinstallation without TimeCapsule, but with most 
 
 ## mise bootstrap
 
-The first mise phase installs and verifies CUE, an existing macreset CLI tool.
+The mise setup restores the configured App Store apps and verifies CUE, an
+existing macreset CLI tool.
 Use a native Apple Silicon macOS terminal with internet access and a writable
 `~/.local/bin`. Apple's Command Line Tools (`xcode-select --install`) provide
 Git if you need it to clone the repo. The installer uses macOS command-line
 utilities and the [official mise installer](https://mise.jdx.dev/installing-mise.html).
-The bootstrap needs only those utilities and mise. The minimum tested mise
-release is `2026.11.11`.
+The minimum tested mise release is `2026.11.11`. Complete the App Store
+prerequisites below before starting setup.
 
 Review [`mise.toml`](mise.toml), then run this command from the repository root:
 
@@ -19,11 +20,37 @@ Review [`mise.toml`](mise.toml), then run this command from the repository root:
 ```
 
 Bootstrap looks for mise in `~/.local/bin` and on `PATH`, and installs it if
-absent. Approve mise's trust prompt to continue. Setup installs CUE in mise's
-user data directory and prints its version. CUE is on PATH for the setup task.
+absent. Approve mise's trust prompt to continue. Setup makes mise-managed
+`mas` available before applying the App Store inventory, then verifies CUE.
 Rerun `./bootstrap` after resolving an error.
 
 The existing Ansible setup remains available through `./macreset.sh`.
+
+### Mac App Store
+
+- Sign in to the App Store in a GUI session using the Apple Account that owns
+  the configured apps. Acquire any missing apps in the App Store first. App
+  availability can vary by account, region, and macOS release.
+- Keep Spotlight indexing enabled for the volumes containing your apps. If
+  `mas list` omits an installed app, wait for indexing or use `mdimport` on
+  that app bundle before retrying.
+- Run setup from an interactive terminal and complete any macOS administrator
+  authentication and App Store prompts.
+- Open Xcode after installation to accept its license and complete first-launch
+  setup. If desired, remove GarageBand and iMovie manually in Finder from
+  Applications.
+
+From this checkout, use `mise run app-store:apply` to retry App Store installs
+on their own. An apply installs only missing inventory entries. Run
+`mise run app-store:upgrade` separately to update all eligible installed App
+Store apps, including apps outside the configured inventory. If mise is out
+of your shell's PATH, use the executable path printed by `./bootstrap`.
+
+On a signed-in Mac, verify that the configured IDs appear in
+`mise exec mas@7.0.0 -- mas list`. Rerun the apply task once Spotlight has
+indexed the apps and confirm it has nothing to install. App ownership,
+downloads, authentication prompts, and Xcode first launch require an owner's
+GUI session. See the [mas prerequisites and troubleshooting guide](https://github.com/mas-cli/mas#spotlight).
 
 ## Herdr sandboxes
 
