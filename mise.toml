@@ -1,5 +1,13 @@
 min_version = "2026.11.11"
 
+[vars]
+local_llm_model = "qwen3-coder:30b"
+local_llm_context_length = "65536"
+pi_default_provider = "openai"
+pi_default_model = "gpt-6.2-sol"
+pi_default_thinking_level = "medium"
+pi_packages = '["git:github.com/DietrichGebert/ponytail"]'
+
 [bootstrap.brew]
 adopt = true
 homebrew_metadata = false
@@ -146,6 +154,338 @@ run = "mas upgrade"
 "~/.vim/bundle/vim-repeat" = { url = "https://github.com/tpope/vim-repeat.git" }
 "~/.vim/bundle/vim-surround" = { url = "https://github.com/tpope/vim-surround.git" }
 "~/.config/ghostty/themes/drcl" = { url = "https://github.com/dracula/ghostty.git", ref = "main" }
+
+[tasks."local-llm"]
+description = "Restore the login Ollama service and configure Pi"
+lock = "macreset-local-llm"
+env.MACRESET_MISE = "{{ mise_bin }}"
+env.MACRESET_BREW_PREFIX = "{{ system_brew_prefix }}"
+env.MACRESET_LOCAL_LLM_MODEL = "{{ vars.local_llm_model }}"
+env.MACRESET_LOCAL_LLM_CONTEXT = "{{ vars.local_llm_context_length }}"
+env.MACRESET_PI_PROVIDER = "{{ vars.pi_default_provider }}"
+env.MACRESET_PI_MODEL = "{{ vars.pi_default_model }}"
+env.MACRESET_PI_THINKING = "{{ vars.pi_default_thinking_level }}"
+env.MACRESET_PI_PACKAGES = "{{ vars.pi_packages }}"
+run = '''
+set -eu
+unset NODE_USE_ENV_PROXY
+ollama_root=$("$MACRESET_MISE" bootstrap packages where brew:ollama)
+exec "$MACRESET_MISE" exec node@lts -- node --input-type=module - "$ollama_root/bin/ollama" <<'NODE'
+import { spawnSync } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
+import { accessSync, chmodSync, constants, lstatSync, mkdirSync, readFileSync,
+         renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { setTimeout } from 'node:timers/promises';
+import { isDeepStrictEqual } from 'node:util';
+
+const env = process.env;
+const uid = process.getuid();
+if (process.platform !== 'darwin' || process.arch !== 'arm64' || uid === 0) {
+  throw new Error('Run local-llm in your Apple Silicon macOS login session.');
+}
+
+const model = env.MACRESET_LOCAL_LLM_MODEL;
+const context = Number(env.MACRESET_LOCAL_LLM_CONTEXT);
+const provider = env.MACRESET_PI_PROVIDER;
+const piModel = env.MACRESET_PI_MODEL;
+const thinking = env.MACRESET_PI_THINKING;
+const packages = JSON.parse(env.MACRESET_PI_PACKAGES);
+const modelTag = /^(?:(?:[\w][\w.-]*(?::\d+)?\/)?[\w][\w.-]*\/)?[\w][\w.-]*(?::[\w][\w.-]*)?$/;
+if (typeof model !== 'string' || !modelTag.test(model) || !/^\d+$/.test(env.MACRESET_LOCAL_LLM_CONTEXT) ||
+    !Number.isSafeInteger(context) || context <= 0) {
+  throw new Error('Use a valid local_llm_model tag and a positive integer local_llm_context_length.');
+}
+const tag = model.split('/').at(-1).includes(':') ? model : `${model}:latest`;
+const inventoryTag = value => value.toLowerCase()
+  .replace(/^registry\.ollama\.ai\/(?=.+\/)/, '').replace(/^library\//, '');
+const identifier = value => typeof value === 'string' && /^[\w.-][\w./:+-]*$/.test(value);
+if (!identifier(provider) || !identifier(piModel) || (provider === 'ollama' && piModel !== model)) {
+  throw new Error('Set valid Pi provider and model IDs. For ollama, pi_default_model must match local_llm_model.');
+}
+if (!['off', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max'].includes(thinking)) {
+  throw new Error('Set pi_default_thinking_level to off, minimal, low, medium, high, xhigh or max.');
+}
+if (!Array.isArray(packages) || packages.some(value => typeof value !== 'string' || !value.trim())) {
+  throw new Error('Set pi_packages to a JSON array of nonblank package sources.');
+}
+
+const home = env.HOME;
+const ollama = process.argv[2];
+const brewBin = join(env.MACRESET_BREW_PREFIX, 'bin');
+const legacyOllama = join(brewBin, 'ollama');
+accessSync(ollama, constants.X_OK);
+const label = 'com.macreset.ollama';
+const domain = `gui/${uid}`;
+const service = `${domain}/${label}`;
+const host = '127.0.0.1:11434';
+const url = `http://${host}`;
+const agents = join(home, 'Library/LaunchAgents');
+const plist = join(agents, `${label}.plist`);
+const logs = join(home, 'Library/Logs');
+const log = join(logs, 'macreset-ollama.log');
+const piRoot = join(home, '.pi');
+const piDirectory = join(piRoot, 'agent');
+
+function run(command, args, options = {}, absent = () => false) {
+  const result = spawnSync(command, args, { encoding: 'utf8', timeout: 5000, ...options });
+  if (result.error) throw result.error;
+  if (result.status === 0) return result.stdout;
+  if (absent(result)) return null;
+  throw new Error(`${command} ${args.join(' ')} failed (${result.status ?? result.signal}): ${result.stderr ?? ''}`);
+}
+
+function owned(path, directory = false) {
+  const stat = lstatSync(path, { throwIfNoEntry: false });
+  if (stat && (stat.uid !== uid || !(directory ? stat.isDirectory() : stat.isFile()))) {
+    throw new Error(`Expected a ${directory ? 'directory' : 'regular file'} owned by your login user at ${path}.`);
+  }
+  return stat;
+}
+
+function replace(path, content, mode) {
+  const temporary = `${path}.${randomUUID()}.tmp`;
+  writeFileSync(temporary, content, { flag: 'wx', mode });
+  try {
+    chmodSync(temporary, mode);
+    renameSync(temporary, path);
+  } finally {
+    rmSync(temporary, { force: true });
+  }
+}
+
+function object(value, name) {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(`Expected a JSON object in ${name}. Resolve the conflict and rerun local-llm.`);
+  }
+  return value;
+}
+
+function piSettings(name, update) {
+  const path = join(piDirectory, name);
+  const stat = owned(path);
+  const previous = stat ? readFileSync(path, 'utf8') : null;
+  let current = {};
+  if (previous !== null) {
+    try {
+      current = object(JSON.parse(previous), path);
+    } catch (error) {
+      throw new Error(`Cannot read ${path}: ${error.message}`);
+    }
+  }
+  const desired = update(current);
+  return () => {
+    const latest = owned(path) ? readFileSync(path, 'utf8') : null;
+    if (latest !== previous) throw new Error(`${path} changed during setup. Rerun local-llm.`);
+    if (!stat || !isDeepStrictEqual(current, desired)) {
+      if (stat) {
+        const backup = `${path}.${randomUUID()}.bak`;
+        writeFileSync(backup, previous, { flag: 'wx', mode: 0o600 });
+        chmodSync(backup, 0o600);
+        console.log(`Backed up ${name} to ${backup}`);
+      }
+      replace(path, `${JSON.stringify(desired, null, 2)}\n`, 0o600);
+    } else if ((stat.mode & 0o777) !== 0o600) {
+      chmodSync(path, 0o600);
+    }
+  };
+}
+
+owned(piRoot, true);
+owned(piDirectory, true);
+const configureModels = piSettings('models.json', current => ({
+  ...current,
+  providers: {
+    ...object(current.providers === undefined ? {} : current.providers, 'models.json providers'),
+    ollama: {
+      baseUrl: `${url}/v1`, api: 'openai-completions', apiKey: 'ollama',
+      models: [{ id: model, contextWindow: context }],
+    },
+  },
+}));
+const configureSettings = piSettings('settings.json', current => ({
+  ...current, defaultProvider: provider, defaultModel: piModel,
+  defaultThinkingLevel: thinking, packages,
+}));
+
+// Keep the legacy label so launchd never creates a second macreset job.
+function job(target = service) {
+  return run('launchctl', ['print', target], {}, result => /could not find service/i.test(result.stderr));
+}
+
+function listeners(expectedPid) {
+  const output = run('lsof', ['-nP', '-a', '-iTCP:11434', '-sTCP:LISTEN', '-Fpcn'], {},
+    result => result.status === 1 && !result.stdout && !result.stderr) ?? '';
+  let pid, command;
+  const endpoints = [];
+  for (const line of output.trim().split('\n')) {
+    if (line.startsWith('p')) pid = line.slice(1);
+    if (line.startsWith('c')) command = line.slice(1);
+    if (line.startsWith('n')) {
+      const endpoint = line.slice(1);
+      if (pid !== expectedPid) {
+        throw new Error(`Competing listener on ${endpoint}: ${command} (PID ${pid}). Stop its owning service and retry.`);
+      }
+      endpoints.push(endpoint);
+    }
+  }
+  return endpoints;
+}
+
+function definition(program, contextLength) {
+  return {
+    Label: label, ProgramArguments: [program, 'serve'],
+    EnvironmentVariables: { OLLAMA_HOST: host, OLLAMA_CONTEXT_LENGTH: contextLength },
+    RunAtLoad: true, KeepAlive: true, StandardOutPath: log, StandardErrorPath: log,
+  };
+}
+
+function field(state, name) {
+  return state?.match(new RegExp(`^\\s*${name} = (.+)$`, 'm'))?.[1];
+}
+
+owned(join(home, 'Library'), true);
+owned(agents, true);
+owned(logs, true);
+owned(log);
+const oldPlist = owned(plist) ? readFileSync(plist) : null;
+const previous = oldPlist && JSON.parse(run('plutil', ['-convert', 'json', '-o', '-', '--', plist]));
+const desired = definition(ollama, String(context));
+if (previous) {
+  const program = previous.ProgramArguments?.[0];
+  const length = previous.EnvironmentVariables?.OLLAMA_CONTEXT_LENGTH;
+  if (![legacyOllama, ollama].includes(program) || !/^\d+$/.test(length) ||
+      !isDeepStrictEqual(previous, definition(program, length))) {
+    throw new Error(`Unrecognized LaunchAgent at ${plist}. Review and move it aside before retrying.`);
+  }
+}
+
+const loaded = job();
+if (loaded && (!previous || field(loaded, 'path') !== plist ||
+    ![legacyOllama, ollama].includes(field(loaded, 'program')))) {
+  throw new Error(`Cannot establish ownership of ${service}. Inspect it with launchctl print before retrying.`);
+}
+for (const other of ['homebrew.mxcl.ollama', 'dev.mise.ollama']) {
+  if (job(`${domain}/${other}`)) throw new Error(`Competing Ollama job ${other} is loaded. Stop it and retry.`);
+}
+const oldPid = field(loaded, 'pid');
+listeners(oldPid);
+
+function inventory(timeout) {
+  return fetch(`${url}/api/tags`, { redirect: 'error', signal: AbortSignal.timeout(timeout) })
+    .then(async response => {
+      if (!response.ok) throw new Error(`Ollama API returned HTTP ${response.status}.`);
+      const { models } = await response.json();
+      if (!Array.isArray(models) || models.some(entry => typeof entry?.name !== 'string')) {
+        throw new Error('Ollama returned an invalid model inventory.');
+      }
+      return models;
+    });
+}
+
+async function ready() {
+  const deadline = Date.now() + 30000;
+  let problem = 'Waiting for the managed job to listen.';
+  while (Date.now() < deadline) {
+    const pid = field(job(), 'pid');
+    const endpoints = listeners(pid);
+    if (endpoints.length === 1 && endpoints[0] === host) {
+      try {
+        return await inventory(Math.max(1, Math.min(3000, deadline - Date.now())));
+      } catch (error) {
+        problem = error.message;
+      }
+    } else if (endpoints.length) {
+      throw new Error(`Expected one Ollama listener at ${host}, found ${endpoints.join(', ')}.`);
+    }
+    await setTimeout(Math.max(0, Math.min(1000, deadline - Date.now())));
+  }
+  throw new Error(`Ollama did not become ready. ${problem} See ${log}.`);
+}
+
+mkdirSync(agents, { recursive: true });
+mkdirSync(logs, { recursive: true });
+const changed = !isDeepStrictEqual(previous, desired);
+const loadedLines = loaded?.split('\n').map(line => line.trim());
+const reload = loaded && (changed || field(loaded, 'program') !== ollama ||
+  !loadedLines.includes(`OLLAMA_HOST => ${host}`) ||
+  !loadedLines.includes(`OLLAMA_CONTEXT_LENGTH => ${context}`));
+const content = changed && run('plutil', ['-convert', 'xml1', '-o', '-', '--', '-'],
+  { input: JSON.stringify(desired) });
+let unloaded = false;
+let replaced = false;
+let started = false;
+let models;
+try {
+  if (reload) {
+    run('launchctl', ['bootout', service]);
+    unloaded = true;
+    const deadline = Date.now() + 5000;
+    while (listeners(oldPid).length) {
+      if (Date.now() >= deadline) throw new Error(`Ollama PID ${oldPid} still owns port 11434 after bootout.`);
+      await setTimeout(250);
+    }
+  }
+  if (changed) {
+    replace(plist, content, 0o644);
+    replaced = true;
+  }
+  if (!loaded || reload) {
+    listeners();
+    run('launchctl', ['bootstrap', domain, plist]);
+    started = true;
+  } else if (!field(loaded, 'pid')) {
+    run('launchctl', ['kickstart', service]);
+  }
+  models = await ready();
+} catch (error) {
+  try {
+    if (started && job()) run('launchctl', ['bootout', service]);
+    if (replaced && oldPlist) replace(plist, oldPlist, 0o644);
+    if (replaced && !oldPlist) rmSync(plist);
+    if (unloaded) {
+      listeners();
+      run('launchctl', ['bootstrap', domain, plist]);
+    }
+  } catch (rollback) {
+    throw new Error(`${error.message} Ollama rollback also failed: ${rollback.message}`);
+  }
+  throw error;
+}
+
+const hasModel = models => models.some(entry => inventoryTag(entry.name) === inventoryTag(tag));
+if (!hasModel(models)) {
+  run(ollama, ['pull', tag], { env: { ...env, OLLAMA_HOST: host }, stdio: 'inherit', timeout: undefined });
+  if (!hasModel(await ready())) throw new Error(`Ollama did not retain ${tag} after pulling it.`);
+}
+console.log(`Ollama is ready at ${url} with ${tag}.`);
+
+const localBin = join(home, '.local/bin');
+const piPaths = [join(piDirectory, 'bin/pi'), join(localBin, 'pi'), join(brewBin, 'pi')];
+function executable(path) {
+  try {
+    if (!statSync(path, { throwIfNoEntry: false })?.isFile()) return false;
+    accessSync(path, constants.X_OK);
+    return true;
+  } catch (error) {
+    if (error.code !== 'ENOENT' && error.code !== 'EACCES') throw error;
+    return false;
+  }
+}
+if (!piPaths.some(executable)) {
+  const nodeBin = dirname(process.execPath);
+  run(join(nodeBin, 'npm'), ['install', '--global', '--ignore-scripts', '@earendil-works/pi-coding-agent'], {
+    env: { ...env, PATH: `${nodeBin}:${env.PATH}`, NPM_CONFIG_PREFIX: join(home, '.local') },
+    stdio: 'inherit', timeout: undefined,
+  });
+  if (!executable(join(localBin, 'pi'))) throw new Error('npm did not install Pi into ~/.local/bin.');
+}
+mkdirSync(piDirectory, { recursive: true, mode: 0o700 });
+if ((owned(piDirectory, true).mode & 0o777) !== 0o700) chmodSync(piDirectory, 0o700);
+configureModels();
+configureSettings();
+NODE
+'''
 
 [dotfiles]
 "~/.gitconfig" = { source = "~/Developer/dotfiles/.gitconfig", mode = "copy" }
