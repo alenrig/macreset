@@ -5,8 +5,8 @@ A project for fast Mac system reinstallation without TimeCapsule, but with most 
 ## mise bootstrap
 
 Use a native Apple Silicon macOS terminal with internet access and a writable
-`~/.local/bin`. Apple's Command Line Tools (`xcode-select --install`) provide
-Git if you need it to clone the repo. The installer uses macOS command-line
+`~/.local/bin`. Install Apple's Command Line Tools (`xcode-select --install`)
+for Git and tap formula setup. The installer uses macOS command-line
 utilities and the [official mise installer](https://mise.jdx.dev/installing-mise.html).
 The minimum tested mise release is `2026.11.11`. Complete the App Store
 prerequisites below before starting setup.
@@ -18,12 +18,14 @@ Review [`mise.toml`](mise.toml), then run this command from the repository root:
 ```
 
 Bootstrap looks for mise in `~/.local/bin` and on `PATH`, and installs it if
-absent. Approve mise’s trust prompt to continue. Setup makes mise-managed
-`mas` available before applying the App Store inventory, verifies CUE, then
-restores the terminal and editor environment, including a global Node default.
-Set up GitHub SSH access first and follow the terminal setup guide if dotfiles or
-checkouts need attention before retrying. [Terminal and editor setup](docs/mise-terminal.md)
-Rerun `./bootstrap` after resolving an error.
+absent. Approve the mise trust prompt to continue. Setup installs formulae into
+the standard Homebrew prefix and desktop apps into `/Applications`, verifies
+CUE, then restores App Store apps and the terminal and editor environment,
+including a global Node default. Keep a terminal open for macOS administrator
+prompts. Set up GitHub SSH access before running setup and rerun `./bootstrap`
+after resolving an error. See [package setup](docs/mise-packages.md) for manual
+installs, legacy removals, and package ownership. See [terminal and editor
+setup](docs/mise-terminal.md) for SSH prerequisites and dotfile conflicts.
 
 The existing Ansible setup remains available through `./macreset.sh`.
 

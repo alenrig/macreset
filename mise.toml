@@ -1,25 +1,69 @@
 min_version = "2026.11.11"
 
-[tasks.setup]
-description = "Restore App Store apps and the terminal environment, and verify CUE"
-depends = ["app-store:apply"]
-tools."aqua:cue-lang/cue" = "0.17.1"
-run = ["cue version", "{{ mise_bin | quote }} run terminal:restore"]
+[bootstrap.brew]
+adopt = true
+homebrew_metadata = false
 
-[tasks."app-store:apply"]
-description = "Install missing apps from the Mac App Store"
-tools.mas = "7.0.0"
-run = [
-  "mas version",
-  '{{ mise_bin | quote }} bootstrap packages apply --manager mas',
-]
-
-[tasks."app-store:upgrade"]
-description = "Upgrade all installed Mac App Store apps"
-tools.mas = "7.0.0"
-run = "mas upgrade"
+[bootstrap.brew.taps]
+"docker/tap" = "https://github.com/docker/homebrew-tap.git"
+"doodlescheduling/flux-build" = "https://github.com/doodlescheduling/homebrew-flux-build.git"
+"fluxcd/tap" = "https://github.com/fluxcd/homebrew-tap.git"
+"hashicorp/tap" = "https://github.com/hashicorp/homebrew-tap.git"
+"stablyai/orca" = "https://github.com/stablyai/homebrew-orca.git"
 
 [bootstrap.packages]
+"brew:cmake" = "latest"
+"brew:cue" = "latest"
+"brew:fluxcd/tap/flux" = "latest"
+"brew:glab" = "latest"
+"brew:glow" = "latest"
+"brew:go" = "latest"
+"brew:gopls" = "latest"
+"brew:hashicorp/tap/terraform" = "latest"
+"brew:hashicorp/tap/terraform-ls" = "latest"
+"brew:helm" = "latest"
+"brew:herdr" = "latest"
+"brew:krew" = "latest"
+"brew:kubernetes-cli" = "latest"
+"brew:kustomize" = "latest"
+"brew:llmfit" = "latest"
+"brew:minikube" = "latest"
+"brew:mole" = "latest"
+"brew:neovim" = "latest"
+"brew:ollama" = "latest"
+"brew:openjdk" = "latest"
+"brew:opentofu" = "latest"
+"brew:pdm" = "latest"
+"brew:uv" = "latest"
+"brew:virtctl" = "latest"
+
+# See docs/mise-packages.md for manual installs and legacy removals.
+"brew-cask:anydesk" = { appdir = "/Applications" }
+"brew-cask:balenaetcher" = { appdir = "/Applications" }
+"brew-cask:bruno" = { appdir = "/Applications" }
+"brew-cask:chatgpt" = { appdir = "/Applications" }
+"brew-cask:codex" = "latest"
+"brew-cask:cursor" = { appdir = "/Applications" }
+"brew-cask:dbeaver-community" = { appdir = "/Applications" }
+"brew-cask:docker-desktop" = { appdir = "/Applications" }
+"brew-cask:doodlescheduling/flux-build/flux-build" = "latest"
+"brew-cask:firefox" = { appdir = "/Applications" }
+"brew-cask:freelens" = { appdir = "/Applications" }
+"brew-cask:ghostty" = { appdir = "/Applications" }
+"brew-cask:herdr-app" = { appdir = "/Applications" }
+"brew-cask:hiddenbar" = { appdir = "/Applications" }
+"brew-cask:home-assistant" = { appdir = "/Applications" }
+"brew-cask:monitorcontrol" = { appdir = "/Applications" }
+"brew-cask:musescore" = { appdir = "/Applications" }
+"brew-cask:obs" = { appdir = "/Applications" }
+"brew-cask:obsidian" = { appdir = "/Applications" }
+"brew-cask:openlogi" = { appdir = "/Applications" }
+"brew-cask:shottr" = { appdir = "/Applications" }
+"brew-cask:stablyai/orca/orca" = { appdir = "/Applications" }
+"brew-cask:transmission" = { appdir = "/Applications" }
+"brew-cask:visual-studio-code" = { appdir = "/Applications" }
+"brew-cask:voov-meeting" = { appdir = "/Applications" }
+
 "mas:1631624924" = "latest" # Final Cut Pro
 "mas:1615087040" = "latest" # Logic Pro
 "mas:497799835" = "latest" # Xcode
@@ -37,6 +81,51 @@ run = "mas upgrade"
 "mas:6444087613" = "latest" # VanyaVPN
 "mas:497714887" = "latest" # WebSSH
 "mas:1295203466" = "latest" # Windows App
+
+[tasks.packages]
+description = "Restore Homebrew formulae and desktop apps"
+interactive = true
+# Tap definitions require Ruby 3+. Keep it scoped to package setup.
+tools.ruby = "3.4"
+env.MACRESET_MISE = "{{ mise_bin }}"
+env.MACRESET_BREW_PREFIX = "{{ system_brew_prefix }}"
+run = '''
+set -eu
+if [ "$(uname -s)" != Darwin ] || [ "$(uname -m)" != arm64 ] || [ "$(id -u)" = 0 ]; then
+  echo "Run package setup as your login user in a native Apple Silicon macOS terminal." >&2
+  exit 1
+fi
+# mise checks Docker Desktop ownership under the canonical token only.
+if [ -e "$MACRESET_BREW_PREFIX/Caskroom/docker" ] || [ -L "$MACRESET_BREW_PREFIX/Caskroom/docker" ]; then
+  echo "Found a legacy Docker cask record. Check it with Homebrew and migrate it to docker-desktop before retrying. See docs/mise-packages.md." >&2
+  exit 1
+fi
+"$MACRESET_MISE" bootstrap packages apply --manager brew
+"$MACRESET_MISE" bootstrap packages apply --manager brew-cask
+cue_prefix=$("$MACRESET_MISE" bootstrap packages where brew:cue)
+"$cue_prefix/bin/cue" version
+'''
+
+[tasks.setup]
+description = "Restore workstation packages, App Store apps, and the terminal environment"
+depends = ["packages"]
+run = [
+  "{{ mise_bin | quote }} run app-store:apply",
+  "{{ mise_bin | quote }} run terminal:restore",
+]
+
+[tasks."app-store:apply"]
+description = "Install missing apps from the Mac App Store"
+tools.mas = "7.0.0"
+run = [
+  "mas version",
+  '{{ mise_bin | quote }} bootstrap packages apply --manager mas',
+]
+
+[tasks."app-store:upgrade"]
+description = "Upgrade all installed Mac App Store apps"
+tools.mas = "7.0.0"
+run = "mas upgrade"
 
 [bootstrap.repos]
 "~/Developer/dotfiles" = { url = "ssh://git@github.com/alenrig/dotfiles.git", ref = "main" }
